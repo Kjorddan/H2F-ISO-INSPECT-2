@@ -1,0 +1,120 @@
+name: Phase 32 Windows Local Runtime
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "public/**"
+      - "local-server/**"
+      - "tests/**"
+      - "package.json"
+      - ".github/workflows/phase32-windows.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  windows-local-smoke:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install
+        run: npm install --no-audit --no-fund
+
+      - name: Regression
+        run: npm test
+
+      - name: Production build
+        run: npm run build
+
+      - name: Assemble Windows local distribution
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $out = Join-Path $PWD 'H2F_ISO_INSPECT_2.0_PHASE32_WINDOWS_SMOKE'
+          New-Item -ItemType Directory -Force -Path $out | Out-Null
+          foreach($dir in @('www','server','config','data','uploads','backups','logs','runtime')){
+            New-Item -ItemType Directory -Force -Path (Join-Path $out $dir) | Out-Null
+          }
+          Copy-Item -Recurse -Force 'dist\*' (Join-Path $out 'www')
+          Copy-Item -Force 'local-server\server\H2F.LocalServer.ps1' (Join-Path $out 'server')
+          Copy-Item -Force 'local-server\config\server.json' (Join-Path $out 'config')
+          Copy-Item -Force 'local-server\INICIAR_H2F_ISO_INSPECT.bat' $out
+          Copy-Item -Force 'local-server\PARAR_H2F_ISO_INSPECT.bat' $out
+          Copy-Item -Force 'local-server\ABRIR_H2F_ISO_INSPECT.bat' $out
+          Copy-Item -Force 'local-server\README_LOCAL.md' (Join-Path $out 'LEIA_PRIMEIRO.md')
+          @{
+            product='H2F ISO INSPECT 2.0'
+            phase=32
+            commit='${{ github.sha }}'
+            runtime='Windows PowerShell 5.1+ local TCP server'
+          } | ConvertTo-Json | Set-Content -Encoding UTF8 (Join-Path $out 'VERSION.json')
+
+      - name: Smoke test launcher, HTTP server and shutdown
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $out = Join-Path $PWD 'H2F_ISO_INSPECT_2.0_PHASE32_WINDOWS_SMOKE'
+          $env:H2F_NO_BROWSER='1'
+
+          Push-Location $out
+          try {
+            cmd.exe /d /c "INICIAR_H2F_ISO_INSPECT.bat"
+            if($LASTEXITCODE -ne 0){ throw "INICIAR retornou $LASTEXITCODE" }
+
+            $health = Invoke-WebRequest -UseBasicParsing -TimeoutSec 5 'http://127.0.0.1:8787/__health'
+            if($health.StatusCode -ne 200){ throw "Health status $($health.StatusCode)" }
+            $healthJson = $health.Content | ConvertFrom-Json
+            if($healthJson.status -ne 'ok'){ throw 'Health payload inválido' }
+
+            $root = Invoke-WebRequest -UseBasicParsing -TimeoutSec 5 'http://127.0.0.1:8787/'
+            if($root.StatusCode -ne 200){ throw "Root status $($root.StatusCode)" }
+            if($root.Headers['X-Content-Type-Options'] -ne 'nosniff'){ throw 'Cabeçalho nosniff ausente' }
+
+            $head = Invoke-WebRequest -UseBasicParsing -Method Head -TimeoutSec 5 'http://127.0.0.1:8787/'
+            if($head.StatusCode -ne 200){ throw "HEAD status $($head.StatusCode)" }
+
+            try {
+              Invoke-WebRequest -UseBasicParsing -Method Post -TimeoutSec 5 'http://127.0.0.1:8787/' | Out-Null
+              throw 'POST deveria ser rejeitado'
+            } catch {
+              if($_.Exception.Response.StatusCode.value__ -ne 405){ throw }
+            }
+
+            if(-not (Test-Path 'runtime\server.pid')){ throw 'PID file não criado' }
+
+            cmd.exe /d /c "PARAR_H2F_ISO_INSPECT.bat"
+            if($LASTEXITCODE -ne 0){ throw "PARAR retornou $LASTEXITCODE" }
+            Start-Sleep -Milliseconds 600
+
+            $stillAlive = $false
+            try {
+              Invoke-WebRequest -UseBasicParsing -TimeoutSec 1 'http://127.0.0.1:8787/__health' | Out-Null
+              $stillAlive = $true
+            } catch {}
+            if($stillAlive){ throw 'Servidor permaneceu ativo após PARAR' }
+          } finally {
+            if(Test-Path 'runtime\server.pid'){
+              cmd.exe /d /c "PARAR_H2F_ISO_INSPECT.bat" | Out-Null
+            }
+            Pop-Location
+          }
+
+      - name: Upload Windows smoke evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: H2F_ISO_INSPECT_PHASE32_WINDOWS_SMOKE
+          path: |
+            H2F_ISO_INSPECT_2.0_PHASE32_WINDOWS_SMOKE/VERSION.json
+            H2F_ISO_INSPECT_2.0_PHASE32_WINDOWS_SMOKE/logs
+          if-no-files-found: warn
+          retention-days: 30
