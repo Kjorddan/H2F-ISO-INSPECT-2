@@ -1,0 +1,48 @@
+name: Phase 31 Browser Acceptance
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "public/**"
+      - "tests/browser/**"
+      - "playwright.phase31.config.mjs"
+      - "package.json"
+      - ".github/workflows/phase31-browser.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  browser-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install application
+        run: npm install --no-audit --no-fund
+      - name: Unit and structural regression
+        run: npm test
+      - name: Build production
+        run: npm run build
+      - name: Install Playwright
+        run: |
+          npm install --no-save @playwright/test@1.55.1
+          npx playwright install --with-deps chromium
+      - name: Browser acceptance
+        run: npx playwright test -c playwright.phase31.config.mjs
+      - name: Upload Phase 31 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: H2F_ISO_INSPECT_PHASE31_BROWSER_EVIDENCE
+          path: |
+            playwright-report
+            test-results
+          if-no-files-found: warn
+          retention-days: 30
