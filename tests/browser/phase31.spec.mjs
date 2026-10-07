@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import {test,expect} from '@playwright/test';
 
 const worldPoint=async(page,x,y)=>{
@@ -156,7 +157,8 @@ test('Editor — jornada de aceitação essencial 194',async({page})=>{
   });
 
   await test.step('1 reabrir documento salvo',async()=>{
-    await page.locator('input[accept*=".h2fiso"]').setInputFiles(savePath);
+    const savedBuffer=fs.readFileSync(savePath);
+    await page.locator('input[accept*=".h2fiso"]').setInputFiles({name:'documento.h2fiso',mimeType:'application/json',buffer:savedBuffer});
     await expect(page.locator('[data-entity-id="EQ-001"]')).toHaveCount(1);
     await expect(page.locator('[data-symbol-id="equip-pump"]')).toHaveCount(1);
   });
