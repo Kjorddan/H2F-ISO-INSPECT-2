@@ -27,5 +27,6 @@ pause
 exit /b 1
 
 :OPEN
+if /I "%H2F_NO_BROWSER%"=="1" exit /b 0
 call "%~dp0ABRIR_H2F_ISO_INSPECT.bat"
 exit /b 0
