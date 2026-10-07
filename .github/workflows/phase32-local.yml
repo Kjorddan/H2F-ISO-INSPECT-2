@@ -1,0 +1,85 @@
+name: Phase 32 Pre-Release Local Server
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "public/**"
+      - "scripts/**"
+      - "tests/**"
+      - "package.json"
+      - "package-lock.json"
+      - "index.html"
+      - "local-server/**"
+      - ".github/workflows/phase32-local.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build-local:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Deterministic install
+        run: npm ci --no-audit --no-fund
+
+      - name: Full regression
+        run: npm test
+
+      - name: Production build with offline OCR assets
+        run: npm run build
+
+      - name: Generate release readiness
+        run: node tests/stable-release-gate.test.mjs
+
+      - name: Assemble Phase 32 pre-release
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="H2F_ISO_INSPECT_2.0_PHASE32_PRE_RELEASE_LOCAL_SERVER"
+          rm -rf "$OUT"
+          mkdir -p "$OUT"/{www,server,config,data,uploads,backups,logs,runtime}
+          cp -a dist/. "$OUT/www/"
+          cp local-server/server/H2F.LocalServer.ps1 "$OUT/server/"
+          cp local-server/config/server.json "$OUT/config/"
+          cp local-server/INICIAR_H2F_ISO_INSPECT.bat "$OUT/"
+          cp local-server/PARAR_H2F_ISO_INSPECT.bat "$OUT/"
+          cp local-server/ABRIR_H2F_ISO_INSPECT.bat "$OUT/"
+          cp local-server/README_LOCAL.md "$OUT/LEIA_PRIMEIRO.md"
+          cp PHASE32_RELEASE_READINESS.json "$OUT/"
+          cat > "$OUT/VERSION.json" <<EOF
+          {
+            "product": "H2F ISO INSPECT 2.0",
+            "packageVersion": "0.32.0",
+            "releaseCandidate": "2.0.0-phase32-pre-release",
+            "stableRelease": false,
+            "phase": 32,
+            "distribution": "LOCAL_SERVER_WINDOWS",
+            "commit": "${GITHUB_SHA}",
+            "offlineRuntime": "Windows PowerShell + TCP local HTTP server",
+            "promotionBlocker": "CORPORATE_SIGNOFF"
+          }
+          EOF
+          cat > "$OUT/HOMOLOGACAO_PENDENTE.txt" <<'EOF'
+          Este pacote conclui a validação técnica automatizada da Fase 32.
+          Ele NÃO deve ser identificado como Release 2.0 estável até a homologação humana corporativa H2F.
+          Após a homologação explícita, o gate de release deve ser reexecutado antes da tag/release 2.0.0.
+          EOF
+          zip -qr "${OUT}.zip" "$OUT"
+
+      - name: Upload Phase 32 pre-release
+        uses: actions/upload-artifact@v4
+        with:
+          name: H2F_ISO_INSPECT_2.0_PHASE32_PRE_RELEASE_LOCAL_SERVER
+          path: H2F_ISO_INSPECT_2.0_PHASE32_PRE_RELEASE_LOCAL_SERVER.zip
+          if-no-files-found: error
+          retention-days: 30
