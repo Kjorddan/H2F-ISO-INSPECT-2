@@ -163,10 +163,13 @@ test('Editor — jornada de aceitação essencial 194',async({page})=>{
     await expect(page.locator('[data-symbol-id="equip-pump"]')).toHaveCount(1);
   });
 
-  await test.step('24 exportar PDF via impressão vetorial',async()=>{
-    await page.evaluate(()=>{window.__phase31Printed=false;window.print=()=>{window.__phase31Printed=true}});
+  await test.step('24 exportar PDF vetorial dedicado',async()=>{
+    const dlPromise=page.waitForEvent('download');
     await page.getByRole('button',{name:'Exportar PDF',exact:true}).click();
-    expect(await page.evaluate(()=>window.__phase31Printed)).toBe(true);
+    const dl=await dlPromise;expect(dl.suggestedFilename()).toBe('isometrico.pdf');
+    const p=await dl.path();expect(p).toBeTruthy();
+    const head=fs.readFileSync(p).subarray(0,5).toString('ascii');
+    expect(head).toBe('%PDF-');
   });
 
   await page.screenshot({path:'test-results/editor-acceptance.png',fullPage:true});
