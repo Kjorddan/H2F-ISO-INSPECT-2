@@ -1,4 +1,5 @@
 name: Phase 32 Pre-Release Local Server
+# package-lock obrigatório para distribuição reproduzível
 
 on:
   workflow_dispatch:
