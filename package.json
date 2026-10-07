@@ -1,6 +1,6 @@
 {
   "name": "h2f-iso-inspect-2-shell",
-  "version": "0.33.0-ux.2",
+  "version": "0.32.0",
   "private": true,
   "scripts": {
     "start": "npm run prepare:ocr && vite --host 0.0.0.0",
