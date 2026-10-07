@@ -1,0 +1,22 @@
+{
+  "dataset": "H2F Golden Dataset Industrial v1",
+  "source_file": "BK-BA01-00450-IIS-CCD-00006_00000_R0_2.pdf",
+  "source_sha256": "1d3a283e6dc0a862d4d6a11567926fc5cb4d1dfef7541252ede1532cee3f5802",
+  "page_count": 9,
+  "pages": [
+    {"page":1,"width_pt":595.3200073242188,"height_pt":841.9200439453125,"text_chars":0,"embedded_images":0,"vector_drawings":37407,"render_sha256":"79c61eb8ee225a760fa8c165d989f8d0ad0781128f208f3175049e97393bca16","render_file":"reference_renders/page_01.png"},
+    {"page":2,"width_pt":595.3200073242188,"height_pt":841.9200439453125,"text_chars":0,"embedded_images":0,"vector_drawings":32994,"render_sha256":"24b92c01971fbfcc486b12f6c6e61af4288f88114405fa9bb1ce9baac5228174","render_file":"reference_renders/page_02.png"},
+    {"page":3,"width_pt":595.3200073242188,"height_pt":841.9200439453125,"text_chars":0,"embedded_images":0,"vector_drawings":63445,"render_sha256":"8629eaaeba0544b9c92e0a003980b1c0cb11fa8a4210dc959d35fec4eaa7d564","render_file":"reference_renders/page_03.png"},
+    {"page":4,"width_pt":595.3200073242188,"height_pt":841.9200439453125,"text_chars":0,"embedded_images":0,"vector_drawings":32375,"render_sha256":"f3fd022007d07c05c202986ef0bdd25600479d46c9c322df31baf5dc46bc6726","render_file":"reference_renders/page_04.png"},
+    {"page":5,"width_pt":595.3200073242188,"height_pt":841.9200439453125,"text_chars":0,"embedded_images":0,"vector_drawings":53008,"render_sha256":"3fb0aa31c0d2ea01265dc34098deba62c9efe49191a702b751a9bffff408e281","render_file":"reference_renders/page_05.png"},
+    {"page":6,"width_pt":595.3200073242188,"height_pt":841.9200439453125,"text_chars":0,"embedded_images":0,"vector_drawings":118784,"render_sha256":"c0156550351d41ae6eada05d397b58602e9281eee89a676ae5faddf21e924a3b","render_file":"reference_renders/page_06.png"},
+    {"page":7,"width_pt":595.3200073242188,"height_pt":841.9200439453125,"text_chars":0,"embedded_images":0,"vector_drawings":43692,"render_sha256":"a019b1c79f50014650f8298045bd1b653e62a2785e579c7a1cea92c00c2b3c36","render_file":"reference_renders/page_07.png"},
+    {"page":8,"width_pt":595.3200073242188,"height_pt":841.9200439453125,"text_chars":0,"embedded_images":0,"vector_drawings":51256,"render_sha256":"399e688c2558a740728bdf919ca90af4b1443893ca24bc3df00e9fb9148e0494","render_file":"reference_renders/page_08.png"},
+    {"page":9,"width_pt":595.3200073242188,"height_pt":841.9200439453125,"text_chars":0,"embedded_images":0,"vector_drawings":45108,"render_sha256":"1acc545b0598777555c7f43704075cfbfdd6cbd56617e34a6dbb47b4726a8910","render_file":"reference_renders/page_09.png"}
+  ],
+  "rules": [
+    "Referência de projeto; não presumir universalidade de simbologia.",
+    "OCR não é fonte única.",
+    "Golden visual em navegador permanece PENDING_ENVIRONMENT até browser real."
+  ]
+}
