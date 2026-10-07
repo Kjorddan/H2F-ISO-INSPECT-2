@@ -420,7 +420,7 @@ function App(){
   {id:'front',icon:'select',label:'Trazer para frente',action:()=>setEntities(es=>reorderEntities(es,selection.ids,'front')),disabled:!selection.ids.length,reason:'Selecione objeto(s).'},
   {id:'lock',icon:'select',label:'Bloquear seleção',action:()=>setEntities(es=>lockEntities(es,selection.ids,true)),disabled:!selection.ids.length,reason:'Selecione objeto(s).'},
   {id:'reference',icon:'open',label:'Importar referência',action:()=>referenceInputRef.current?.click()},
-  {id:'trace',icon:'grid',label:traceState.mode==='off'?'Ativar modo rastrear':'Desativar modo rastrear',action:toggleTrace},
+  {id:'trace',icon:'grid',label:'Modo Rastrear',action:toggleTrace},
   {id:'analyze',icon:'inspect',label:analysisBusy?'Analisando referência…':'Analisar referência',action:analyzeReference,disabled:!activeUnderlay||analysisBusy,reason:!activeUnderlay?'Importe uma referência primeiro.':'Análise em andamento.'}
  ];
  return <div className="app"><header className="cadHeader"><div className="brand"><b>H2F</b><span>ISO INSPECT 2.0</span></div><MenuBar menus={shellMenus}/><div className="save">{sheet.titleBlock.document||documentModel.name||'Documento sem título'} · {documentModel.revisionState}</div></header>
