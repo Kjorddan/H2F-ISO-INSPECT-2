@@ -1,0 +1,62 @@
+{
+  "phase": "UX-02",
+  "status": "CONCLUIDA_AUDITADA",
+  "nextPhase": "UX-03",
+  "openItems": [
+    {
+      "id": "LIB-SCHEMA",
+      "priority": "CRITICAL",
+      "target": "UX-03",
+      "description": "Novo schema técnico da biblioteca com contexto, referência, ports explícitos, inline/free placement e política de snap."
+    },
+    {
+      "id": "PIPE-SYMBOL",
+      "priority": "HIGH",
+      "target": "UX-04",
+      "description": "Pipe Run ainda usa preview genérico na biblioteca."
+    },
+    {
+      "id": "FITTINGS",
+      "priority": "HIGH",
+      "target": "UX-04",
+      "description": "Conexões precisam diferenciação visual e ports tecnicamente corretos."
+    },
+    {
+      "id": "SUPPORTS",
+      "priority": "HIGH",
+      "target": "UX-05",
+      "description": "Suportes continuam graficamente insuficientes."
+    },
+    {
+      "id": "EQUIPMENT",
+      "priority": "HIGH",
+      "target": "UX-05",
+      "description": "Equipamentos ainda precisam redesenho industrial."
+    },
+    {
+      "id": "INSPECTION-NDT",
+      "priority": "HIGH",
+      "target": "UX-06",
+      "description": "Bibliotecas de inspeção e END precisam expansão."
+    },
+    {
+      "id": "CUSTOM-SHAPES",
+      "priority": "HIGH",
+      "target": "UX-07",
+      "description": "Editor de formas ainda não é gráfico/completo."
+    },
+    {
+      "id": "TITLEBLOCK",
+      "priority": "HIGH",
+      "target": "UX-08",
+      "description": "Carimbo, moldura, notas e templates ainda pendentes."
+    },
+    {
+      "id": "PDF-WORKFLOW",
+      "priority": "HIGH",
+      "target": "UX-09",
+      "description": "PDF multi-folha/configurado por formato, margens e layers ainda pendente."
+    }
+  ],
+  "advanceRule": "Aguardar comando Pode seguir"
+}
