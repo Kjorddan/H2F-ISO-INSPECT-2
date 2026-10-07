@@ -1,0 +1,60 @@
+name: Phase 32 Stable Release Gate
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "public/**"
+      - "tests/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/phase32-release-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  release-readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install and generate lockfile
+        run: npm install --no-audit --no-fund
+
+      - name: Full accumulated regression
+        run: npm test
+
+      - name: Production build
+        run: npm run build
+
+      - name: Measurable performance gate
+        env:
+          PHASE32_PERF_ARTIFACT: "1"
+        run: node tests/performance-phase32.test.mjs
+
+      - name: Stable readiness diagnostic
+        run: node tests/stable-release-gate.test.mjs
+
+      - name: Dependency inventory
+        run: npm ls --all --json > PHASE32_DEPENDENCY_TREE.json
+
+      - name: Upload Phase 32 release gate evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: H2F_ISO_INSPECT_PHASE32_RELEASE_GATE
+          path: |
+            PHASE32_RELEASE_READINESS.json
+            PHASE32_DEPENDENCY_TREE.json
+            phase32-performance.json
+            package-lock.json
+            dist
+          if-no-files-found: error
+          retention-days: 30
