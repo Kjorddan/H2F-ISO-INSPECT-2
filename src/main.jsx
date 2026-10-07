@@ -21,9 +21,10 @@ import{createDocument,activeSheet,addSheet,duplicateSheet,renameSheet,deleteShee
 import{createHistory,commitHistory,undoHistory,redoHistory,copyEntities,pasteEntities,duplicateEntities,groupEntities,ungroupEntities,reorderEntities,lockEntities,alignEntities,distributeEntities,searchNavigator,searchCommands}from'./editor-core/productivity.js';
 import{validateReferenceFile,sanitizeSvg,svgDataUrl,createUnderlay,updateUnderlay,createTraceState,updateTraceState,effectiveUnderlay,inspectPdfVectorText,inspectSvgVector}from'./editor-core/underlay.js';
 import{createAnalysisJob,finalizeAnalysis,buildEvidence}from'./editor-core/vision-pipeline.js';
+import{analyzeUnderlayRaster}from'./editor-core/browser-vision.js';
 import{createSymbolDetection,recognitionSummary}from'./editor-core/symbol-recognition.js';
-import{createDoubtQueue,doubtFromSymbolDetection,doubtSummary,resolveDoubt,markUnknown,ignoreDoubt,navigateDoubt,activeDoubt}from'./editor-core/human-in-loop.js';
-import{reconstructFromEvidence,reconstructionSummary,confirmProposal}from'./editor-core/reconstruction.js';
+import{createDoubtQueue,doubtFromSymbolDetection,doubtSummary,resolveDoubt,markUnknown,ignoreDoubt,navigateDoubt,activeDoubt,applyResolutionToRecognition}from'./editor-core/human-in-loop.js';
+import{reconstructFromEvidence,reconstructionSummary,confirmProposal,bindHumanDoubt}from'./editor-core/reconstruction.js';
 import{createNativePackage,validateNativePackage,createPrintSettings,createReportModel,reportToCsv,svgExportModel}from'./editor-core/io-reporting.js';
 import{LIBRARY_CATEGORIES,BUILTIN_SYMBOLS,LIBRARY_SCOPES,SYMBOL_PRIMITIVES,searchLibrary,toggleFavorite,pushRecent,createSymbolEntityFrom,getSymbol,libraryStats,createCustomSymbol,addSymbolPrimitive,addCustomConnectionPoint,versionCustomSymbol,exportCustomLibrary,importCustomLibrary}from'./editor-core/library.js';
 
@@ -151,7 +152,7 @@ function App(){
  const[pipeDefaults,setPipeDefaults]=useState({lineNumber:'',nominalSize:'',schedule:'',spec:'',service:'',material:'',insulation:''});
  const[snapSettings,setSnapSettings]=useState({enabled:true,grid:true,ports:true,geometry:true,guides:true,tolerancePx:10});const[snapPreview,setSnapPreview]=useState(null);
  const[underlays,setUnderlays]=useState([]),[traceState,setTraceState]=useState(()=>createTraceState()),[referenceError,setReferenceError]=useState('');
- const[analysisJobs,setAnalysisJobs]=useState([]);const latestAnalysis=analysisJobs.at(-1)||null;
+ const[analysisJobs,setAnalysisJobs]=useState([]),[analysisBusy,setAnalysisBusy]=useState(false);const latestAnalysis=analysisJobs.at(-1)||null;
  const[symbolDetections,setSymbolDetections]=useState([]);const recognition=recognitionSummary(symbolDetections);const[doubtQueue,setDoubtQueue]=useState(()=>createDoubtQueue());const doubtStats=doubtSummary(doubtQueue);const currentDoubt=activeDoubt(doubtQueue);
  const[reconstruction,setReconstruction]=useState(()=>reconstructFromEvidence());const reconStats=reconstructionSummary(reconstruction);
  const zoomPct=Math.round(v.zoom*100),worldCursor=cursor?screenToWorld(cursor,v):null,gridCfg=normalizeGridConfig(grid);
