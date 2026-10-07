@@ -1,8 +1,13 @@
 @echo off
 setlocal EnableDelayedExpansion
 cd /d "%~dp0"
-set "URL=http://127.0.0.1:8787/"
-set "HEALTH=http://127.0.0.1:8787/__health"
+
+set "CONFIG=%~dp0config\server.json"
+set "PORT=8787"
+for /f "usebackq delims=" %%P in (`powershell.exe -NoProfile -Command "$p=8787; try{$c=Get-Content -Raw -LiteralPath '%CONFIG%'|ConvertFrom-Json; if($c.port){$p=[int]$c.port}}catch{}; Write-Output $p"`) do set "PORT=%%P"
+
+set "URL=http://127.0.0.1:%PORT%/"
+set "HEALTH=http://127.0.0.1:%PORT%/__health"
 
 powershell.exe -NoProfile -Command "try { $r=Invoke-WebRequest -UseBasicParsing -TimeoutSec 1 '%HEALTH%'; if($r.StatusCode -eq 200){exit 0}else{exit 1} } catch { exit 1 }"
 if %errorlevel%==0 goto OPEN
@@ -17,10 +22,10 @@ for /L %%I in (1,1,30) do (
 
 echo.
 echo Nao foi possivel iniciar o H2F ISO INSPECT.
-echo Consulte logs\server.log.
+echo Verifique se a porta %PORT% esta livre e consulte logs\server.log.
 pause
 exit /b 1
 
 :OPEN
-start "" "%URL%"
+call "%~dp0ABRIR_H2F_ISO_INSPECT.bat"
 exit /b 0
