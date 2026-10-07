@@ -17,8 +17,8 @@
     "typescript": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "jspdf": "3.0.3",
-    "svg2pdf.js": "2.6.0",
+    "jspdf": "4.2.1",
+    "svg2pdf.js": "2.8.1",
     "tesseract.js": "7.0.0",
     "@tesseract.js-data/por": "1.0.0"
   },
