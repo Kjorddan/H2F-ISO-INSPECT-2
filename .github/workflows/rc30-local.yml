@@ -11,6 +11,7 @@ on:
       - "package.json"
       - "index.html"
       - "local-server/**"
+      - "golden_dataset/**"
       - ".github/workflows/rc30-local.yml"
 
 jobs:
