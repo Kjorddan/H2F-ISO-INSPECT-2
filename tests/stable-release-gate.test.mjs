@@ -7,6 +7,7 @@ const read=p=>fs.readFileSync(path.join(root,p),'utf8');
 const exists=p=>fs.existsSync(path.join(root,p));
 const pkg=JSON.parse(read('package.json'));
 const main=read('src/main.jsx');
+const browserVision=exists('src/editor-core/browser-vision.js')?read('src/editor-core/browser-vision.js'):'';
 
 const checks=[
   {id:'VERSION',pass:pkg.version==='0.32.0',detail:'package.json deve estar em 0.32.0'},
@@ -16,7 +17,7 @@ const checks=[
   {id:'DEDICATED_PDF',pass:main.includes("pdf.save('isometrico.pdf')")&&main.includes("import('svg2pdf.js')"),detail:'exportação PDF dedicada e vetorial'},
   {id:'NATIVE_SAVE_OPEN',pass:main.includes('validateNativePackage')&&main.includes('openDocumentFile'),detail:'save/open .h2fiso no shell'},
   {id:'UNDO_REDO',pass:main.includes('undoHistory')&&main.includes('redoHistory'),detail:'undo/redo do editor expostos'},
-  {id:'AI_REAL_RUNTIME',pass:!main.includes("source:'CV-DEMO'")&&!main.includes('lines:[],ocr:[]'),detail:'não pode haver reconhecimento demonstrativo ou análise vazia para declarar IA pronta'},
+  {id:'AI_REAL_RUNTIME',pass:!!browserVision&&main.includes('analyzeUnderlayRaster')&&browserVision.includes('detectLineCandidates')&&browserVision.includes("import('tesseract.js')")&&main.includes('applyResolutionToRecognition')&&main.includes('bindHumanDoubt')&&!main.includes("source:'CV-DEMO'"),detail:'CV, OCR local, HITL e reconstrução devem estar ligados ao shell sem CV-DEMO'},
   {id:'CORPORATE_SIGNOFF',pass:process.env.H2F_CORPORATE_SIGNOFF==='APPROVED',detail:'homologação humana corporativa explícita obrigatória'}
 ];
 
