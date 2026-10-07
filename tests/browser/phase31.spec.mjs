@@ -209,9 +209,24 @@ test('Visual, zoom e orçamento de interação 196-197',async({page})=>{
   expect(toolbarContainment.clientWidth).toBeLessThanOrEqual(toolbarContainment.viewport);
   expect(toolbarContainment.bodyWidth).toBeLessThanOrEqual(toolbarContainment.viewport+2);
   expect(['auto','scroll']).toContain(toolbarContainment.overflowX);
+  const panelVisual=await page.evaluate(()=>{
+    const aside=document.querySelector('.right'),dock=document.querySelector('.productivityDock');
+    const a=aside?.getBoundingClientRect();const bad=[];
+    if(a)for(const el of aside.querySelectorAll('.dimensionWarning,button,input,select')){
+      const r=el.getBoundingClientRect();if(r.width>0&&r.height>0&&(r.left<a.left-1||r.right>a.right+1))bad.push(el.textContent||el.getAttribute('aria-label')||el.tagName);
+    }
+    const d=dock?.getBoundingClientRect();
+    const dockIntersectsRight=!!(a&&d&&d.width>0&&d.height>0&&d.right>a.left&&d.left<a.right&&d.bottom>a.top&&d.top<a.bottom);
+    return{bad,dockIntersectsRight};
+  });
+  expect(panelVisual.bad).toEqual([]);
+  expect(panelVisual.dockIntersectsRight).toBe(false);
   await page.screenshot({path:'test-results/visual-desktop.png',fullPage:true});
 
   await page.setViewportSize({width:1024,height:768});
   await expect(page.getByTestId('editor-viewport')).toBeVisible();
+  await expect(page.locator('.productivityDock')).toBeHidden();
+  const narrowOverflow=await page.evaluate(()=>({scrollWidth:document.documentElement.scrollWidth,innerWidth}));
+  expect(narrowOverflow.scrollWidth).toBeLessThanOrEqual(narrowOverflow.innerWidth+2);
   await page.screenshot({path:'test-results/visual-1024.png',fullPage:true});
 });
