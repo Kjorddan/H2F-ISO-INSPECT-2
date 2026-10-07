@@ -77,6 +77,10 @@ for(const size of sizes){
   expect(['auto','scroll']).not.toContain(metrics.overflowX);
   await expect(page.getByRole('button',{name:'Arquivo',exact:true})).toBeVisible();
   await expect(page.getByTestId('editor-viewport')).toBeVisible();
+  if(size.width===1024){
+   await expect(page.locator('.libraryPanel')).toHaveCount(0);
+   await expect(page.locator('aside.right')).toHaveCount(0);
+  }
   await page.screenshot({path:`test-results/ux02-${size.width}x${size.height}.png`,fullPage:true});
  });
 }
