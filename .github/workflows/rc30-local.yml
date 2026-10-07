@@ -1,0 +1,70 @@
+name: RC30 Local Server
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "public/**"
+      - "tests/**"
+      - "package.json"
+      - "index.html"
+      - "local-server/**"
+      - ".github/workflows/rc30-local.yml"
+
+jobs:
+  build-local:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install
+        run: npm install --no-audit --no-fund
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Assemble offline local server
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="H2F_ISO_INSPECT_2.0_RC30_LOCAL_SERVER"
+          rm -rf "$OUT"
+          mkdir -p "$OUT"/{www,server,config,data,uploads,backups,logs,runtime}
+          cp -a dist/. "$OUT/www/"
+          cp local-server/server/H2F.LocalServer.ps1 "$OUT/server/"
+          cp local-server/config/server.json "$OUT/config/"
+          cp local-server/INICIAR_H2F_ISO_INSPECT.bat "$OUT/"
+          cp local-server/PARAR_H2F_ISO_INSPECT.bat "$OUT/"
+          cp local-server/ABRIR_H2F_ISO_INSPECT.bat "$OUT/"
+          cp local-server/README_LOCAL.md "$OUT/LEIA_PRIMEIRO.md"
+          cat > "$OUT/VERSION.json" <<EOF
+          {
+            "product": "H2F ISO INSPECT 2.0",
+            "release": "2.0.0-rc.30",
+            "distribution": "LOCAL_SERVER_WINDOWS",
+            "commit": "${GITHUB_SHA}",
+            "offlineRuntime": "Windows PowerShell + TCP local HTTP server"
+          }
+          EOF
+          zip -qr "${OUT}.zip" "$OUT"
+
+      - name: Upload local offline package
+        uses: actions/upload-artifact@v4
+        with:
+          name: H2F_ISO_INSPECT_2.0_RC30_LOCAL_SERVER
+          path: H2F_ISO_INSPECT_2.0_RC30_LOCAL_SERVER.zip
+          if-no-files-found: error
+          retention-days: 30
