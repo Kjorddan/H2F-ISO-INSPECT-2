@@ -1,0 +1,23 @@
+{
+  "product": "H2F ISO INSPECT 2.0",
+  "phase": 32,
+  "status": "TECNICAMENTE_CONCLUIDA_AGUARDANDO_HOMOLOGACAO_CORPORATIVA",
+  "packageVersion": "0.32.0",
+  "distributionRelease": "2.0.0-phase32-pre-release",
+  "stableReleasePublished": false,
+  "technicalBaselineCommit": "c39a95645387a96ef8076075ab6f6280a2d63774",
+  "dependencyLockCommit": "37724b5e37b099bae08c3c3a8196082b2aa061aa",
+  "distributionCommit": "2de2b5228c656288cd71a6e98d2dde68a53b2370",
+  "gates": {
+    "rcQuality": "PASS",
+    "browserAcceptance": "PASS",
+    "aiRealRuntime": "PASS",
+    "windowsSmoke": "PASS",
+    "performance": "PASS",
+    "productionNpmAudit": "PASS_ZERO_VULNERABILITIES",
+    "corporateSignoff": "PENDING"
+  },
+  "blockers": [
+    "CORPORATE_SIGNOFF"
+  ]
+}
