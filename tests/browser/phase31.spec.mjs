@@ -175,19 +175,85 @@ test('Editor — jornada de aceitação essencial 194',async({page})=>{
   await page.screenshot({path:'test-results/editor-acceptance.png',fullPage:true});
 });
 
-test('IA — gate de honestidade e fluxo disponível 195',async({page})=>{
-  const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9ZQmcAAAAASUVORK5CYII=','base64');
-  const input=page.locator('input[accept*="image/png"]');
-  await input.setInputFiles({name:'referencia.png',mimeType:'image/png',buffer:png});
-  await expect(page.getByRole('button',{name:'Analisar referência',exact:true})).toBeEnabled();
-  await page.getByRole('button',{name:'Analisar referência',exact:true}).click();
-  await expect(page.locator('.visionPanel')).toContainText('Linhas detectadas: 0');
-  await expect(page.locator('.visionPanel')).toContainText('OCR: 0');
-  await expect(page.locator('.visionPanel')).toContainText('nenhum reconhecimento foi inventado');
-  await page.getByRole('button',{name:'Reconhecer simbologia',exact:true}).click();
-  await expect(page.locator('.visionPanel')).toContainText('Símbolos candidatos: 1');
-  await expect(page.locator('.reconstructionPanel')).toBeVisible();
-  await page.screenshot({path:'test-results/ai-honesty-gate.png',fullPage:true});
+test('IA — análise local, HITL e reconstrução nativa 195',async({page})=>{
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="600" viewBox="0 0 1000 600">
+    <rect width="1000" height="600" fill="white"/>
+    <g fill="none" stroke="black" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M 80 360 L 420 360 L 520 270 L 900 270"/>
+      <path d="M 520 270 L 520 120"/>
+      <path d="M 665 155 L 710 200 L 665 245 Z M 755 155 L 710 200 L 755 245 Z"/>
+    </g>
+    <text x="90" y="100" font-family="Arial, sans-serif" font-size="54" font-weight="700" fill="black">LINHA P-101</text>
+    <text x="650" y="330" font-family="Arial, sans-serif" font-size="42" font-weight="700" fill="black">VG-101</text>
+  </svg>`;
+  const input=page.locator('input[accept*="image/svg+xml"]');
+  await input.setInputFiles({name:'isometrico-teste.svg',mimeType:'image/svg+xml',buffer:Buffer.from(svg)});
+
+  await test.step('1-6 upload e análise real de linhas, texto e regiões de símbolo',async()=>{
+    await expect(page.getByRole('button',{name:'Analisar referência',exact:true})).toBeEnabled();
+    await page.getByRole('button',{name:'Analisar referência',exact:true}).click();
+    await expect(page.locator('.visionPanel')).toContainText('COMPLETED',{timeout:70000});
+    const txt=await page.locator('.visionPanel').textContent();
+    const lines=Number(txt.match(/Linhas detectadas:\s*(\d+)/)?.[1]||0);
+    const ocr=Number(txt.match(/OCR:\s*(\d+)/)?.[1]||0);
+    expect(lines).toBeGreaterThan(0);
+    expect(ocr).toBeGreaterThan(0);
+    expect(txt).not.toContain('OCR local indisponível');
+
+    const recognize=page.getByRole('button',{name:'Reconhecer simbologia',exact:true});
+    await expect(recognize).toBeEnabled();
+    await recognize.click();
+    await expect(page.locator('.visionPanel')).toContainText(/Símbolos candidatos:\s*[1-9]/);
+  });
+
+  await test.step('7-9 confidence, dúvida e resposta humana',async()=>{
+    await expect(page.locator('.aiDoubtsPanel')).toContainText(/Total\s*[1-9]/);
+    const current=page.locator('.doubtCard');
+    await expect(current).toBeVisible();
+    await expect(current).toContainText('Confidence:');
+    const alt=current.locator('.doubtAlternatives button').first();
+    await expect(alt).toBeEnabled();
+    await alt.click();
+    await expect(page.locator('.aiDoubtsPanel')).toContainText(/Resolvidas\s*[1-9]/);
+  });
+
+  await test.step('10-12 reconstruir, materializar e editar objetos nativos',async()=>{
+    await page.getByRole('button',{name:'Gerar propostas editáveis',exact:true}).click();
+    await expect(page.locator('.reconstructionPanel')).toContainText(/Propostas\s*[1-9]/);
+    const materialize=page.getByRole('button',{name:'Materializar confirmadas / alta confiança',exact:true});
+    await expect(materialize).toBeEnabled();
+    await materialize.click();
+    await expect(page.locator('.reconstructionPanel')).toContainText(/Nativas\s*[1-9]/);
+
+    const native=page.locator('[data-entity-id^="NATIVE-"]').first();
+    await expect(native).toBeVisible();
+    await native.click();
+    const before=await native.boundingBox();
+    await dragLocator(page,native,18,10);
+    const after=await native.boundingBox();
+    expect(before).toBeTruthy();expect(after).toBeTruthy();
+    expect(Math.abs(after.x-before.x)+Math.abs(after.y-before.y)).toBeGreaterThan(2);
+  });
+
+  await test.step('13 comparar original e reconstrução',async()=>{
+    const mode=page.locator('.underlayPanel select');
+    await mode.selectOption('compare');
+    await expect(mode).toHaveValue('compare');
+    await expect(page.locator('.underlay')).toHaveCount(1);
+  });
+
+  await test.step('14 salvar reconstrução',async()=>{
+    const dlPromise=page.waitForEvent('download');
+    await page.getByRole('button',{name:'Salvar',exact:true}).click();
+    const dl=await dlPromise;
+    expect(dl.suggestedFilename()).toBe('documento.h2fiso');
+    const p=await dl.path();expect(p).toBeTruthy();
+    const saved=JSON.parse(fs.readFileSync(p,'utf8'));
+    expect(saved.manifest?.format).toBe('h2fiso');
+    expect(saved['document.json']?.entities?.some(e=>String(e.id).startsWith('NATIVE-'))).toBe(true);
+  });
+
+  await page.screenshot({path:'test-results/ai-real-reconstruction.png',fullPage:true});
 });
 
 test('Visual, zoom e orçamento de interação 196-197',async({page})=>{
