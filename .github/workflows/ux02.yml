@@ -1,0 +1,43 @@
+name: UX-02 CAD Shell Acceptance
+on:
+  workflow_dispatch:
+  push:
+    branches: [ux-evolution]
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "package.json"
+      - "package-lock.json"
+      - "playwright.ux02.config.mjs"
+      - ".github/workflows/ux02.yml"
+permissions:
+  contents: read
+jobs:
+  ux02:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Regression
+        run: npm test
+      - name: Production build
+        run: npm run build
+      - name: Playwright runner
+        run: npm install --no-save @playwright/test@1.55.1
+      - name: UX-02 browser acceptance
+        run: npx playwright test -c playwright.ux02.config.mjs
+      - name: Upload UX-02 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: H2F_ISO_INSPECT_UX02_EVIDENCE
+          path: |
+            playwright-report-ux02
+            test-results
+          if-no-files-found: warn
+          retention-days: 30
