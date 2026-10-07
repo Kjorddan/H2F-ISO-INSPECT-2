@@ -1,0 +1,26 @@
+{
+  "product": "H2F ISO INSPECT 2.0",
+  "cycle": "UX/UI + Biblioteca Industrial + Isométrico + Formatação Profissional",
+  "phase": "UX-02",
+  "status": "CONCLUIDA_AUDITADA",
+  "branch": "ux-evolution",
+  "baselineMain": "52eb1e59a15edf14b66893680d36b09b82436a5e",
+  "testedRuntimeCommit": "d5ab69abb6816c5cc79af2f32b66204d4f6fc655",
+  "workflowRun": 37705093738,
+  "regression": "PASS",
+  "build": "PASS",
+  "structuralUX02": "20/20 PASS",
+  "playwrightUX02": "9/9 PASS",
+  "validatedViewports": [
+    "1920x1080",
+    "1600x900",
+    "1536x864",
+    "1440x900",
+    "1366x768",
+    "1280x720",
+    "1024x768"
+  ],
+  "localServerArtifact": "H2F_ISO_INSPECT_2.0_UX02_LOCAL_SERVER",
+  "nextPhase": "UX-03",
+  "advanceRule": "aguardar Pode seguir"
+}
