@@ -34,3 +34,5 @@
 @media(max-width:1366px){.secondaryTools{display:none}.save{display:none}.toolbar{padding-left:5px;padding-right:5px}}
 @media(max-width:1180px){.gridQuick{display:none}.toolGroup-draw .toolButton:nth-child(5),.toolGroup-draw .toolButton:nth-child(6){display:none}}
 @media(max-width:1024px){.toolbar{gap:2px}.toolGroup{padding-right:3px}.cadMenu>button{padding:0 5px;font-size:11px}.brand b{font-size:16px;padding:3px 5px}.toolGroup-panels .toolButton:nth-child(3){display:none}}
+
+.toolbarMore .toolButton[data-tooltip]::after{left:auto;right:0;transform:none}.toolGroup-file .toolButton:first-child[data-tooltip]::after{left:0;transform:none}
