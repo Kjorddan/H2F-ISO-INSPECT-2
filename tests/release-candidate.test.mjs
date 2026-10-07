@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
-const root=path.resolve(new URL('..', import.meta.url).pathname);
+import {fileURLToPath} from 'node:url';
+const root=path.resolve(fileURLToPath(new URL('..', import.meta.url)));
 const read=(p)=>fs.readFileSync(path.join(root,p),'utf8');
 let pass=0; const ok=(name,cond)=>{ if(!cond) throw new Error('FAIL '+name); console.log('PASS '+name); pass++; };
 const pkg=JSON.parse(read('package.json'));
