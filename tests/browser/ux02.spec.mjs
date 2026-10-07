@@ -34,7 +34,7 @@ test('menus, ícones, tooltips e ações reais',async({page})=>{
  await page.getByRole('button',{name:'Ajuda',exact:true}).click();
  await page.getByRole('menuitem',{name:'Versão',exact:true}).click();
  await expect(page.getByRole('dialog')).toContainText('UX-02');
- await page.getByRole('button',{name:'Fechar',exact:true}).click();
+ await page.getByRole('dialog').getByRole('button',{name:'Fechar',exact:true}).last().click();
 });
 
 test('painéis recolhíveis, persistência e auto-hide',async({page})=>{
