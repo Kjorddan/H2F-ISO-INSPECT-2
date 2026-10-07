@@ -38,7 +38,7 @@ export function Icon({name,size=18}){
 
 export function ToolButton({icon,label,shortcut,onClick,active=false,disabled=false,className='',showLabel=true,testId}){
  const tip=shortcut?`${label} — ${shortcut}`:label;
- return <button data-testid={testId} type="button" className={`toolButton ${active?'active':''} ${className}`} aria-label={tip} data-tooltip={tip} onClick={onClick} disabled={disabled}><Icon name={icon}/>{showLabel&&<span className="toolButtonLabel">{label}</span>}</button>
+ return <button data-testid={testId} type="button" className={`toolButton ${active?'active':''} ${className}`} aria-label={label} data-tooltip={tip} onClick={onClick} disabled={disabled}><Icon name={icon}/>{showLabel&&<span className="toolButtonLabel">{label}</span>}</button>
 }
 
 function MenuEntry({item,close}){
