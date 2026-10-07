@@ -44,8 +44,8 @@ export function ToolButton({icon,label,shortcut,onClick,active=false,disabled=fa
 function MenuEntry({item,close}){
  const disabled=!!item.disabled;
  const reason=typeof item.disabled==='string'?item.disabled:item.reason;
- if(item.children?.length)return <div className="menuEntry hasSubmenu" role="none"><button type="button" role="menuitem" aria-haspopup="menu"><span>{item.label}</span><span>›</span></button><div className="submenu" role="menu">{item.children.map((x,i)=><MenuEntry key={x.id||x.label||i} item={x} close={close}/>)}</div></div>;
- return <div className="menuEntry" role="none"><button type="button" role="menuitem" disabled={disabled} title={disabled&&reason?reason:undefined} onClick={()=>{if(disabled)return;item.action?.();close()}}><span>{item.label}</span>{item.shortcut&&<kbd>{item.shortcut}</kbd>}{disabled&&reason&&<small>{reason}</small>}</button></div>
+ if(item.children?.length)return <div className="menuEntry hasSubmenu" role="none"><button type="button" role="menuitem" aria-label={item.label} aria-haspopup="menu"><span>{item.label}</span><span>›</span></button><div className="submenu" role="menu">{item.children.map((x,i)=><MenuEntry key={x.id||x.label||i} item={x} close={close}/>)}</div></div>;
+ return <div className="menuEntry" role="none"><button type="button" role="menuitem" aria-label={item.label} disabled={disabled} title={disabled&&reason?reason:undefined} onClick={()=>{if(disabled)return;item.action?.();close()}}><span>{item.label}</span>{item.shortcut&&<kbd>{item.shortcut}</kbd>}{disabled&&reason&&<small>{reason}</small>}</button></div>
 }
 
 export function MenuBar({menus}){
