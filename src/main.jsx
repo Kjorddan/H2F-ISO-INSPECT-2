@@ -175,6 +175,7 @@ function App(){
  const setZoomPct=(pct,anchor)=>setV(old=>zoomAt(old,pct/100,anchor||{x:(host.current?.clientWidth||800)/2,y:(host.current?.clientHeight||500)/2}));
  const fit=()=>{if(host.current)setV(fitBounds({minX:0,minY:0,maxX:PAPER.width,maxY:PAPER.height},{width:host.current.clientWidth,height:host.current.clientHeight},40))};
  useEffect(()=>{fit()},[]);
+ useEffect(()=>{if(typeof window!=='undefined'&&window.innerWidth<=1100){setLeft(false);setRightMode('hidden')}},[]);
  useEffect(()=>{try{localStorage.setItem('h2f.ui.left',left?'open':'closed')}catch{}},[left]);
  useEffect(()=>{try{localStorage.setItem('h2f.ui.rightMode',rightMode)}catch{}},[rightMode]);
  useEffect(()=>{try{localStorage.setItem('h2f.ui.navigator',navigatorVisible?'open':'closed')}catch{}},[navigatorVisible]);
