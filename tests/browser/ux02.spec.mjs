@@ -21,7 +21,7 @@ test('menus, ícones, tooltips e ações reais',async({page})=>{
 
  await page.getByRole('button',{name:'Arquivo',exact:true}).click();
  await expect(page.getByRole('menuitem',{name:'Salvar',exact:true})).toBeVisible();
- await page.getByText('Exportar',{exact:true}).hover();
+ await page.getByRole('menuitem',{name:'Exportar',exact:true}).hover();
  await expect(page.getByRole('menuitem',{name:'PDF',exact:true})).toBeVisible();
  await page.keyboard.press('Escape');
 
