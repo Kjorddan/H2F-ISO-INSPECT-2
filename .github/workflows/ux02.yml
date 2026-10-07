@@ -31,6 +31,43 @@ jobs:
         run: npm install --no-save @playwright/test@1.55.1
       - name: UX-02 browser acceptance
         run: npx playwright test -c playwright.ux02.config.mjs
+      - name: Assemble UX-02 local server
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="H2F_ISO_INSPECT_2.0_UX02_LOCAL_SERVER"
+          rm -rf "$OUT"
+          mkdir -p "$OUT"/{www,server,config,data,uploads,backups,logs,runtime}
+          cp -a dist/. "$OUT/www/"
+          cp local-server/server/H2F.LocalServer.ps1 "$OUT/server/"
+          cp local-server/config/server.json "$OUT/config/"
+          cp local-server/INICIAR_H2F_ISO_INSPECT.bat "$OUT/"
+          cp local-server/PARAR_H2F_ISO_INSPECT.bat "$OUT/"
+          cp local-server/ABRIR_H2F_ISO_INSPECT.bat "$OUT/"
+          cp local-server/README_LOCAL.md "$OUT/LEIA_PRIMEIRO.md"
+          cat > "$OUT/VERSION.json" <<EOF
+          {
+            "product": "H2F ISO INSPECT 2.0",
+            "cycle": "UX/UI Industrial",
+            "phase": "UX-02",
+            "packageVersion": "0.32.0",
+            "branch": "ux-evolution",
+            "commit": "${GITHUB_SHA}",
+            "distribution": "LOCAL_SERVER_WINDOWS"
+          }
+          EOF
+          zip -qr "${OUT}.zip" "$OUT"
+
+      - name: Upload UX-02 local server
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: H2F_ISO_INSPECT_2.0_UX02_LOCAL_SERVER
+          path: H2F_ISO_INSPECT_2.0_UX02_LOCAL_SERVER.zip
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Upload UX-02 evidence
         if: always()
         uses: actions/upload-artifact@v4
