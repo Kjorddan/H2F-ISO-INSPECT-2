@@ -18,7 +18,7 @@ import{isInlineSymbol,isTeeSymbol,insertInlineComponentTransaction,insertTeeBran
 import{ANNOTATION_KINDS,createTextNote,createTagLabel,createLeader,formatTag,resolveLeader,updateAnnotation}from'./editor-core/annotations.js';
 import{DIMENSION_TYPES,freeAnchor,entityAnchor,nearestEntityAnchor,createDimension,updateDimension,resolveDocumentationEntity,createElevation,createIndustrialCoordinate,createFlowArrow,reverseFlowArrow,createNorthArrow,rotateNorthArrow}from'./editor-core/documentation.js';
 import{createDocument,activeSheet,addSheet,duplicateSheet,renameSheet,deleteSheet,setLayer,updateTitleBlock,createRevisionSnapshot,appendRevision,createContinuation,addContinuation,navigateContinuation,REVISION_STATES}from'./editor-core/document-structure.js';
-import{createHistory,commitHistory,undoHistory,redoHistory,copyEntities,pasteEntities,duplicateEntities,groupEntities,ungroupEntities,reorderEntities,lockEntities,alignEntities,distributeEntities,searchNavigator,searchCommands}from'./editor-core/productivity.js';
+import{createHistory,commitHistory,undoHistory,redoHistory,copyEntities,cutEntities,pasteEntities,duplicateEntities,groupEntities,ungroupEntities,reorderEntities,lockEntities,mirrorEntities,alignEntities,distributeEntities,searchNavigator,searchCommands}from'./editor-core/productivity.js';
 import{validateReferenceFile,sanitizeSvg,svgDataUrl,createUnderlay,updateUnderlay,createTraceState,updateTraceState,effectiveUnderlay,inspectPdfVectorText,inspectSvgVector}from'./editor-core/underlay.js';
 import{createAnalysisJob,finalizeAnalysis,buildEvidence}from'./editor-core/vision-pipeline.js';
 import{analyzeUnderlayRaster}from'./editor-core/browser-vision.js';
@@ -27,6 +27,7 @@ import{createDoubtQueue,doubtFromSymbolDetection,doubtSummary,resolveDoubt,markU
 import{reconstructFromEvidence,reconstructionSummary,confirmProposal,bindHumanDoubt}from'./editor-core/reconstruction.js';
 import{createNativePackage,validateNativePackage,createPrintSettings,createReportModel,reportToCsv,svgExportModel}from'./editor-core/io-reporting.js';
 import{LIBRARY_CATEGORIES,BUILTIN_SYMBOLS,LIBRARY_SCOPES,SYMBOL_PRIMITIVES,searchLibrary,toggleFavorite,pushRecent,createSymbolEntityFrom,getSymbol,libraryStats,createCustomSymbol,addSymbolPrimitive,addCustomConnectionPoint,versionCustomSymbol,exportCustomLibrary,importCustomLibrary}from'./editor-core/library.js';
+import{ToolButton,MenuBar,ToolbarMore,PanelHeader,NoticeDialog}from'./ui/cad-shell.jsx';
 
 const tools=['Selecionar','Pan','Linha','Tubulação','Componente','Cota','Elevação','Coordenada','Fluxo','Norte','Texto','TAG','Leader'];
 const PAPER={width:1120,height:720};
@@ -137,7 +138,10 @@ function App(){
  const evidenceSummary=evidenceStats(evidenceStore);
  const integritySummary=integrityStats(integrityStore);
  const collaborationInfo=collaborationSummary(collaboration,comments);
- const[tool,setTool]=useState('Selecionar'),[left,setLeft]=useState(true),[right,setRight]=useState(true),[bottom]=useState(true);
+ const[tool,setTool]=useState('Selecionar'),[left,setLeft]=useState(()=>{try{return localStorage.getItem('h2f.ui.left')!=='closed'}catch{return true}}),[rightMode,setRightMode]=useState(()=>{try{return localStorage.getItem('h2f.ui.rightMode')||'open'}catch{return'open'}}),[rightHover,setRightHover]=useState(false),[bottom]=useState(true);
+ const right=rightMode==='open'||(rightMode==='auto'&&rightHover);
+ const[navigatorVisible,setNavigatorVisible]=useState(()=>{try{return localStorage.getItem('h2f.ui.navigator')!=='closed'}catch{return true}});
+ const[shellNotice,setShellNotice]=useState(null);
  const[commandPalette,setCommandPalette]=useState(false),[commandQuery,setCommandQuery]=useState(''),[navigatorQuery,setNavigatorQuery]=useState('');const clipboardRef=useRef(null),referenceInputRef=useRef(null),documentInputRef=useRef(null);
  const[documentModel,setDocumentModel]=useState(()=>createDocument()); const sheet=activeSheet(documentModel);
  const[v,setV]=useState(()=>createViewport());const[grid,setGrid]=useState(()=>createGridConfig());const[cursor,setCursor]=useState(null);
@@ -171,6 +175,9 @@ function App(){
  const setZoomPct=(pct,anchor)=>setV(old=>zoomAt(old,pct/100,anchor||{x:(host.current?.clientWidth||800)/2,y:(host.current?.clientHeight||500)/2}));
  const fit=()=>{if(host.current)setV(fitBounds({minX:0,minY:0,maxX:PAPER.width,maxY:PAPER.height},{width:host.current.clientWidth,height:host.current.clientHeight},40))};
  useEffect(()=>{fit()},[]);
+ useEffect(()=>{try{localStorage.setItem('h2f.ui.left',left?'open':'closed')}catch{}},[left]);
+ useEffect(()=>{try{localStorage.setItem('h2f.ui.rightMode',rightMode)}catch{}},[rightMode]);
+ useEffect(()=>{try{localStorage.setItem('h2f.ui.navigator',navigatorVisible?'open':'closed')}catch{}},[navigatorVisible]);
  const finishDraft=()=>{if(draft?.points?.length>=2){if(draft.kind==='pipe-run'){const id=`PR-${String(pipeSeq.current++).padStart(3,'0')}`;const run=createPipeRun(id,draft.points,{...pipeDefaults,name:pipeDefaults.lineNumber||`PipeRun ${id}`});setEntities(es=>[...es,run]);setEngineeringGraph(g=>{let next=syncPipeRun(g,run);const pairs=[[`${id}-PORT-START`,draft.snapPorts?.[0]],[`${id}-PORT-END`,draft.snapPorts?.at(-1)]];for(const[a,b]of pairs)if(b&&a!==b){try{next=connectPorts(next,a,b,{kind:'physical-snap'})}catch{}}return next});setSelection(selectOnly(createSelection(),id))}else{const id=`LN-${String(lineSeq.current++).padStart(3,'0')}`;const line=createPolyline(id,draft.points,{name:`Polyline ${id}`});setEntities(es=>[...es,line]);setSelection(selectOnly(createSelection(),id))}}setDraft(null);setSnapPreview(null)};
  useEffect(()=>{const key=e=>{const mod=e.ctrlKey||e.metaKey;if(mod&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo();return}if(mod&&e.key.toLowerCase()==='y'){e.preventDefault();redo();return}if(mod&&e.key.toLowerCase()==='s'){e.preventDefault();document.querySelector('[data-action="save-document"]')?.click();return}if(mod&&e.key.toLowerCase()==='o'){e.preventDefault();documentInputRef.current?.click();return}if(mod&&e.key.toLowerCase()==='k'){e.preventDefault();setCommandPalette(x=>!x);return}if(e.key==='Escape'){setDraft(null);setLeaderDraft(null);setInteraction(null);setCommandPalette(false)}if(e.key==='Enter'&&draft)finishDraft();if(mod&&e.key.toLowerCase()==='a'){e.preventDefault();setSelection(createSelection(entities.filter(x=>!x.locked).map(x=>x.id)))}if(mod&&e.key.toLowerCase()==='c'){e.preventDefault();clipboardRef.current=copyEntities(entities,selection.ids)}if(mod&&e.key.toLowerCase()==='v'&&clipboardRef.current){e.preventDefault();const r=pasteEntities(entities,clipboardRef.current,{idFactory:(id,i)=>`${id}-P${Date.now()}-${i}`});setEntities(r.entities);setSelection(createSelection(r.createdIds))}if(mod&&e.key.toLowerCase()==='d'){e.preventDefault();const r=duplicateEntities(entities,selection.ids,{idFactory:(id,i)=>`${id}-D${Date.now()}-${i}`});setEntities(r.entities);setSelection(createSelection(r.createdIds))}if(mod&&e.key.toLowerCase()==='g'){e.preventDefault();setEntities(es=>e.shiftKey?ungroupEntities(es,selection.ids):groupEntities(es,selection.ids,`GRP-${Date.now()}`))}if(e.key==='Delete'){setEntities(es=>es.filter(x=>!selection.ids.includes(x.id)||x.locked));setSelection(createSelection())}};window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key)},[draft,entities,selection]);
  const beginPan=e=>{setInteraction({type:'pan',screen:{x:e.clientX,y:e.clientY},startViewport:v});host.current.setPointerCapture?.(e.pointerId)};
