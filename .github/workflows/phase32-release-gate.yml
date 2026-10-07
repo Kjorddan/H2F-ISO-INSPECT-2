@@ -43,6 +43,16 @@ jobs:
       - name: Stable readiness diagnostic
         run: node tests/stable-release-gate.test.mjs
 
+      - name: Production dependency audit
+        shell: bash
+        run: |
+          set +e
+          npm audit --omit=dev --json > PHASE32_NPM_AUDIT.json
+          audit_exit=$?
+          set -e
+          node -e "const a=require('./PHASE32_NPM_AUDIT.json'); console.log('NPM_AUDIT_PRODUCTION',JSON.stringify(a.metadata?.vulnerabilities||{}));"
+          echo "NPM_AUDIT_EXIT=$audit_exit"
+
       - name: Dependency inventory
         run: npm ls --all --json > PHASE32_DEPENDENCY_TREE.json
 
@@ -53,6 +63,7 @@ jobs:
           path: |
             PHASE32_RELEASE_READINESS.json
             PHASE32_DEPENDENCY_TREE.json
+            PHASE32_NPM_AUDIT.json
             phase32-performance.json
             package-lock.json
             dist
