@@ -30,10 +30,8 @@ jobs:
         run: npm test
       - name: Build production
         run: npm run build
-      - name: Install Playwright
-        run: |
-          npm install --no-save @playwright/test@1.55.1
-          npx playwright install --with-deps chromium
+      - name: Install Playwright test runner
+        run: npm install --no-save @playwright/test@1.55.1
       - name: Browser acceptance
         run: npx playwright test -c playwright.phase31.config.mjs
       - name: Upload Phase 31 evidence
