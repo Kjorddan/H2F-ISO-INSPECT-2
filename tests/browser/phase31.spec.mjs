@@ -225,13 +225,12 @@ test('IA — análise local, HITL e reconstrução nativa 195',async({page})=>{
     await materialize.click();
     await expect(page.locator('.reconstructionPanel')).toContainText(/Nativas\s*[1-9]/);
 
-    const native=page.locator('[data-entity-id^="NATIVE-"]').first();
+    const native=page.locator('.industrialSymbol[data-entity-id^="NATIVE-"]').first();
+    await expect(native).toHaveCount(1);
     await expect(native).toBeVisible();
-    await native.click();
-    const before=await native.boundingBox();
+    const before=await native.boundingBox();expect(before).toBeTruthy();
     await dragLocator(page,native,18,10);
-    const after=await native.boundingBox();
-    expect(before).toBeTruthy();expect(after).toBeTruthy();
+    const after=await native.boundingBox();expect(after).toBeTruthy();
     expect(Math.abs(after.x-before.x)+Math.abs(after.y-before.y)).toBeGreaterThan(2);
   });
 
