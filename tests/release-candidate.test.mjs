@@ -4,7 +4,7 @@ const root=path.resolve(new URL('..', import.meta.url).pathname);
 const read=(p)=>fs.readFileSync(path.join(root,p),'utf8');
 let pass=0; const ok=(name,cond)=>{ if(!cond) throw new Error('FAIL '+name); console.log('PASS '+name); pass++; };
 const pkg=JSON.parse(read('package.json'));
-ok('RC version 0.30.0',pkg.version==='0.30.0');
+ok('Phase 32 package version 0.32.0',pkg.version==='0.32.0');
 ok('Dockerfile exists',fs.existsSync(path.join(root,'Dockerfile')));
 ok('Docker build runs tests',read('Dockerfile').includes('RUN npm test && npm run build'));
 ok('non-root app served as static nginx artifact',read('Dockerfile').includes('COPY --from=build /app/dist'));
@@ -17,4 +17,4 @@ ok('frame deny header',read('deploy/nginx.conf').includes('X-Frame-Options "DENY
 ok('env example has no credential assignment',!/(PASSWORD|SECRET|TOKEN|KEY)\s*=\s*\S+/i.test(read('.env.example')));
 ok('CI workflow executes tests',read('.github/workflows/rc.yml').includes('npm test'));
 ok('CI workflow executes build',read('.github/workflows/rc.yml').includes('npm run build'));
-console.log(`Release Candidate Gate: ${pass}/13 PASS`);
+console.log(`Release Baseline Gate: ${pass}/13 PASS`);
