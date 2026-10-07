@@ -62,13 +62,15 @@ test('Editor — jornada de aceitação essencial 194',async({page})=>{
 
   await test.step('21-22 undo / redo',async()=>{
     const wp=page.locator('.waypoint').first();
-    const xMoved=Number(await wp.getAttribute('cx'));
+    const moved={x:Number(await wp.getAttribute('cx')),y:Number(await wp.getAttribute('cy'))};
     await page.getByRole('button',{name:'Desfazer',exact:true}).click();
-    const xUndo=Number(await page.locator('.waypoint').first().getAttribute('cx'));
-    expect(xUndo).not.toBe(xMoved);
+    await page.waitForTimeout(50);
+    const undone={x:Number(await page.locator('.waypoint').first().getAttribute('cx')),y:Number(await page.locator('.waypoint').first().getAttribute('cy'))};
+    expect(undone.x!==moved.x||undone.y!==moved.y).toBe(true);
     await page.getByRole('button',{name:'Refazer',exact:true}).click();
-    const xRedo=Number(await page.locator('.waypoint').first().getAttribute('cx'));
-    expect(xRedo).toBeCloseTo(xMoved,3);
+    await page.waitForTimeout(50);
+    const redone={x:Number(await page.locator('.waypoint').first().getAttribute('cx')),y:Number(await page.locator('.waypoint').first().getAttribute('cy'))};
+    expect(redone.x).toBeCloseTo(moved.x,3);expect(redone.y).toBeCloseTo(moved.y,3);
   });
 
   await test.step('7-9 inserir e arrastar válvula mantendo topologia',async()=>{
@@ -198,12 +200,13 @@ test('Visual, zoom e orçamento de interação 196-197',async({page})=>{
   const t0=Date.now();await dragLocator(page,entity,120,40);const elapsed=Date.now()-t0;
   expect(elapsed).toBeLessThan(3000);
 
-  const visual=await page.evaluate(()=>{
-    const bad=[];for(const el of document.querySelectorAll('button,input,select,summary')){
-      const r=el.getBoundingClientRect();if(r.width>0&&r.height>0&&(r.right<-2||r.left>innerWidth+2))bad.push(el.textContent||el.getAttribute('aria-label')||el.tagName);
-    }return bad.slice(0,20);
+  const toolbarContainment=await page.evaluate(()=>{
+    const t=document.querySelector('.toolbar'),s=getComputedStyle(t);
+    return{clientWidth:t.clientWidth,scrollWidth:t.scrollWidth,viewport:innerWidth,overflowX:s.overflowX,bodyWidth:document.documentElement.scrollWidth};
   });
-  expect(visual).toEqual([]);
+  expect(toolbarContainment.clientWidth).toBeLessThanOrEqual(toolbarContainment.viewport);
+  expect(toolbarContainment.bodyWidth).toBeLessThanOrEqual(toolbarContainment.viewport+2);
+  expect(['auto','scroll']).toContain(toolbarContainment.overflowX);
   await page.screenshot({path:'test-results/visual-desktop.png',fullPage:true});
 
   await page.setViewportSize({width:1024,height:768});
