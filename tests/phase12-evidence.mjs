@@ -1,0 +1,13 @@
+import fs from'node:fs';
+import{createPipeRun,movePipeRun}from'../src/editor-core/piping.js';
+import{entityAnchor,createDimension,resolveDimension,createElevation,resolveElevation,createIndustrialCoordinate,resolveIndustrialCoordinate,createFlowArrow,resolveFlowArrow,createNorthArrow}from'../src/editor-core/documentation.js';
+const run=createPipeRun('EVID-P1',[{x:100,y:100},{x:250,y:100},{x:330,y:170}],{lineNumber:'4\"-P-04517-CC03',nominalSize:'4\"',spec:'CC03'});
+const dimension=createDimension('EVID-DIM','aligned',entityAnchor(run.id,{kind:'vertex',index:0}),entityAnchor(run.id,{kind:'vertex',index:1}),{engineeringValue:2850,unit:'mm'});
+const elevation=createElevation('EVID-EL',entityAnchor(run.id,{kind:'segment',index:1,t:.5}),{elevation:12450,datum:'DATUM A'});
+const coordinate=createIndustrialCoordinate('EVID-COORD',entityAnchor(run.id,{kind:'vertex',index:2}),{n:9123.45,e:6789.12,x:330,y:170,z:12450,datum:'DATUM A',reference:'PONTO A'});
+const flow=createFlowArrow('EVID-FLOW',run.id,0,{t:.55});
+const north=createNorthArrow('EVID-NORTH',{sheetId:'SHEET-1',x:1020,y:70,rotation:22.5});
+const moved=movePipeRun(run,75,35);
+const evidence={phase:12,principle:'GEOMETRIA VISUAL != DIMENSAO DE ENGENHARIA',before:{run,dimension:resolveDimension(dimension,[run]),elevation:resolveElevation(elevation,[run]),coordinate:resolveIndustrialCoordinate(coordinate,[run]),flow:resolveFlowArrow(flow,[run]),north},afterMove:{run:moved,dimension:resolveDimension(dimension,[moved]),elevation:resolveElevation(elevation,[moved]),coordinate:resolveIndustrialCoordinate(coordinate,[moved]),flow:resolveFlowArrow(flow,[moved])}};
+fs.writeFileSync(new URL('../../tests/PHASE12_DOCUMENTATION_EVIDENCE.json',import.meta.url),JSON.stringify(evidence,null,2));
+console.log('PHASE12_EVIDENCE PASS');

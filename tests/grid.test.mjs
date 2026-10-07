@@ -1,0 +1,14 @@
+import assert from'node:assert/strict';
+import{GRID_MODES,createGridConfig,normalizeGridConfig,visibleWorldBounds,displaySpacing,computeGridLines,nearestGridIntersection}from'../src/editor-core/grid.js';
+let n=0;const ok=(name,fn)=>{fn();n++;console.log('PASS',name)};
+ok('normaliza spacing/angle',()=>{const c=normalizeGridConfig({spacing:0,angle:120});assert.equal(c.spacing,20);assert.equal(c.angle,89)});
+ok('bounds world independem do desenho',()=>{const b=visibleWorldBounds({zoom:2,panX:100,panY:50},{width:800,height:600},0);assert.deepEqual(b,{minX:-50,minY:-25,maxX:350,maxY:275})});
+ok('grade desligada não gera linhas',()=>assert.equal(computeGridLines({minX:0,minY:0,maxX:100,maxY:100},{mode:GRID_MODES.OFF},1).length,0));
+ok('cartesiana gera duas famílias',()=>{const ls=computeGridLines({minX:0,minY:0,maxX:100,maxY:100},{mode:'cartesian',spacing:20,adaptive:false},1);assert(ls.some(x=>x.family==='h'));assert(ls.some(x=>x.family==='v'));assert(!ls.some(x=>x.family==='p'))});
+ok('isométrica gera três famílias',()=>{const ls=computeGridLines({minX:0,minY:0,maxX:100,maxY:100},{mode:'isometric',spacing:20,angle:30,adaptive:false},1);assert(ls.some(x=>x.family==='h'));assert(ls.some(x=>x.family==='p'));assert(ls.some(x=>x.family==='n'))});
+ok('presets essenciais aceitos',()=>{for(const a of[15,22.5,30,45,60]){const ls=computeGridLines({minX:-50,minY:-50,maxX:50,maxY:50},{mode:'isometric',spacing:10,angle:a,adaptive:false},1);assert(ls.length>0)}});
+ok('densidade adaptativa amplia somente representação',()=>{const c=createGridConfig({spacing:5,adaptive:true});assert.equal(displaySpacing(c,.25),80);assert.equal(c.spacing,5)});
+ok('major lines identificadas',()=>{const ls=computeGridLines({minX:-100,minY:-100,maxX:100,maxY:100},{mode:'cartesian',spacing:20,majorEvery:5,adaptive:false},1);assert(ls.some(x=>x.major));assert(ls.some(x=>!x.major))});
+ok('nearest cartesiano',()=>assert.deepEqual(nearestGridIntersection({x:27,y:43},{mode:'cartesian',spacing:20}),{x:20,y:40}));
+ok('nearest isométrico 30° retorna nó válido',()=>{const p=nearestGridIntersection({x:31,y:35},{mode:'isometric',spacing:20,angle:30});assert(Number.isFinite(p.x)&&Number.isFinite(p.y))});
+console.log(`GRID_TESTS_PASS=${n}`);

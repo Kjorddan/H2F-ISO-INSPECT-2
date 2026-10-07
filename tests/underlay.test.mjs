@@ -1,0 +1,18 @@
+import assert from'node:assert/strict';import{validateReferenceFile,sanitizeSvg,createUnderlay,updateUnderlay,underlayBounds,createTraceState,updateTraceState,effectiveUnderlay,inspectPdfVectorText,inspectSvgVector}from'../src/editor-core/underlay.js';
+let n=0;const t=(name,fn)=>{fn();n++;console.log('PASS',name)};
+t('accept PDF/PNG/JPEG/WEBP/SVG',()=>{for(const x of ['a.pdf','a.png','a.jpg','a.webp','a.svg'])assert.equal(validateReferenceFile({name:x,type:''}).valid,true)});
+t('reject executable',()=>assert.equal(validateReferenceFile({name:'x.exe',type:'application/octet-stream'}).valid,false));
+t('sanitize script',()=>assert(!sanitizeSvg('<svg><script>alert(1)</script><path/></svg>').includes('script')));
+t('sanitize handlers',()=>assert(!sanitizeSvg('<svg><path onclick="x()"/></svg>').includes('onclick')));
+t('sanitize foreignObject',()=>assert(!sanitizeSvg('<svg><foreignObject><div>x</div></foreignObject></svg>').includes('foreignObject')));
+t('underlay defaults locked layer',()=>{const u=createUnderlay('U1');assert.equal(u.locked,true);assert.equal(u.layerName,'Imagem de referência')});
+t('opacity clamp',()=>assert.equal(updateUnderlay(createUnderlay('U'),{opacity:4}).opacity,1));
+t('crop normalized',()=>{const u=updateUnderlay(createUnderlay('U'),{crop:{x:.8,y:.8,width:.8,height:.8}});assert(u.crop.width<=.2&&u.crop.height<=.2)});
+t('bounds scale crop',()=>{const u=createUnderlay('U',{width:100,height:50,scale:2,crop:{x:0,y:0,width:.5,height:1}});assert.deepEqual(underlayBounds(u),{x:0,y:0,width:100,height:100})});
+t('trace state',()=>assert.equal(createTraceState({mode:'trace'}).snapIndependent,true));
+t('trace opacity clamp',()=>assert.equal(updateTraceState(createTraceState(),{opacity:-2}).opacity,0));
+t('trace forces lock',()=>assert.equal(effectiveUnderlay(createUnderlay('U',{locked:false}),createTraceState({mode:'trace',underlayId:'U'})).locked,true));
+t('trace hide original',()=>assert.equal(effectiveUnderlay(createUnderlay('U'),createTraceState({mode:'compare',underlayId:'U',hideOriginal:true})).visible,false));
+t('PDF vector inspection',()=>{const r=inspectPdfVectorText('%PDF /Type /Page m l c re S m l c re S m l c re S m l c re S m l c re S m l c re S m l c re S m l c re S m l c re S m l c re S m l c re S');assert.equal(r.pdf,true);assert(r.vectorOperators>20)});
+t('SVG vector inspection',()=>{const r=inspectSvgVector('<svg><path d=""/><line/><text>x</text></svg>');assert.equal(r.paths,1);assert.equal(r.lines,1);assert.equal(r.texts,1)});
+console.log(`Underlay Core: ${n}/${n} PASS`);

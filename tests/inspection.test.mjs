@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';import {createInspectionStore,createMonitoringPoint,addMonitoringPoint,moveMonitoringMarker,addMeasurement,measurementHistory,createWeld,addWeld,createNDT,addNDT,NDT_METHODS,inspectionStats,validateInspectionStore} from '../src/editor-core/inspection.js';
+let n=0;const t=(name,fn)=>{fn();n++;console.log('PASS',name)};
+let s=createInspectionStore();const p=createMonitoringPoint({id:'TML-1',type:'TML',target:{entityId:'PR-1',kind:'pipe-segment',segmentId:'S1'},marker:{x:10,y:20}});s=addMonitoringPoint(s,p);
+t('TML physical association',()=>assert.equal(s.points[0].target.entityId,'PR-1'));
+s=moveMonitoringMarker(s,'TML-1',{x:99,y:88});t('marker moves without losing physical association',()=>assert.equal(s.points[0].target.segmentId,'S1'));
+s=addMeasurement(s,{id:'M2',pointId:'TML-1',thickness:8.1,date:'2026-10-06',equipment:'UT-01',inspector:'Inspector',observation:'ok',method:'UT'});s=addMeasurement(s,{id:'M1',pointId:'TML-1',thickness:8.4,date:'2025-10-06',method:'UT'});
+t('measurement fields',()=>assert.equal(s.measurements[0].equipment,'UT-01'));t('append-only history',()=>assert.deepEqual(measurementHistory(s,'TML-1').map(x=>x.id),['M1','M2']));
+const w=createWeld({id:'W-1',number:'W-001',type:'BW',process:'GTAW',material:'A106',status:'PLANNED',joint:'butt',target:{entityId:'PR-1',segmentId:'S1'}});s=addWeld(s,w);t('weld own entity',()=>assert.equal(s.welds[0].number,'W-001'));
+for(const method of NDT_METHODS){const id=`N-${method}`;s=addNDT(s,createNDT({id,method,target:{kind:method==='UT'?'tml':'weld',id:method==='UT'?'TML-1':'W-1'}}))};t('all NDT methods supported',()=>assert.equal(s.ndt.length,NDT_METHODS.length));t('weld links NDT',()=>assert.equal(s.welds[0].ndtIds.length,NDT_METHODS.length-1));
+t('stats',()=>assert.deepEqual(inspectionStats(s),{tml:1,cml:0,measurements:2,welds:1,ndt:11}));t('validation clean',()=>assert.equal(validateInspectionStore(s).length,0));
+t('reject invalid thickness',()=>assert.throws(()=>addMeasurement(s,{pointId:'TML-1',thickness:0,date:'2026-01-01'})));
+t('reject orphan point measurement',()=>assert.throws(()=>addMeasurement(s,{pointId:'NO',thickness:1,date:'2026-01-01'})));
+t('reject invalid NDT target kind',()=>assert.throws(()=>createNDT({method:'UT',target:{kind:'drawing',id:'X'}})));
+t('CML supported',()=>assert.equal(createMonitoringPoint({type:'CML',target:{entityId:'E'}}).type,'CML'));
+t('target supports region',()=>assert.equal(createNDT({method:'PT',target:{kind:'region',id:'R1'}}).target.kind,'region'));
+t('target supports component',()=>assert.equal(createNDT({method:'MT',target:{kind:'component',id:'V1'}}).target.kind,'component'));
+t('target supports pipe segment',()=>assert.equal(createNDT({method:'PAUT',target:{kind:'pipe-segment',id:'S1'}}).target.kind,'pipe-segment'));
+console.log(`Inspection Core: ${n}/${n} PASS`);

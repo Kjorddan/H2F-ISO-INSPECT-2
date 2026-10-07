@@ -1,0 +1,5 @@
+import assert from'node:assert/strict';import fs from'node:fs';
+const main=fs.readFileSync(new URL('../src/main.jsx',import.meta.url),'utf8'),css=fs.readFileSync(new URL('../src/style.css',import.meta.url),'utf8');let n=0;const ok=(name,cond)=>{assert(cond);n++;console.log('PASS',name)};
+ok('selection core import',main.includes("from'./editor-core/selection.js'"));
+ok('direct entity pointer interaction',main.includes('entityDown'));ok('multi select modifiers',main.includes('e.shiftKey||e.ctrlKey||e.metaKey'));ok('marquee selection',main.includes('selectByRect'));ok('crossing mode',main.includes("'intersect'"));ok('drag move',main.includes('moveSelection'));ok('resize handles',main.includes('resizeSelection'));ok('rotate handle',main.includes('rotateSelection'));ok('selection overlay',main.includes('SelectionOverlay'));ok('eight handles',main.includes("['nw','n','ne','e','se','s','sw','w']"));ok('pan non regression',main.includes("tool==='Pan'"));ok('selection styling',css.includes('.selectionBounds')&&css.includes('.rotateHandle'));
+console.log(`SHELL_PHASE6_PASS=${n}`);

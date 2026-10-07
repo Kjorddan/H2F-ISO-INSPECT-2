@@ -1,0 +1,3 @@
+import fs from 'node:fs';import assert from 'node:assert/strict';
+const s=fs.readFileSync(new URL('../src/main.jsx',import.meta.url),'utf8');let n=0;const t=(name,re)=>{assert.match(s,re);n++;console.log('PASS',name)};
+t('evidence core import',/evidence-integrity\.js/);t('evidence store',/createEvidenceStore/);t('evidence stats',/evidenceStats/);t('panel',/EVIDÊNCIAS \/ ANOMALIAS/);t('evidence upload',/Upload de evidência/);t('photo preview',/evidencePreview/);t('anomaly action',/Registrar anomalia/);t('recommendation action',/Criar recomendação/);t('workflow text',/Anomalia → Recomendação → Execução → Verificação/);console.log(`shell-phase22 ${n}/${n}`);

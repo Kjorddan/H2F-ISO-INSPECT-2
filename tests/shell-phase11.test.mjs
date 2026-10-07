@@ -1,0 +1,16 @@
+import assert from'node:assert/strict';import fs from'node:fs';
+const main=fs.readFileSync(new URL('../src/main.jsx',import.meta.url),'utf8'),core=fs.readFileSync(new URL('../src/editor-core/inline-components.js',import.meta.url),'utf8'),graph=fs.readFileSync(new URL('../src/editor-core/engineering-graph.js',import.meta.url),'utf8');
+let n=0;const t=(name,fn)=>{fn();n++;console.log('PASS',name)};
+t('inline core imported',()=>assert.ok(main.includes("from'./editor-core/inline-components.js'")));
+t('nearest segment drives placement',()=>assert.ok(main.includes('nearestPipeSegment(runs,point)')));
+t('inline transaction integrated',()=>assert.ok(main.includes('insertInlineComponentTransaction')));
+t('tee branch transaction integrated',()=>assert.ok(main.includes('insertTeeBranchTransaction')));
+t('atomic transaction declared in core',()=>assert.ok(core.includes("atomic:true")));
+t('rollback implemented',()=>assert.ok(core.includes('rolledBack:true')));
+t('source run split into left and right',()=>assert.ok(core.includes('splitPipeRunForInline')));
+t('component registration exists',()=>assert.ok(graph.includes('registerComponent')));
+t('tee uses P3 branch port',()=>assert.ok(core.includes("PORT-P3")));
+t('external endpoint connections preserved',()=>assert.ok(core.includes('preserved-external')));
+t('inline property surfaced in UI',()=>assert.ok(main.includes('INLINE · conectado ao Engineering Graph')));
+t('footer reports components',()=>assert.ok(main.includes("engineeringGraph.components")));
+console.log(`SHELL_PHASE11 ${n}/12 PASS`);

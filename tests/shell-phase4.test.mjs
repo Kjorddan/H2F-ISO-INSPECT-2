@@ -1,0 +1,1 @@
+import assert from'node:assert/strict';import fs from'node:fs';const src=fs.readFileSync(new URL('../src/main.jsx',import.meta.url),'utf8');for(const marker of['zoomAt','screenToWorld','fitBounds','onPointerDown','onWheel','World ↔ Screen','Ajustar página','panX','panY'])assert.ok(src.includes(marker),`ausente: ${marker}`);console.log('PASS shell fase4: 9 marcadores');

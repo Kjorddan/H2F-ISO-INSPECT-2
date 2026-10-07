@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';import {diffEntities,visualDiffOverlay,createComment,replyComment,resolveComment,createCollaborationState,upsertPresence,recordCollaborativeChange,detectConflict,addConflict,resolveConflict,setSaveState,collaborationSummary} from '../src/editor-core/revision-collaboration.js';
+let n=0;const t=(name,fn)=>{fn();n++;console.log('PASS',name)};
+t('diff adicionado',()=>assert.equal(diffEntities([],[{id:'A'}])[0].state,'ADICIONADO'));
+t('diff removido',()=>assert.equal(diffEntities([{id:'A'}],[])[0].state,'REMOVIDO'));
+t('diff movido UUID estável',()=>assert.equal(diffEntities([{id:'A',x:1,y:1}],[{id:'A',x:2,y:1}])[0].state,'MOVIDO'));
+t('diff alterado',()=>assert.equal(diffEntities([{id:'A',tag:'1'}],[{id:'A',tag:'2'}])[0].state,'ALTERADO'));
+t('overlay',()=>assert.equal(visualDiffOverlay([{id:'A',state:'MOVIDO',after:{x:2,y:3}}])[0].state,'MOVIDO'));
+let c=createComment({id:'C1',anchor:{kind:'entity',id:'E1'},text:'Verificar',author:'Ana',createdAt:'2026-01-01T00:00:00Z'});t('comentário entidade',()=>assert.equal(c.state,'ABERTO'));
+c=replyComment(c,'Respondido','Bruno','2026-01-02T00:00:00Z');t('workflow respondido',()=>assert.equal(c.state,'RESPONDIDO'));
+c=resolveComment(c,'Ana','2026-01-03T00:00:00Z');t('workflow resolvido',()=>assert.equal(c.state,'RESOLVIDO'));
+t('âncora inválida bloqueada',()=>assert.throws(()=>createComment({anchor:{kind:'bad',id:'1'},text:'x'})));
+let s=createCollaborationState();s=upsertPresence(s,{userId:'U1',cursor:{x:1,y:2},selectionIds:['E1']});t('presença cursor seleção',()=>assert.equal(s.users[0].selectionIds[0],'E1'));
+s=recordCollaborativeChange(s,{id:'L',userId:'U1',entityId:'E1',patch:{tag:'A'}});s=recordCollaborativeChange(s,{id:'R',userId:'U2',entityId:'E1',patch:{tag:'B'}});t('alterações auditáveis',()=>assert.equal(s.changes.length,2));
+const conflict=detectConflict(s.changes[0],s.changes[1]);t('conflito detectado sem last-write-wins',()=>assert.deepEqual(conflict.fields,['tag']));s=addConflict(s,conflict);t('estado conflito',()=>assert.equal(s.saveState,'CONFLITO'));s=resolveConflict(s,conflict.id,'KEEP_LOCAL','Ana');t('resolução explícita',()=>assert.equal(s.conflicts[0].resolution,'KEEP_LOCAL'));
+s=setSaveState(s,'OFFLINE');t('autosave offline',()=>assert.equal(s.saveState,'OFFLINE'));t('sumário',()=>assert.equal(collaborationSummary(s,[c]).online,1));
+console.log(`revision-collaboration ${n}/${n}`);

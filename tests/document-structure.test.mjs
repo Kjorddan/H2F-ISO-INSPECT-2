@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';import {createDocument,addSheet,duplicateSheet,renameSheet,deleteSheet,reorderSheet,setLayer,canInteract,sheetSize,updateTitleBlock,createContinuation,addContinuation,navigateContinuation,createRevisionSnapshot,appendRevision,isApproved,documentTree,DEFAULT_LAYERS} from '../src/editor-core/document-structure.js';
+let n=0;const t=(name,fn)=>Promise.resolve().then(fn).then(()=>{n++;console.log('PASS',name)});
+await t('document starts with one sheet and 15 layers',()=>{const d=createDocument();assert.equal(d.sheets.length,1);assert.equal(d.sheets[0].layers.length,DEFAULT_LAYERS.length)});
+await t('add sheet activates it',()=>{const d=addSheet(createDocument(),{id:'S2'});assert.equal(d.activeSheetId,'S2')});
+await t('duplicate sheet',()=>{const d=duplicateSheet(createDocument(),'SHEET-1');assert.equal(d.sheets.length,2);assert.notEqual(d.sheets[0].id,d.sheets[1].id)});
+await t('rename synchronizes title block sheet',()=>{const d=renameSheet(createDocument(),'SHEET-1','ISO-02');assert.equal(d.sheets[0].titleBlock.sheet,'ISO-02')});
+await t('cannot delete only sheet',()=>assert.equal(deleteSheet(createDocument(),'SHEET-1').sheets.length,1));
+await t('delete sheet cleans continuations',()=>{let d=addSheet(createDocument(),{id:'S2'});d=addContinuation(d,createContinuation({id:'C',originSheetId:'SHEET-1',destinationSheetId:'S2'}));d=deleteSheet(d,'S2');assert.equal(d.continuations.length,0)});
+await t('reorder sheets',()=>{let d=addSheet(createDocument(),{id:'S2'});d=reorderSheet(d,'S2',0);assert.equal(d.sheets[0].id,'S2')});
+await t('layer permissions',()=>{let d=createDocument();const l=d.sheets[0].layers[0];d=setLayer(d,'SHEET-1',l.id,{locked:true});assert.equal(canInteract(d.sheets[0].layers[0]),false)});
+await t('A3 landscape dimensions',()=>assert.deepEqual(sheetSize(createDocument().sheets[0]),{width:420,height:297}));
+await t('custom portrait dimensions',()=>{const s=createDocument().sheets[0];s.customSize=[500,700];s.orientation='portrait';assert.deepEqual(sheetSize(s),{width:500,height:700})});
+await t('editable title block',()=>{const d=updateTitleBlock(createDocument(),'SHEET-1',{project:'P-01',client:'CLIENTE'});assert.equal(d.sheets[0].titleBlock.project,'P-01')});
+await t('continuation navigates destination',()=>{let d=addSheet(createDocument(),{id:'S2'});d=addContinuation(d,createContinuation({id:'C',originSheetId:'SHEET-1',destinationSheetId:'S2',lineNumber:'L-1'}));d=navigateContinuation(d,'C');assert.equal(d.activeSheetId,'S2')});
+await t('formal revision creates immutable SHA-256 snapshot',async()=>{let d=createDocument();const r=await createRevisionSnapshot(d,[{id:'E1'}],{id:'R0',revision:'0',state:'APROVADO'});assert.match(r.sha256,/^[a-f0-9]{64}$/);d=appendRevision(d,r);assert.equal(d.revisions[0].immutable,true);assert.equal(isApproved(d),true)});
+await t('same content has deterministic hash',async()=>{const d=createDocument();const a=await createRevisionSnapshot(d,[],{id:'A',date:'x'});const b=await createRevisionSnapshot(d,[],{id:'B',date:'y'});assert.equal(a.sha256,b.sha256)});
+await t('document tree hierarchy',()=>{const d=createDocument();const l=d.sheets[0].layers[0];const tree=documentTree(d,[{id:'E1',sheetId:'SHEET-1',layerId:l.id}]);assert.equal(tree.children[0].children[0].children[0].id,'E1')});
+console.log(`Document Structure Core: ${n}/15 PASS`);

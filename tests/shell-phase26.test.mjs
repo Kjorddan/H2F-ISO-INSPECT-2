@@ -1,0 +1,2 @@
+import fs from'node:fs';import assert from'node:assert/strict';const s=fs.readFileSync(new URL('../src/main.jsx',import.meta.url),'utf8');let n=0;const t=(x,re)=>{assert.match(s,re);n++;console.log('PASS',x)};
+t('import io core',/io-reporting/);t('panel export',/IMPORTAR \/ EXPORTAR/);t('h2fiso',/\.h2fiso/);t('export PDF',/Exportar PDF/);t('export SVG',/Exportar SVG/);t('export CSV',/Exportar CSV/);t('print preview',/Preview de impressão/);t('report',/Relatório técnico/);console.log(`Shell Phase26: ${n}/${n} PASS`);

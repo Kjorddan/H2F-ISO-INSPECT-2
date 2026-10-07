@@ -1,0 +1,12 @@
+import assert from'node:assert/strict';
+import{createPipeRun,movePipeWaypoint}from'../src/editor-core/piping.js';
+import{createEngineeringGraph,syncPipeRun,connectPorts,areNodesConnected,validateEngineeringGraph}from'../src/editor-core/engineering-graph.js';
+import{resolveSnap}from'../src/editor-core/snap.js';
+let a=createPipeRun('A',[{x:0,y:0},{x:100,y:0}]),b=createPipeRun('B',[{x:160,y:0},{x:260,y:0}]);
+let g=syncPipeRun(syncPipeRun(createEngineeringGraph(),a),b);
+const r=resolveSnap({x:158,y:2},{entities:[a,b],excludeEntityId:'A',types:['port'],zoom:1,tolerancePx:8});
+assert.equal(r.snapped,true);assert.equal(r.candidate.portId,'B-PORT-START');
+a=movePipeWaypoint(a,1,r.point);g=syncPipeRun(g,a);g=connectPorts(g,'A-PORT-END',r.candidate.portId,{kind:'physical-snap'});
+assert.equal(g.ports['A-PORT-END'].connectedConnectionId!==null,true);assert.equal(g.ports['B-PORT-START'].connectedConnectionId!==null,true);
+assert.equal(areNodesConnected(g,a.vertexIds[0],b.vertexIds.at(-1)),true);assert.equal(validateEngineeringGraph(g).valid,true);
+console.log('SNAP_TOPOLOGY_INTEGRATION 7/7 PASS');

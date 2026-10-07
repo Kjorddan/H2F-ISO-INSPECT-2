@@ -1,0 +1,16 @@
+import assert from'node:assert/strict';
+import{createTextNote,createTagLabel,createLeader,formatTag,resolveLeader,updateAnnotation,annotationBounds,ANNOTATION_KINDS}from'../src/editor-core/annotations.js';
+let n=0;const t=(name,fn)=>{fn();n++;console.log(`PASS annotations ${n}: ${name}`)};
+t('text note',()=>{const x=createTextNote('T1',{x:10,y:20},{text:'ABC'});assert.equal(x.kind,ANNOTATION_KINDS.TEXT);assert.equal(x.text,'ABC')});
+t('multiline retained',()=>assert.equal(createTextNote('T',{x:0,y:0},{text:'A\nB'}).text,'A\nB'));
+t('tag explicit',()=>assert.equal(formatTag(createTagLabel('G',{x:0,y:0},{text:'XV-01'})), 'XV-01'));
+t('tag target name',()=>assert.equal(formatTag(createTagLabel('G',{x:0,y:0},{targetId:'E'}),[{id:'E',name:'P-101'}]),'P-101'));
+t('tag target engineering line',()=>assert.equal(formatTag(createTagLabel('G',{x:0,y:0},{targetId:'P'}),[{id:'P',name:'x',engineering:{lineNumber:'6-P-01'}}]),'6-P-01'));
+t('leader free anchor',()=>assert.deepEqual(resolveLeader(createLeader('L',{x:1,y:2},{x:20,y:30}),[]).anchor,{x:1,y:2}));
+t('leader entity center',()=>{const l=createLeader('L',{x:0,y:0},{x:50,y:60},{anchorRef:{kind:'entity-center',entityId:'E'}});assert.deepEqual(resolveLeader(l,[{id:'E',x:10,y:20,width:40,height:20}]).anchor,{x:30,y:30})});
+t('leader vertex associative',()=>{const l=createLeader('L',{x:0,y:0},{x:50,y:60},{anchorRef:{kind:'vertex',entityId:'P',index:1}});assert.deepEqual(resolveLeader(l,[{id:'P',points:[{x:1,y:2},{x:9,y:8}]}]).anchor,{x:9,y:8})});
+t('leader segment associative',()=>{const l=createLeader('L',{x:0,y:0},{x:50,y:60},{anchorRef:{kind:'segment',entityId:'P',index:0,t:.25}});assert.deepEqual(resolveLeader(l,[{id:'P',points:[{x:0,y:0},{x:100,y:40}]}]).anchor,{x:25,y:10})});
+t('update annotation immutable',()=>{const a=createTextNote('T',{x:0,y:0});const b=updateAnnotation(a,{text:'novo'});assert.equal(a.text,'Texto');assert.equal(b.text,'novo')});
+t('leader bounds',()=>{const l=createLeader('L',{x:5,y:10},{x:50,y:70});assert.deepEqual(annotationBounds(l),{minX:5,minY:10,maxX:50,maxY:70})});
+t('prefix suffix tag',()=>assert.equal(formatTag(createTagLabel('G',{x:0,y:0},{text:'101',prefix:'[',suffix:']'})), '[101]'));
+console.log(`Annotations Core: ${n}/12 PASS`);

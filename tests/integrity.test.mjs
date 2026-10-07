@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {createIntegrityStore,createCorrosionCircuit,addCircuit,setCircuitTargets,setCircuitOverlay,createDamageCatalog,addDamageCatalog,createDamageAssessment,addDamageAssessment,decideDamageAssessment,integrityStats,validateIntegrityStore,CIRCUIT_TARGET_KINDS,DAMAGE_STATES} from '../src/editor-core/integrity.js';
+let n=0;const t=(name,fn)=>{fn();n++;console.log('PASS',name)};let s=createIntegrityStore();
+const c=createCorrosionCircuit({id:'CC1',name:'Circuito 01',targets:[{kind:'line',id:'L1'},{kind:'pipe-segment',id:'S1'},{kind:'component',id:'V1'},{kind:'tml',id:'T1'}]});s=addCircuit(s,c,'eng');
+t('circuit supports required targets',()=>assert.equal(s.circuits[0].targets.length,4));t('target vocabulary',()=>assert.deepEqual(CIRCUIT_TARGET_KINDS,['line','pipe-segment','component','tml','cml']));
+s=setCircuitTargets(s,'CC1',[...c.targets,{kind:'cml',id:'C1'}],'eng');t('CML target supported',()=>assert.equal(s.circuits[0].targets.at(-1).kind,'cml'));
+s=setCircuitOverlay(s,'CC1',{visible:false,opacity:2});t('overlay visibility',()=>assert.equal(s.circuits[0].overlay.visible,false));t('overlay opacity clamped',()=>assert.equal(s.circuits[0].overlay.opacity,1));
+let bad=false;try{createCorrosionCircuit({name:'x',targets:[{kind:'gps',id:'1'}]})}catch{bad=true}t('invalid target rejected',()=>assert.equal(bad,true));
+const cat=createDamageCatalog({id:'CAT1',version:'2026.1',mechanisms:[{code:'CUI',name:'Corrosão sob isolamento'},{code:'THIN',name:'Perda de espessura'}]});s=addDamageCatalog(s,cat,'eng');t('catalog versioned',()=>assert.equal(s.damageCatalogs[0].version,'2026.1'));t('catalog immutable marker',()=>assert.equal(cat.immutable,true));
+let a=createDamageAssessment({id:'A1',catalogId:'CAT1',mechanismCode:'CUI',target:{kind:'component',id:'V1'}});s=addDamageAssessment(s,a,'eng');t('default state CONSIDERAR',()=>assert.equal(s.assessments[0].state,'CONSIDERAR'));t('states exact',()=>assert.deepEqual(DAMAGE_STATES,['CONSIDERAR','CONFIRMADO','EXCLUIDO']));
+let blocked=false;try{createDamageAssessment({catalogId:'CAT1',mechanismCode:'CUI',target:{kind:'component',id:'V1'},state:'CONFIRMADO'})}catch{blocked=true}t('confirmation requires human justification',()=>assert.equal(blocked,true));
+s=decideDamageAssessment(s,'A1','CONFIRMADO',{actor:'inspetor-n2',justification:'Indicação confirmada por avaliação técnica'});t('human confirmation recorded',()=>assert.equal(s.assessments[0].decidedBy,'inspetor-n2'));t('justification recorded',()=>assert.ok(s.assessments[0].justification));t('decision timestamp',()=>assert.ok(s.assessments[0].decidedAt));t('append-only events',()=>assert.ok(s.events.length>=5));
+t('stats',()=>assert.deepEqual(integrityStats(s),{circuits:1,activeCircuits:1,catalogVersions:1,consider:0,confirmed:1,excluded:0}));t('validation clean',()=>assert.deepEqual(validateIntegrityStore(s),[]));
+console.log(`integrity ${n}/${n}`);

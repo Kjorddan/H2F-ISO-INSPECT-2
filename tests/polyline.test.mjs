@@ -1,0 +1,17 @@
+import assert from'node:assert/strict';
+import{createPolyline,polylineBounds,polylineLength,pointSegmentProjection,nearestSegment,hitTestPolyline,addWaypoint,addWaypointProjected,moveWaypoint,removeWaypoint,movePolyline,moveSegment,polylineToPath}from'../src/editor-core/polyline.js';
+let n=0;const t=(name,fn)=>{fn();n++;console.log('PASS',name)};
+const line=createPolyline('L1',[{x:0,y:0},{x:100,y:0},{x:100,y:100}],{name:'Linha 1'});
+t('create/bounds',()=>assert.deepEqual(polylineBounds(line),{minX:0,minY:0,maxX:100,maxY:100}));
+t('length',()=>assert.equal(polylineLength(line),200));
+t('projection',()=>{const h=pointSegmentProjection({x:40,y:20},{x:0,y:0},{x:100,y:0});assert.equal(h.point.x,40);assert.equal(h.point.y,0);assert.equal(h.distance,20)});
+t('nearest segment',()=>assert.equal(nearestSegment(line,{x:90,y:40}).index,1));
+t('hit tolerance',()=>{assert.ok(hitTestPolyline(line,{x:50,y:3},5));assert.equal(hitTestPolyline(line,{x:50,y:8},5),null)});
+t('add waypoint',()=>{const q=addWaypoint(line,0,{x:50,y:0});assert.equal(q.points.length,4);assert.deepEqual(q.points[1],{x:50,y:0})});
+t('projected waypoint',()=>{const q=addWaypointProjected(line,0,{x:35,y:20});assert.deepEqual(q.points[1],{x:35,y:0})});
+t('move waypoint',()=>assert.deepEqual(moveWaypoint(line,1,{x:110,y:10}).points[1],{x:110,y:10}));
+t('remove waypoint protects minimum',()=>{const two=createPolyline('L2',[{x:0,y:0},{x:1,y:1}]);assert.equal(removeWaypoint(two,0).points.length,2);assert.equal(removeWaypoint(line,1).points.length,2)});
+t('move polyline',()=>assert.deepEqual(movePolyline(line,5,-2).points[0],{x:5,y:-2}));
+t('move segment',()=>{const q=moveSegment(line,0,0,10);assert.deepEqual(q.points,[{x:0,y:10},{x:100,y:10},{x:100,y:100}])});
+t('svg path',()=>assert.equal(polylineToPath(line),'M 0 0 L 100 0 L 100 100'));
+console.log(`POLYLINE_CORE ${n}/12 PASS`);
