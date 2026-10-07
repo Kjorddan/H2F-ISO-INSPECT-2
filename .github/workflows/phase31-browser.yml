@@ -1,4 +1,4 @@
-name: Phase 31 Browser Acceptance
+name: Phase 32 Browser Acceptance
 
 on:
   workflow_dispatch:
@@ -38,7 +38,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: H2F_ISO_INSPECT_PHASE31_BROWSER_EVIDENCE
+          name: H2F_ISO_INSPECT_PHASE32_BROWSER_EVIDENCE
           path: |
             playwright-report
             test-results
