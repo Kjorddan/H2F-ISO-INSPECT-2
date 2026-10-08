@@ -27,3 +27,7 @@
 
 ## Escopo excluído
 Sem editor paramétrico de engenharia, importador SVG arbitrário, conexão hidráulica de formas customizadas, backend de biblioteca corporativa, formatação de folha UX-08, exportação de documentos UX-09 ou homologação E2E final UX-10.
+
+### Correção de acabamento posterior à auditoria inicial
+- `src/ui/ux07-shape-editor.jsx`: arredondamento de coordenadas de ponteiro em 0,1 unidade gráfica, evitando ruído de ponto flutuante nas propriedades.
+- `tests/browser/ux07.spec.mjs`: validação explícita da precisão no formulário da primitiva após desenhar um retângulo.

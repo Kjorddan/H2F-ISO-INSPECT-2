@@ -26,3 +26,6 @@ A regressão `npm test`, build e Playwright Chromium da UX-07 passaram com **32/
 
 ### Regra operacional
 **Aguardar exclusivamente “Pode seguir” para iniciar UX-08.** Nenhum avanço automático.
+
+### Acabamento gráfico final
+O editor UX-07 usa precisão de entrada de 0,1 unidade gráfica nos movimentos do ponteiro, preservando resultados numéricos legíveis nas propriedades. O último pipeline validou a alteração, sem introduzir conexões físicas.

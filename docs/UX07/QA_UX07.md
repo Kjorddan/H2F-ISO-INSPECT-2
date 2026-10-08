@@ -1,7 +1,7 @@
 # UX-07 — QA E GATES
 
-**Resultado de referência:** `4c5f7a9c532bd268d94d11cd0e4539117694c906` (última alteração de testes antes da documentação).
-**Workflow de referência:** https://github.com/Kjorddan/H2F-ISO-INSPECT-2/actions/runs/37722020368
+**Resultado de referência:** `cea44f6ba1bf71b9377f34577f9f7afdafa52bae` (última alteração de testes antes da documentação).
+**Workflow de referência:** https://github.com/Kjorddan/H2F-ISO-INSPECT-2/actions/runs/37722444936
 
 | Gate | Evidência / resultado |
 |---|---|
@@ -32,3 +32,6 @@
 - Testes de integração entre formas autorais e conexões físicas do Engineering Graph, deliberadamente fora de escopo.
 
 **Gate de UX-07**: aprovado tecnicamente no CI para o escopo contratado; nenhuma abertura automática de UX-08.
+
+### Revisão visual da entrega
+Após inspeção dos screenshots de aceitação, a coordenada de desenho por ponteiro foi arredondada para décimos de unidade gráfica (0,1). O Chromium confirma que a entrada y após desenho em (12;12) exibe exatamente 12, evitando números extensos de ponto flutuante.

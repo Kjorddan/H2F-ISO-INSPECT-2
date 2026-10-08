@@ -9,8 +9,8 @@
   "branch": "ux-evolution",
   "baselineCheckpoint": "CHECKPOINT_UX06.json",
   "baselineCommit": "a79f2297a8509f592951be664d38add8cda1937f",
-  "testedRuntimeCommit": "4c5f7a9c532bd268d94d11cd0e4539117694c906",
-  "workflowUX07": 37722020368,
+  "testedRuntimeCommit": "7c7b10f5a7e9c46f767499882dd103cc78171d68",
+  "workflowUX07": 37722444936,
   "ux07Core": "32/32 PASS",
   "ux07Browser": "9/9 PASS",
   "build": "PASS",
@@ -59,5 +59,7 @@
       "target": "UX-10",
       "description": "Bibliotecas v2 sem geometria preservadas, exigem completar desenho."
     }
-  ]
+  ],
+  "testedCommit": "cea44f6ba1bf71b9377f34577f9f7afdafa52bae",
+  "precisionStepGraphic": 0.1
 }
