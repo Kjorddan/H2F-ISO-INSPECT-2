@@ -64,3 +64,13 @@
 .nozzleRow label{display:flex;align-items:center;gap:2px;min-width:0;font-size:10px}
 .nozzleRow input{width:43px;min-width:0;padding:2px;font-size:10px}
 .equipmentNozzleEditor button:disabled{opacity:.5;cursor:not-allowed}
+
+/* UX-06 inspection/END marker properties */
+.ux06MarkerEditor{display:flex;flex-direction:column;gap:5px;min-width:0;border:1px solid #94a3b8;border-radius:5px;padding:7px;margin:7px 0;background:#f8fafc}
+.ux06MarkerEditor>b{font-size:11px;color:#334155}
+.ux06MarkerEditor>span,.ux06MarkerEditor small{font-size:10px;color:#475569;overflow-wrap:anywhere;line-height:1.35}
+.ux06MarkerEditor label{display:flex;flex-direction:column;font-size:10px;gap:2px}
+.ux06MarkerEditor input,.ux06MarkerEditor select{width:100%;min-width:0;box-sizing:border-box}
+.ux06MarkerEditor button{font-size:11px;border:1px solid #64748b;border-radius:4px;padding:6px;cursor:pointer}
+.ux06MarkerEditor button:disabled{opacity:.45;cursor:not-allowed}
+.ux06Glyph path{stroke-linecap:round;stroke-linejoin:round}
