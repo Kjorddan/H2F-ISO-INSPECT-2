@@ -1,3 +1,4 @@
+import{UX05_INSTRUMENT_SPECS,UX05_SUPPORT_SPECS,UX05_EQUIPMENT_SPECS}from'./ux05-catalog.js';
 const freeze=o=>Object.freeze(o);
 export const LIBRARY_SCHEMA_VERSION=2;
 export const LIBRARY_CATEGORIES=freeze([
@@ -21,7 +22,7 @@ const categoryProfile={
  'CONEXÕES':{usageContexts:['ISOMETRIC'],technicalReferences:refs.piping,subcategory:'FITTING'},
  'FLANGES':{usageContexts:['ISOMETRIC'],technicalReferences:refs.piping,subcategory:'FLANGE'},
  'VÁLVULAS':{usageContexts:['ISOMETRIC'],technicalReferences:refs.piping,subcategory:'VALVE'},
- 'INSTRUMENTAÇÃO':{usageContexts:['ISOMETRIC','P&ID'],technicalReferences:refs.instrumentation,subcategory:'INSTRUMENT'},
+ 'INSTRUMENTAÇÃO':{usageContexts:['P&ID'],technicalReferences:refs.instrumentation,subcategory:'INSTRUMENT'},
  'SUPORTES':{usageContexts:['ISOMETRIC'],technicalReferences:refs.supports,subcategory:'PIPE_SUPPORT'},
  'EQUIPAMENTOS':{usageContexts:['ISOMETRIC'],technicalReferences:refs.piping,subcategory:'EQUIPMENT'},
  'INSPEÇÃO':{usageContexts:['ISOMETRIC','INSPECTION'],technicalReferences:refs.inspection,subcategory:'INSPECTION'},
@@ -48,7 +49,15 @@ function portDefinitionsFor(id){
  if(TERMINAL.has(id))return[port('P1',0,.5,'terminal')];
  if(OLETS.has(id))return[port('P1',.5,.5,'host'),port('P2',.5,0,'branch')];
  if(TWO_INLINE.has(id))return[port('P1',0,.5,'process'),port('P2',1,.5,'process')];
- if(id==='equip-nozzle')return[port('P1',0,.5,'equipment')];
+ if(id==='equip-nozzle')return[port('N1',0,.5,'equipment-nozzle')];
+ if(id==='equip-generic')return[];
+ if(id.startsWith('equip-')){
+  if(['equip-column','equip-vessel-vertical','equip-tower','equip-exchanger-vertical','equip-mixer','equip-cyclone','equip-reactor','equip-boiler','equip-heater'].includes(id))return[port('N1',.5,0,'equipment-nozzle'),port('N2',.5,1,'equipment-nozzle'),port('N3',0,.5,'equipment-nozzle')];
+  if(['equip-pump','equip-pump-centrifugal','equip-pump-reciprocating','equip-compressor','equip-blower','equip-ejector'].includes(id))return[port('N1',0,.5,'equipment-nozzle'),port('N2',1,.5,'equipment-nozzle')];
+  if(['equip-tank','equip-furnace'].includes(id))return[port('N1',.5,0,'equipment-nozzle'),port('N2',0,.6,'equipment-nozzle')];
+  return[port('N1',0,.5,'equipment-nozzle'),port('N2',1,.5,'equipment-nozzle'),port('N3',.5,0,'equipment-nozzle'),port('N4',.5,1,'equipment-nozzle')];
+ }
+ if(['inst-flow-element','inst-orifice-plate','inst-restriction-orifice'].includes(id))return[port('P1',0,.5,'process'),port('P2',1,.5,'process')];
  return[];
 }
 function placementFor(id,category){
@@ -57,7 +66,9 @@ function placementFor(id,category){
  if(TERMINAL.has(id))return{modes:['TERMINAL','FREE'],inline:false,junction:false,terminal:true,attached:false,free:true};
  if(OLETS.has(id))return{modes:['ATTACHED','FREE'],inline:false,junction:false,terminal:false,attached:true,free:true};
  if(TWO_INLINE.has(id))return{modes:['INLINE','FREE'],inline:true,junction:false,terminal:false,attached:false,free:true};
- if(['SUPORTES','INSTRUMENTAÇÃO','INSPEÇÃO','END'].includes(category))return{modes:['ATTACHED','FREE'],inline:false,junction:false,terminal:false,attached:true,free:true};
+ if(category==='SUPORTES')return{modes:['ATTACHED','FREE'],inline:false,junction:false,terminal:false,attached:true,free:true};
+ if(category==='INSTRUMENTAÇÃO')return{modes:['FREE'],inline:false,junction:false,terminal:false,attached:false,free:true};
+ if(['INSPEÇÃO','END'].includes(category))return{modes:['ATTACHED','FREE'],inline:false,junction:false,terminal:false,attached:true,free:true};
  if(category==='SÍMBOLOS DE FOLHA')return{modes:['SHEET','FREE'],inline:false,junction:false,terminal:false,attached:false,free:true};
  return{modes:['FREE'],inline:false,junction:false,terminal:false,attached:false,free:true};
 }
@@ -182,6 +193,33 @@ export const BUILTIN_SYMBOLS=freeze([
  def('equip-vessel','EQUIPAMENTOS','Vaso','VESSEL','vessel',{size:{width:92,height:64}}),def('equip-tank','EQUIPAMENTOS','Tanque','TANK','tank',{size:{width:92,height:64}}),def('equip-pump','EQUIPAMENTOS','Bomba','PUMP','pump'),
  def('equip-compressor','EQUIPAMENTOS','Compressor','COMP','compressor'),def('equip-exchanger','EQUIPAMENTOS','Trocador de calor','HX','exchanger',{size:{width:100,height:54}}),def('equip-column','EQUIPAMENTOS','Coluna','COL','column',{size:{width:56,height:100}}),
  def('equip-furnace','EQUIPAMENTOS','Forno','FURN','furnace'),def('equip-filter','EQUIPAMENTOS','Filtro','FILTER','filter'),def('equip-reactor','EQUIPAMENTOS','Reator','REACT','reactor'),def('equip-generic','EQUIPAMENTOS','Equipamento genérico','EQ','equipment'),def('equip-nozzle','EQUIPAMENTOS','Nozzle','NOZ','nozzle'),
+
+ 
+ // UX-05: instrumentos P&ID são representação funcional; instrumentos físicos recebem vínculo explícito.
+ ...UX05_INSTRUMENT_SPECS.map(s=>{
+  const isIso=s.context==='ISOMETRIC',isInline=['FLOW_ELEMENT','ORIFICE','RESTRICTION'].includes(s.variant);
+  const placement=isInline?{modes:['INLINE','FREE'],inline:true,junction:false,terminal:false,attached:false,free:true}:isIso?{modes:['ATTACHED','FREE'],inline:false,junction:false,terminal:false,attached:true,free:true}:{modes:['FREE'],inline:false,junction:false,terminal:false,attached:false,free:true};
+  return def(s.id,'INSTRUMENTAÇÃO',s.name,s.code,'instrument-'+s.variant.toLowerCase().replaceAll('_','-'),{
+   subcategory:isInline?'INLINE_PRIMARY_ELEMENT':isIso?'PHYSICAL_INSTRUMENT':'PID_FUNCTION',
+   description:s.name+(isIso?' — representação física H2F em isométrico':' — representação funcional apenas para P&ID'),
+   usageContexts:[s.context],instrumentCode:s.code,variant:s.variant,
+   placement,snapPolicy:{...snapPolicyFor('INSTRUMENTAÇÃO',placement),ports:isInline},portDefinitions:isInline?portDefinitionsFor(s.id):[],
+   tags:[s.variant,'instrumentação','ISA']
+  });
+ }),
+ ...UX05_SUPPORT_SPECS.map(s=>def(s.id,'SUPORTES',s.name,s.code,'support-'+s.variant.toLowerCase().replaceAll('_','-'),{
+  subcategory:s.variant,description:s.name+' — suporte mecânico sem continuidade de processo',
+  variant:s.variant,orientation:{rotatable:true,reference:'PIPE_SEGMENT'},
+  placement:{modes:['ATTACHED','FREE'],inline:false,junction:false,terminal:false,attached:true,free:true},
+  portDefinitions:[],tags:['pipe support',s.variant,'MSS SP-58']
+ })),
+ ...UX05_EQUIPMENT_SPECS.map(s=>def(s.id,'EQUIPAMENTOS',s.name,s.code,'equipment-'+s.variant.toLowerCase().replaceAll('_','-'),{
+  subcategory:s.variant,description:s.name+' — silhueta CAD H2F e bocais configuráveis',
+  variant:s.variant,orientation:{axis:s.orientation,rotatable:true},nozzleTemplate:'UX05_INITIAL_EDITABLE',
+  placement:{modes:['FREE'],inline:false,junction:false,terminal:false,attached:false,free:true},
+  snapPolicy:{grid:true,ports:true,endpoint:true,vertex:false,midpoint:false,alignment:true},
+  portDefinitions:portDefinitionsFor(s.id),tags:[s.variant,'equipamento','nozzle']
+ })),
 
  def('insp-tml','INSPEÇÃO','Ponto TML/CML','TML','inspection-point'),def('insp-weld','INSPEÇÃO','Solda','WELD','weld'),def('insp-anomaly','INSPEÇÃO','Anomalia','ANOM','anomaly'),def('insp-evidence','INSPEÇÃO','Evidência','EVID','evidence'),
  def('ndt-ut','END','Ultrassom','UT','ndt'),def('ndt-pt','END','Líquido penetrante','PT-END','ndt'),def('ndt-mt','END','Partículas magnéticas','MT','ndt'),def('ndt-rt','END','Radiografia','RT','ndt'),def('ndt-etr','END','Correntes parasitas','ECT','ndt'),def('ndt-iris','END','IRIS','IRIS','ndt'),def('ndt-mfl','END','MFL','MFL','ndt'),
