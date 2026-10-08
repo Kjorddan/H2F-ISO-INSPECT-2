@@ -141,7 +141,7 @@ export const BUILTIN_SYMBOLS=freeze([
  def('ann-text','ANOTAÇÕES','Texto','TXT','annotation'),def('ann-leader','ANOTAÇÕES','Leader','LEADER','leader'),def('ann-condition','ANOTAÇÕES','Nota de condição','COND','condition'),def('ann-offset','ANOTAÇÕES','Offset','OFFSET','offset'),
  def('sheet-north','SÍMBOLOS DE FOLHA','Norte','N','north'),def('sheet-continuation','SÍMBOLOS DE FOLHA','Continuidade','CONT','continuation'),def('sheet-coordinate','SÍMBOLOS DE FOLHA','Coordenada industrial','COORD','coordinate'),def('sheet-elevation','SÍMBOLOS DE FOLHA','Elevação','EL','elevation'),def('sheet-revision','SÍMBOLOS DE FOLHA','Revisão','REV','revision')
 ]);
-const normalize=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+const normalize=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[_-]+/g,' ').replace(/\s+/g,' ').toLowerCase().trim();
 export function validateSymbolDefinition(s){
  const issues=[];
  if(!s?.id||!s?.name||!s?.category)issues.push('identity');
