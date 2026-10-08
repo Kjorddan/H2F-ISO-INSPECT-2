@@ -1,0 +1,74 @@
+{
+  "project": "H2F ISO INSPECT 2.0",
+  "phase": "UX-10",
+  "phaseIndex": 10,
+  "phaseTotal": 10,
+  "status": "AUDITORIA_CI_EM_ANDAMENTO",
+  "nextPhase": null,
+  "remainingAfterThis": 0,
+  "fieldHomologation": "PENDENTE",
+  "runStatus": "A_CONFIRMAR",
+  "risks": [
+    {
+      "id": "WIN-FIELD-SMOKE",
+      "severity": "HIGH",
+      "status": "OPEN",
+      "description": "PowerShell Local Server e pacote Windows precisam ser executados em Windows 10/11 Chrome/Edge reais."
+    },
+    {
+      "id": "PDF-UNDERLAY-PARITY",
+      "severity": "MEDIUM",
+      "status": "OPEN",
+      "description": "Imagens de referência externas, fontes e PDFs multipágina precisam de comparação com originais."
+    },
+    {
+      "id": "CLIENT-SYMBOL-GOLDEN-MASTERS",
+      "severity": "MEDIUM",
+      "status": "OPEN",
+      "description": "Simbologia industrial e carimbos devem ser homologados por cliente e responsável técnico."
+    },
+    {
+      "id": "PIPE-EDGE-STRESS",
+      "severity": "MEDIUM",
+      "status": "OPEN",
+      "description": "Remapeamento extremo de conexões/mounts em geometrias com milhares de entidades demanda testes de campo."
+    },
+    {
+      "id": "PDF-DRIVER-PRINT-A0-A4",
+      "severity": "HIGH",
+      "status": "OPEN",
+      "description": "Validar dimensões de papel e corte/margens no driver de impressão físico."
+    },
+    {
+      "id": "CONTROLLED-DOC-IDENTITY-SIGNATURE",
+      "severity": "HIGH",
+      "status": "OPEN",
+      "description": "Não existe assinatura ICP-Brasil, identidade verificada ou recibo de entrega ao cliente."
+    },
+    {
+      "id": "TENANT-SERVER-RBAC",
+      "severity": "MEDIUM",
+      "status": "OPEN",
+      "description": "Escopos USER/PROJECT/TENANT/CORPORATE são metadados de bibliotecas locais, não acesso multiusuário via servidor."
+    }
+  ],
+  "closed": [
+    {
+      "code": "CTRL-001",
+      "description": "SHA-256 v2 de inspeção/END/evidências"
+    },
+    {
+      "code": "MARKER-002",
+      "description": "Painel UX06 restaurado"
+    },
+    {
+      "code": "SERVER-003",
+      "description": "Bind remoto desabilitado"
+    },
+    {
+      "code": "SERVER-004",
+      "description": "Prefixo raiz corrigido"
+    }
+  ],
+  "releaseClaim": "CONCLUIDO_E_AUDITADO_NO_CI_NAO_HOMOLOGADO_EM_CAMPO"
+}
