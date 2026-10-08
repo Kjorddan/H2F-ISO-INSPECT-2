@@ -50,7 +50,7 @@ export function ux08ValidateSheet(s){
 }
 export function ux08SetPage(d,sheetId,{format,orientation,customSize}={}){
  if(!d.sheets.some(x=>x.id===sheetId))throw Error('Folha não localizada');
- const candidate={...d,sheets:d.sheets.map(x=>x.id===sheetId?{...x,format:format??x.format,orientation:orientation??x.orientation,customSize:customSize===undefined?x.customSize:customSize}:x)};
+ const candidate={...d,sheets:d.sheets.map(x=>x.id===sheetId?{...x,format:format??x.format,orientation:orientation??x.orientation,customSize:(format??x.format)==='CUSTOM'?(customSize===undefined?(x.customSize||[297,420]):customSize):null}:x)};
  const current=candidate.sheets.find(x=>x.id===sheetId);const v=ux08ValidateSheet(current);
  if(!v.valid)throw Error(v.errors.join(','));
  return candidate;
