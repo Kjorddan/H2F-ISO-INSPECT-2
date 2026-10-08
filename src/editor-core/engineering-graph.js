@@ -9,6 +9,12 @@ export function syncPipeRun(graph,run){
  if(old){for(const id of old.nodeIds||[])delete g.nodes[id];for(const id of old.edgeIds||[])delete g.edges[id];for(const id of old.portIds||[])if(!g.ports[id]?.connectedConnectionId)delete g.ports[id]}
  const nodeIds=run.vertexIds.map((id,i)=>{g.nodes[id]={id,kind:i===0||i===run.vertexIds.length-1?'pipe-endpoint':'pipe-vertex',ownerRunId:run.id};return id});
  const edgeIds=run.segments.map(s=>{g.edges[s.id]={id:s.id,kind:'pipe-segment',runId:run.id,source:s.startVertexId,target:s.endVertexId,physicalLength:s.physicalLength,properties:{...s.properties}};return s.id});
+ g.attachments=g.attachments||{};g.meta.nextAttachmentSeq=g.meta.nextAttachmentSeq||1;
+ for(const a of Object.values(g.attachments)){
+  const edge=g.edges[a.segmentId];
+  if(edge){a.source=edge.source;a.target=edge.target}
+  else if((old?.edgeIds||[]).includes(a.segmentId))g=detachAttachment(g,a.id);
+ }
  const startId=`${run.id}-PORT-START`,endId=`${run.id}-PORT-END`;
  const existingStart=g.ports[startId],existingEnd=g.ports[endId];
  g.ports[startId]={...endpointPort(run,'START',run.vertexIds[0]),connectedConnectionId:existingStart?.connectedConnectionId||null};
@@ -48,7 +54,8 @@ export function connectPorts(graph,sourcePortId,targetPortId,props={}){
 }
 
 export function attachComponentToPipeSegment(graph,componentPortId,segmentId,props={}){
- const g=copy(graph),port=g.ports[componentPortId],edge=g.edges[segmentId];
+ const g=copy(graph);g.attachments=g.attachments||{};g.meta.nextAttachmentSeq=g.meta.nextAttachmentSeq||1;
+ const port=g.ports[componentPortId],edge=g.edges[segmentId];
  if(!port)throw new Error('Unknown component port');
  if(!edge)throw new Error('Unknown pipe segment');
  if(port.attachedAttachmentId||port.connectedConnectionId)throw new Error('Port already connected or attached');
