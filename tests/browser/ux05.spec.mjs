@@ -9,3 +9,14 @@ test('equipamentos CAD possuem silhuetas distintas',async({page})=>{await page.l
 test('suporte fixado não divide o PipeRun',async({page})=>{await choose(page,'Trunnion');await clickWorld(page,730,390);await expect(page.locator('[data-symbol-id="support-trunnion"]')).toHaveCount(1);await expect(page.locator('.pipeRunEntity')).toHaveCount(1);await expect(page.locator('.symbolProperties')).toContainText('PIPE_SUPPORT');await page.screenshot({path:'test-results/ux05-support-attached-to-pipe.png',fullPage:true})});
 test('TAG longo permanece no símbolo de instrumentação',async({page})=>{await choose(page,'Manômetro / pressure gauge');await clickWorld(page,730,390);await expect(page.locator('[data-symbol-id="inst-pressure-gauge"]')).toHaveCount(1);await page.locator('.symbolProperties').getByLabel('TAG').fill('PIT-2026-A-PRIMARY');const glyph=page.locator('[data-symbol-id="inst-pressure-gauge"] .instrumentGlyph');await expect(glyph).toBeVisible();await expect(glyph).toContainText('PIT');await page.screenshot({path:'test-results/ux05-instrumentation-tag-fit.png',fullPage:true})});
 test('bocal de equipamento é representado sem ligação automática',async({page})=>{await choose(page,'Bomba centrífuga');await clickWorld(page,711,390);await expect(page.locator('[data-symbol-id="equip-pump-centrifugal"]')).toHaveCount(1);await expect(page.locator('[data-symbol-id="equip-pump-centrifugal"] .nozzleMark')).toHaveCount(2);await expect(page.locator('.pipeRunEntity')).toHaveCount(1);await page.screenshot({path:'test-results/ux05-equipment-nozzle-connection.png',fullPage:true})});
+
+test('configuração de bocal cria porta física e atualiza preview',async({page})=>{
+ await choose(page,'Vaso vertical');await clickWorld(page,500,350);
+ const equip=page.locator('[data-symbol-id="equip-vessel-vertical"]');await expect(equip).toHaveCount(1);
+ await expect(equip.locator('.nozzleMark')).toHaveCount(3);
+ const panel=page.locator('.equipmentNozzleEditor');await panel.locator('summary').click();
+ await panel.getByRole('button',{name:'Adicionar bocal'}).click();
+ await expect(equip.locator('.nozzleMark')).toHaveCount(4);
+ await expect(page.locator('.symbolProperties')).toContainText('N4');
+ await page.screenshot({path:'test-results/ux05-equipment-configurable-nozzles.png',fullPage:true});
+});

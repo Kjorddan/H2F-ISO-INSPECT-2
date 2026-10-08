@@ -3,8 +3,9 @@ import{BUILTIN_SYMBOLS,libraryStats,validateLibrary,getSymbol,defaultSymbolPorts
 import{createPipeRun}from'../src/editor-core/piping.js';
 import{createEngineeringGraph,registerPipeRun,validateEngineeringGraph,graphStats,graphMountStats,areNodesConnected,syncPipeRun,unregisterComponent}from'../src/editor-core/engineering-graph.js';
 import{isInlineSymbol}from'../src/editor-core/inline-components.js';
+import{collectEntitySnapCandidates,SNAP_TYPES}from'../src/editor-core/snap.js';
 import{instrumentTagLayout}from'../src/editor-core/ux05-geometry.js';
-import{isMountableSymbol,addUx05SymbolTransaction,connectPipeEndpointToEquipmentNozzleTransaction,equipmentNozzleCandidates,syncMountedSymbolPositions}from'../src/editor-core/ux05-associations.js';
+import{isMountableSymbol,addUx05SymbolTransaction,connectPipeEndpointToEquipmentNozzleTransaction,equipmentNozzleCandidates,syncMountedSymbolPositions,configureEquipmentNozzlesTransaction,nextEquipmentNozzle}from'../src/editor-core/ux05-associations.js';
 
 let passed=0;function t(name,fn){fn();passed++;console.log('PASS',name)}
 const ids=c=>new Set(BUILTIN_SYMBOLS.filter(s=>s.category===c).map(s=>s.id));
@@ -28,4 +29,29 @@ t('conexão de bocal exige comando explícito e é transacional',()=>{const tx=a
 t('candidatos de nozzle respeitam geometria e não conectam por proximidade',()=>{const tx=addUx05SymbolTransaction(initial(),{symbol:getSymbol('equip-pump-centrifugal'),point:{x:136,y:20},id:'P-101'});const list=equipmentNozzleCandidates(tx.entities.at(-1),tx.entities,tx.graph,8);assert.equal(list[0]?.nozzleId,'N1');assert.equal(list[0]?.side,'END');assert.equal(graphStats(tx.graph).connections,0)});
 t('remover componente desmonta o suporte sem órfãos',()=>{let tx=addUx05SymbolTransaction(initial(),{symbol:getSymbol('support-sleeper'),point:{x:40,y:20},id:'SUP-REMOVE',runId:'UX05-RUN',segmentIndex:0});const g=unregisterComponent(tx.graph,'SUP-REMOVE');assert.equal(graphMountStats(g).mounts,0);assert.equal(validateEngineeringGraph(g).valid,true)});
 t('TAG grande é dividido e cabe no balão',()=>{for(const text of ['PT','PT-101','PIT-2026-A-PRIMARY']){const l=instrumentTagLayout(text,36);assert.ok(l.lines.length<=2);assert.ok(l.fontSize>=5&&l.fontSize<=10);assert.ok(l.lines.every(s=>s.length>0))}});
+t('snap detecta nozzles físicos mesmo após rotação',()=>{
+ const tx=addUx05SymbolTransaction(initial(),{symbol:getSymbol('equip-pump-centrifugal'),point:{x:136,y:20},id:'P-SNAP'});
+ const list=collectEntitySnapCandidates(tx.entities).filter(p=>p.type===SNAP_TYPES.PORT&&p.entityId==='P-SNAP');
+ assert.equal(list.length,2);assert.deepEqual(list.find(p=>p.nozzleId==='N1').point,{x:100,y:20});
+ const rotated=tx.entities.map(e=>e.id==='P-SNAP'?{...e,rotation:90}:e);
+ const list90=collectEntitySnapCandidates(rotated).filter(p=>p.type===SNAP_TYPES.PORT&&p.entityId==='P-SNAP');
+ assert.ok(Math.abs(list90.find(p=>p.nozzleId==='N1').point.x-136)<1e-8);
+ assert.ok(Math.abs(list90.find(p=>p.nozzleId==='N1').point.y+16)<1e-8);
+});
+t('usuário configura bocais e metadados mantendo grafo coerente',()=>{
+ const tx=addUx05SymbolTransaction(initial(),{symbol:getSymbol('equip-vessel-vertical'),point:{x:160,y:20},id:'V-CONF'});
+ const added=configureEquipmentNozzlesTransaction(tx,{equipmentId:'V-CONF',nozzles:[...tx.entities.at(-1).ports,nextEquipmentNozzle(tx.entities.at(-1))]});
+ assert.equal(added.ok,true);assert.equal(added.graph.components['V-CONF'].portIds.length,4);
+ assert.equal(added.entities.at(-1).symbolDefinition.nozzleTemplate,'UX05_USER_CONFIGURED');
+ assert.equal(validateEngineeringGraph(added.graph).valid,true);
+ const removed=configureEquipmentNozzlesTransaction(added,{equipmentId:'V-CONF',nozzles:added.entities.at(-1).ports.slice(0,3)});
+ assert.equal(removed.ok,true);assert.equal(removed.graph.components['V-CONF'].portIds.length,3);
+});
+t('remoção de bocal conectado é recusada atomicamente',()=>{
+ let tx=addUx05SymbolTransaction(initial(),{symbol:getSymbol('equip-pump-centrifugal'),point:{x:136,y:20},id:'P-CFG'});
+ let linked=connectPipeEndpointToEquipmentNozzleTransaction(tx,{runId:'UX05-RUN',side:'END',equipmentId:'P-CFG',nozzleId:'N1'});
+ const bad=configureEquipmentNozzlesTransaction(linked,{equipmentId:'P-CFG',nozzles:linked.entities.at(-1).ports.filter(p=>p.id!=='N1')});
+ assert.equal(bad.ok,false);assert.equal(bad.rolledBack,true);
+ assert.equal(graphStats(bad.graph).connections,1);assert.equal(validateEngineeringGraph(bad.graph).valid,true);
+});
 console.log(`UX-05 Instrument Support Equipment: ${passed}/${passed} PASS`);
