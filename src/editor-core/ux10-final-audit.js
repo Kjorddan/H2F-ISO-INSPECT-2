@@ -1,5 +1,8 @@
 import{createRevisionSnapshot,revisionPayload,sha256}from'./document-structure.js';
 import{validateInspectionStore}from'./inspection.js';
+import{validateEvidenceStore}from'./evidence-integrity.js';
+import{validateIntegrityStore}from'./integrity.js';
+import{validateEngineeringGraph}from'./engineering-graph.js';
 import{validateUx06Markers}from'./ux06-markers.js';
 import{ux08ValidateSheet,ux08Layout}from'./ux08-sheet-layout.js';
 import{ux09BuildPlan}from'./ux09-print-plan.js';
@@ -33,7 +36,7 @@ export async function ux10VerifyFormalSnapshot(document,entities=[],context={}){
  if(extended!==latest.ux10ReleaseSha256)return{allowed:false,reason:'Dados de END, evidências ou anexos mudaram após aprovação'};
  return{allowed:true,digest:extended,baseDigest:base,state:latest.state,revision:latest.revision,snapshotId:latest.id};
 }
-export function ux10AuditIntegrated({document,entities=[],graph=null,inspectionStore={},customSymbols=[],emissionLog=[]}={}){
+export function ux10AuditIntegrated({document,entities=[],graph=null,inspectionStore={},evidenceStore=null,integrityStore=null,customSymbols=[],emissionLog=[]}={}){
  const findings=[],add=(severity,code,description)=>findings.push({severity,code,description});
  if(!document?.sheets?.length){add('BLOCKER','DOCUMENT_INVALID','Documento sem folhas');return{status:'BLOCKED',findings}}
  const ids=new Set(),sheetIds=new Set(document.sheets.map(s=>s.id));
@@ -48,7 +51,10 @@ export function ux10AuditIntegrated({document,entities=[],graph=null,inspectionS
   for(const item of validateInspectionStore(inspectionStore))add('BLOCKER','INSPECTION_'+item.code,item.id);
   if(graph){for(const item of validateUx06Markers(entities,graph,inspectionStore).issues)add('BLOCKER',item.code,item.id)}
  }
- if(graph){for(const edge of Object.values(graph.edges||{}))if(!graph.runs?.[edge.runId])add('BLOCKER','EDGE_ORPHAN',edge.id);
+ if(evidenceStore?.evidence&&evidenceStore?.photoOverlays&&evidenceStore?.anomalies&&evidenceStore?.recommendations){for(const item of validateEvidenceStore(evidenceStore))add('BLOCKER','EVIDENCE_'+item.code,item.id)}
+ if(integrityStore?.assessments&&integrityStore?.damageCatalogs){for(const item of validateIntegrityStore(integrityStore))add('BLOCKER','INTEGRITY_'+item.code,item.id)}
+ if(graph){for(const item of validateEngineeringGraph(graph).issues.filter(i=>i.severity==='ERROR'))add('BLOCKER','GRAPH_'+item.code,item.entityId);
+ for(const edge of Object.values(graph.edges||{}))if(!graph.runs?.[edge.runId])add('BLOCKER','EDGE_ORPHAN',edge.id);
   for(const mount of Object.values(graph.mounts||{}))if(!graph.edges?.[mount.segmentId])add('BLOCKER','MOUNT_SEGMENT_ORPHAN',mount.id)}
  const cids=new Set();for(const c of customSymbols){if(cids.has(c.id))add('BLOCKER','CUSTOM_ID_COLLISION',c.id);cids.add(c.id)}
  for(const log of emissionLog)if(log.state==='ASSINADO'||log.state==='IMPRESSO')add('WARNING','UNVERIFIED_DELIVERY_STATE',log.id);
