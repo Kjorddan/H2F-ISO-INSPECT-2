@@ -1,0 +1,38 @@
+{
+  "phase": "UX-03",
+  "status": "CONCLUIDA_AUDITADA",
+  "current": "UX-03 de 10",
+  "remainingAfterThis": 7,
+  "nextPhase": "UX-04",
+  "pending": [
+    {
+      "phase": "UX-04",
+      "scope": "Tubulações, conexões, flanges e válvulas — redesenho e comportamento"
+    },
+    {
+      "phase": "UX-05",
+      "scope": "Instrumentação, suportes e equipamentos"
+    },
+    {
+      "phase": "UX-06",
+      "scope": "Inspeção, END, anotações e símbolos de folha"
+    },
+    {
+      "phase": "UX-07",
+      "scope": "Criador de formas personalizadas"
+    },
+    {
+      "phase": "UX-08",
+      "scope": "Formatação de folha, carimbo, tabelas e templates"
+    },
+    {
+      "phase": "UX-09",
+      "scope": "PDF, impressão e workflow documental"
+    },
+    {
+      "phase": "UX-10",
+      "scope": "Auditoria integrada, E2E, Golden Masters e correções finais"
+    }
+  ],
+  "rule": "aguardar Pode seguir"
+}
