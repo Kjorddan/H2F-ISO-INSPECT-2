@@ -29,6 +29,7 @@ import{createNativePackage,validateNativePackage,createPrintSettings,createRepor
 import{LIBRARY_CATEGORIES,BUILTIN_SYMBOLS,LIBRARY_SCOPES,SYMBOL_PRIMITIVES,searchLibrary,toggleFavorite,pushRecent,createSymbolEntityFrom,getSymbol,libraryStats,createCustomSymbol,addSymbolPrimitive,addCustomConnectionPoint,versionCustomSymbol,exportCustomLibrary,importCustomLibrary}from'./editor-core/library.js';
 import{ToolButton,MenuBar,ToolbarMore,PanelHeader,NoticeDialog}from'./ui/cad-shell.jsx';
 import{SymbolGlyph,SymbolPreview}from'./ui/industrial-symbol-glyphs.jsx';
+import{isUx06Symbol,isUx06PhysicalMarker,insertUx06MarkerTransaction,registerUx06RecordTransaction,ux06MarkerStatus,validateUx06Markers}from'./editor-core/ux06-markers.js';
 import{isMountableSymbol,isPhysicalEquipment,addUx05SymbolTransaction,connectPipeEndpointToEquipmentNozzleTransaction,equipmentNozzleCandidates,syncMountedSymbolPositions,configureEquipmentNozzlesTransaction,nextEquipmentNozzle}from'./editor-core/ux05-associations.js';
 
 const tools=['Selecionar','Pan','Linha','Tubulação','Componente','Cota','Elevação','Coordenada','Fluxo','Norte','Texto','TAG','Leader'];
@@ -87,7 +88,7 @@ function Entity({e,selected,onDown,allEntities}){
   return <g className={`entity polylineEntity ${pipe?'pipeRunEntity':''} ${pipe?`pipeStyle-${styleId.toLowerCase().replaceAll('_','-')}`:''} ${selected?'selected':''}`} data-pipe-style={styleId||undefined} data-entity-id={e.id} onPointerDown={ev=>onDown(ev,e)}>{pipe&&e.visualStyle?.secondary&&<path className="pipeSecondary" d={polylineToPath(e)}/>}<path className="pipeCenterline" d={polylineToPath(e)}/></g>;
  }
  const cx=e.x+e.width/2,cy=e.y+e.height/2;
- if(e.kind==='industrial-symbol'){const symbol=e.symbolDefinition||getSymbol(e.symbolId);return <g className={`entity industrialSymbol ${selected?'selected':''}`} transform={`rotate(${e.rotation||0} ${cx} ${cy})`} onPointerDown={ev=>onDown(ev,e)} data-entity-id={e.id} data-symbol-id={e.symbolId}><rect className="symbolHitBox" x={e.x} y={e.y} width={e.width} height={e.height}/><SymbolGlyph symbol={e.category==='INSTRUMENTAÇÃO'?{...symbol,displayTag:e.tag||symbol.instrumentCode||e.acronym}:symbol} x={e.x} y={e.y} width={e.width} height={e.height}/>{e.category!=='INSTRUMENTAÇÃO'&&<text className="symbolEntityLabel" x={cx} y={e.y+e.height+12} textAnchor="middle">{e.tag||e.acronym}</text>}</g>}
+ if(e.kind==='industrial-symbol'){const symbol=e.symbolDefinition||getSymbol(e.symbolId);return <g className={`entity industrialSymbol ${selected?'selected':''}`} transform={`rotate(${e.rotation||0} ${cx} ${cy})`} onPointerDown={ev=>onDown(ev,e)} data-entity-id={e.id} data-symbol-id={e.symbolId}><rect className="symbolHitBox" x={e.x} y={e.y} width={e.width} height={e.height}/><SymbolGlyph symbol={e.category==='INSTRUMENTAÇÃO'?{...symbol,displayTag:e.tag||symbol.instrumentCode||e.acronym}:isUx06Symbol(e)?{...symbol,displayText:e.note||e.tag||symbol.acronym}:symbol} x={e.x} y={e.y} width={e.width} height={e.height}/>{e.category!=='INSTRUMENTAÇÃO'&&<text className="symbolEntityLabel" x={cx} y={e.y+e.height+12} textAnchor="middle">{e.tag||e.acronym}</text>}</g>}
  return <g className={`entity ${selected?'selected':''}`} transform={`rotate(${e.rotation||0} ${cx} ${cy})`} onPointerDown={ev=>onDown(ev,e)} data-entity-id={e.id}><rect x={e.x} y={e.y} width={e.width} height={e.height} rx="6"/><text x={cx} y={cy-4} textAnchor="middle">{e.name}</text><text className="entityId" x={cx} y={cy+15} textAnchor="middle">{e.id}</text></g>;
 }
 
@@ -123,6 +124,7 @@ function App(){
  const [collaboration,setCollaboration]=useState(()=>upsertPresence(createCollaborationState(),{userId:'LOCAL',name:'Usuário atual',online:true}));
  const [offlineState,setOfflineState]=useState(()=>createOfflineState({online:typeof navigator==='undefined'?true:navigator.onLine}));
  const [ndtMethod,setNdtMethod]=useState('UT');
+ const [ux06Target,setUx06Target]=useState('');
  const inspectionSummary=inspectionStats(inspectionStore);
  const evidenceSummary=evidenceStats(evidenceStore);
  const integritySummary=integrityStats(integrityStore);
@@ -154,6 +156,7 @@ function App(){
  const selBounds=useMemo(()=>selectionBounds(resolvedEntities,selection.ids),[resolvedEntities,selection]);
  const graphInfo=useMemo(()=>graphStats(engineeringGraph),[engineeringGraph]);
  const graphValidation=useMemo(()=>validateEngineeringGraph(engineeringGraph),[engineeringGraph]);
+ const ux06Diagnostics=useMemo(()=>validateUx06Markers(entities,engineeringGraph,inspectionStore),[entities,engineeringGraph,inspectionStore]);
  useEffect(()=>{setEngineeringGraph(current=>{let next=current;const runs=entities.filter(isPipeRun),ids=new Set(runs.map(r=>r.id));for(const id of Object.keys(next.runs))if(!ids.has(id))next=unregisterPipeRun(next,id);for(const run of runs)next=syncPipeRun(next,run);
  const liveSymbols=new Set(entities.filter(e=>e.kind==='industrial-symbol').map(e=>e.id));
  for(const id of Object.keys(next.components||{}))if(!liveSymbols.has(id))next=unregisterComponent(next,id);
@@ -179,6 +182,15 @@ function App(){
  const beginPan=e=>{setInteraction({type:'pan',screen:{x:e.clientX,y:e.clientY},startViewport:v});host.current.setPointerCapture?.(e.pointerId)};
  const insertLibrarySymbol=(symbolId,point)=>{const symbol=symbolById(symbolId);if(!symbol)return null;
   const runs=entities.filter(isPipeRun),near=nearestPipeSegment(runs,point),endpoint=nearestPipeEndpoint(runs,point),segmentThreshold=16/v.zoom,endpointThreshold=18/v.zoom;
+  if(isUx06Symbol(symbol)){
+   const id='SYM-'+String(symbolSeq.current++).padStart(3,'0');
+   const attached=isUx06PhysicalMarker(symbol)&&near&&near.distance<=segmentThreshold;
+   const op=insertUx06MarkerTransaction({entities,graph:engineeringGraph,inspectionStore},{symbol,id,point:attached?near.point:point,
+    runId:attached?near.runId:null,segmentIndex:attached?near.index:null,sheetId:symbol.category==='SÍMBOLOS DE FOLHA'?sheet.id:null});
+   if(op.ok){setEntities(op.entities);setEngineeringGraph(op.graph);setSelection(selectOnly(createSelection(),id));setUx06Target('');setRecents(r=>pushRecent(r,symbolId));setTool('Selecionar');setSymbolPlacement(null)}
+   else console.warn('UX-06 marker refused',op.error);
+   return op;
+  }
   let tx=null;
   if(isTerminalSymbol(symbol)&&endpoint&&endpoint.distance<=endpointThreshold){
    const seq=String(topologySeq.current++).padStart(3,'0');
