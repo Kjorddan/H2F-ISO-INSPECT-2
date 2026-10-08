@@ -3,7 +3,7 @@
   "phase": "UX-08",
   "phaseIndex": 8,
   "phaseTotal": 10,
-  "status": "IMPLEMENTADA_AGUARDANDO_AUDITORIA_FINAL",
+  "status": "CONCLUIDA_AUDITADA",
   "remainingAfterThis": 2,
   "nextPhase": "UX-09",
   "advanceRule": "AGUARDAR_EXCLUSIVAMENTE_COMANDO_PODE_SEGUIR",
@@ -65,5 +65,9 @@
     "Sem exportação/impressão/PDF final nesta etapa",
     "Sem certificação automática de conformidade ISO",
     "Sem autorização de assinatura de desenhos"
-  ]
+  ],
+  "regression": "PASS",
+  "ux08Core": "40/40 PASS",
+  "ux08Browser": "11/11 PASS",
+  "workflowUX08": 37731318525
 }
