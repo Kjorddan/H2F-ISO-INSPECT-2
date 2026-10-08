@@ -12,6 +12,7 @@ test('draw circle and rectangle on vector canvas and save to industrial library'
  await open(page);await page.getByLabel('Nome da forma').fill('Marca exclusiva UX07');
  await draw(page,'Círculo');await draw(page,'Retângulo',{x:12,y:12},{x:54,y:31});
  await expect(page.locator('.ux07PrimitiveList').first().locator('button')).toHaveCount(2);
+ await expect(page.getByLabel('Coordenada y')).toHaveValue('12');
  await page.screenshot({path:'test-results/ux07-shape-designer-drawn.png',fullPage:true});
  await page.getByRole('button',{name:'Salvar nova forma'}).click();
  await expect(page.locator('[data-testid="ux07-shape-editor"]')).toHaveCount(0);
