@@ -104,7 +104,7 @@ test('válvula inline continua dividindo o run com duas conexões',async({page})
  await clickWorld(page,730,390);
  await expect(page.locator('[data-symbol-id="valve-gate"]')).toHaveCount(1);
  await expect(page.locator('.pipeRunEntity')).toHaveCount(2);
- await expect(page.locator('footer')).toContainText('Grafo: 2 runs');
+ await expect(page.locator('footer')).toContainText('Grafo: 2 run(s)');
  await expect(page.locator('footer')).toContainText('2 conexão(ões)');
  await page.screenshot({path:'test-results/ux04-valve-inline.png',fullPage:true});
 });
