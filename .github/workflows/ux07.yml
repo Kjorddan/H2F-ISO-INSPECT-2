@@ -1,3 +1,4 @@
+# UX-07 final audited packaging: code + CHECKPOINT_UX07.json + reports, 32 core and 9 browser gates.
 # UX-07 final source packaging: audited 4 distinct welding glyph variants, 9 Chromium tests.
 # UX-07 audited packaging: checkpoint includes reports, pending work and SHA references.
 name: UX-07 Custom Shape Creator
