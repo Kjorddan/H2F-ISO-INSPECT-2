@@ -68,7 +68,7 @@ export function ux07SafeCreate(input){
  if(!Array.isArray(p.primitives))p.primitives=[];
  if(!Array.isArray(p.connectionPoints))p.connectionPoints=[];
  const s=createCustomSymbol(p);
- s.primitives=p.primitives.map(q=>({...q,text:q.type==='text'?secureText(q.text):q.text}));
+ s.primitives=p.primitives.map(q=>q.type==='text'?{...q,text:secureText(q.text)}:{...q});
  s.connectionPoints=p.connectionPoints.map(q=>({...q,role:'reference',direction:'bidirectional'}));
  const v=ux07ValidateShape(s,{requireGeometry:false});
  if(!v.valid)throw Error('Invalid custom symbol: '+v.errors.join(','));
