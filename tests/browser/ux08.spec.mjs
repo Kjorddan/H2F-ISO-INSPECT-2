@@ -91,3 +91,20 @@ test('invalid frame margin is refused with feedback without crashing CAD',async(
  await expect(page.getByLabel('Margem left')).toHaveValue('25');
  await page.screenshot({path:'test-results/ux08-validation-recovery.png',fullPage:true});
 });
+
+test('duplicated sheet retains its table layout and independent formatting',async({page})=>{
+ await open(page);
+ await page.getByLabel('Tipo de tabela para adicionar').selectOption('END');
+ await page.getByRole('button',{name:'＋ Adicionar tabela'}).click();
+ await page.getByRole('button',{name:'Concluir'}).click();
+ await page.locator('.tabs button[title="Duplicar folha"]').click();
+ await expect(page.locator('.tabs button.sheet')).toHaveCount(2);
+ await page.getByRole('button',{name:'Formatar folha UX-08'}).click();
+ await expect(page.locator('.ux08TableEditor')).toHaveCount(1);
+ await expect(page.locator('[data-testid="ux08-layout-preview"] [data-ux08-table="END"]')).toHaveCount(1);
+ await page.getByLabel('Formato da folha').selectOption('A4');
+ await page.getByRole('button',{name:'Concluir'}).click();
+ await page.locator('.tabs button.sheet').filter({hasText:'Folha 1'}).first().click();
+ await expect(page.locator('[data-testid="ux08-sheet-overlay"]')).toHaveAttribute('data-ux08-format','A3');
+ await page.screenshot({path:'test-results/ux08-duplicate-sheet-preserves-tables.png',fullPage:true});
+});
