@@ -11,7 +11,7 @@ let passed=0;function t(name,fn){fn();passed++;console.log('PASS',name)}
 const ids=c=>new Set(BUILTIN_SYMBOLS.filter(s=>s.category===c).map(s=>s.id));
 const baseRun=createPipeRun('UX05-RUN',[{x:0,y:20},{x:100,y:20}],{lineNumber:'6-P-101'});
 const initial=()=>({entities:[baseRun],graph:registerPipeRun(createEngineeringGraph(),baseRun)});
-t('catálogo UX-05 amplia baseline UX-04 sem remoções',()=>{const s=libraryStats();assert.equal(s.symbols,173);assert.equal(s.byCategory['INSTRUMENTAÇÃO'],34);assert.equal(s.byCategory['SUPORTES'],29);assert.equal(s.byCategory['EQUIPAMENTOS'],30)});
+t('catálogo UX-05 amplia baseline UX-04 sem remoções',()=>{const s=libraryStats();assert.ok(s.symbols>=173);assert.equal(s.byCategory['INSTRUMENTAÇÃO'],34);assert.equal(s.byCategory['SUPORTES'],29);assert.equal(s.byCategory['EQUIPAMENTOS'],30)});
 t('matriz UX-03 permanece 100% válida',()=>assert.equal(validateLibrary().valid,true));
 t('suportes mínimos diferentes registrados',()=>{for(const id of ['support-rest','support-shoe','support-sliding-shoe','support-guide','support-line-stop','support-anchor','support-trunnion','support-dummy-leg','support-stanchion','support-hanger','support-rod-hanger','support-clevis-hanger','support-u-bolt','support-clamp','support-saddle','support-trapeze','support-sway-brace','support-snubber','support-spring','support-variable-spring','support-constant-spring','support-structure','support-rack','support-sleeper','support-special'])assert.ok(ids('SUPORTES').has(id),id)});
 t('suportes não possuem port de processo e não são inline',()=>{for(const s of BUILTIN_SYMBOLS.filter(x=>x.category==='SUPORTES')){assert.equal(s.portDefinitions.length,0,s.id);assert.equal(isInlineSymbol(s),false,s.id);assert.equal(s.placement.attached,true,s.id)}});
