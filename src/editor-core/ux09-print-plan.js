@@ -1,5 +1,5 @@
 import{sheetSize,revisionPayload,sha256}from'./document-structure.js';
-import{ux08Layout,ux08ValidateSheet,ux08TableData}from'./ux08-sheet-layout.js';
+import{ux08Layout,ux08ValidateSheet,ux08TableData,ux08FrameGeometry}from'./ux08-sheet-layout.js';
 export const UX09_SCHEMA='h2f-print-release/v1';
 export const UX09_STATES=Object.freeze(['RASCUNHO','EM ELABORAÇÃO','EM REVISÃO','REVISADO','APROVADO','AS BUILT']);
 export const UX09_MAX_PAGES=200;
@@ -47,6 +47,7 @@ export function ux09BuildPlan({document,entities=[],inspection={},options={}}={}
  if(pages.length>UX09_MAX_PAGES)throw Error('Limite de '+UX09_MAX_PAGES+' páginas excedido');
  const collisions=ux09LayoutWarnings(included);
  warnings.push(...collisions);
+ warnings.push(...ux09EntityPreflightWarnings(included,entities));
  return{schema:UX09_SCHEMA,pages:pages.map((p,i)=>({...p,pageIndex:i+1,pageCount:pages.length,documentMode:cfg.documentMode})),warnings,mode:cfg.documentMode,scope:cfg.scope,sourceSheetCount:included.length,totalPageCount:pages.length};
 }
 export function ux09LayoutWarnings(sheets){
@@ -56,6 +57,30 @@ export function ux09LayoutWarnings(sheets){
   for(const anchor of ['TOP_LEFT','TOP_RIGHT','BOTTOM_LEFT','BOTTOM_RIGHT']){
    if(layout.tables.filter(t=>t.visible!==false&&t.anchor===anchor).length>2)warnings.push('Três ou mais tabelas na mesma âncora podem se sobrepor: '+s.name+' '+anchor);
   }
+ }
+ return warnings;
+}
+
+const intersect=(a,b)=>a.x<b.x+b.width&&a.x+a.width>b.x&&a.y<b.y+b.height&&a.y+a.height>b.y;
+export function ux09EntityPreflightWarnings(sheets,entities=[]){
+ const warnings=[];
+ for(const sheet of sheets){
+  const geo=ux08FrameGeometry(sheet),layout=ux08Layout(sheet),visible=ux09ScopedEntities(entities,sheet);
+  let outside=0,titleblock=0;
+  for(const e of visible){
+   let b;
+   if(Array.isArray(e.points)&&e.points.length){
+    const x=e.points.map(p=>p.x).filter(Number.isFinite),y=e.points.map(p=>p.y).filter(Number.isFinite);
+    if(!x.length||!y.length)continue;
+    b={x:Math.min(...x),y:Math.min(...y),width:Math.max(...x)-Math.min(...x)||.01,height:Math.max(...y)-Math.min(...y)||.01};
+   }else if(Number.isFinite(e.x)&&Number.isFinite(e.y)&&Number.isFinite(e.width)&&Number.isFinite(e.height))
+    b={x:e.x,y:e.y,width:e.width,height:e.height};
+   else continue;
+   if(!intersect(b,geo.paper)||b.x<geo.paper.x||b.y<geo.paper.y||b.x+b.width>geo.paper.x+geo.paper.width||b.y+b.height>geo.paper.y+geo.paper.height)outside++;
+   if(layout.titleBlock.visible&&intersect(b,geo.titleBlock))titleblock++;
+  }
+  if(outside)warnings.push(sheet.name+': '+outside+' entidade(s) ultrapassam o limite físico da folha; revise antes de emitir.');
+  if(titleblock)warnings.push(sheet.name+': '+titleblock+' entidade(s) intersectam a área reservada ao carimbo.');
  }
  return warnings;
 }
