@@ -22,3 +22,6 @@ Assinatura ICP-Brasil e autenticação de emitente; backend de biblioteca por em
 
 ## EVIDENCE-006 — bytes de anexos nativos
 Detectada perda de persistência de evidências importadas apenas por URLs `blob:`, inválidas após reinício do navegador. `src/main.jsx` agora incorpora arquivos permitidos até **8 MiB** como Data URI no arquivo `.h2fiso`, preservando `sha256` do conteúdo e metadados de arquivo. São aceitos PNG/JPEG/WEBP/GIF/PDF/TXT/CSV; SVG executável e tipos inesperados são recusados. `ux10AuditIntegrated` detecta `EVIDENCE_UNARCHIVED` e o gate bloqueia emissão controlada com anexo temporário. **Anexos legados `blob:` não são recuperáveis automaticamente**: o arquivo original deve ser reinserido manualmente. A foto no JSON ocupa mais espaço que o binário; usuário deve evitar registros enormes.
+
+## NATIVE-INTEGRITY-007 — validação do arquivo H2F
+Abertura de `.h2fiso` agora usa `validateNativePackageIntegrity()` de `src/editor-core/io-reporting.js`, que compara `manifest.documentSha256` ao SHA-256 calculado sobre `document.json`. Um pacote sem manifesto hash ou com conteúdo alterado é rejeitado, inclusive mudança de status END por edição externa. Importação de JSON simples mantém comportamento anterior. Testes adicionados para arquivo íntegro, modificado e sem SHA-256.

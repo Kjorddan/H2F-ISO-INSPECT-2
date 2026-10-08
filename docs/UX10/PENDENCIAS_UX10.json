@@ -62,6 +62,12 @@
       "severity": "MEDIUM",
       "status": "OPEN",
       "description": "Bytes dos novos anexos são arquivados em base64 no .h2fiso e não criptografados em repouso; ambiente deve tratar como arquivo sensível."
+    },
+    {
+      "id": "LEGACY-NATIVE-NO-HASH",
+      "severity": "MEDIUM",
+      "status": "OPEN",
+      "description": "Pacotes .h2fiso antigos sem hash documental devem ser reexportados; JSON simples continua importável."
     }
   ],
   "closed": [
@@ -84,6 +90,10 @@
     {
       "code": "EVIDENCE-006",
       "description": "Novos anexos incorporados no documento com SHA-256; bloqueio de fontes temporárias"
+    },
+    {
+      "code": "NATIVE-INTEGRITY-007",
+      "description": "Importação .h2fiso verifica SHA256 real do documento embutido"
     }
   ],
   "releaseClaim": "CONCLUIDO_E_AUDITADO_NO_CI_NAO_HOMOLOGADO_EM_CAMPO"

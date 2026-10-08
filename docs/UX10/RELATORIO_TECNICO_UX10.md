@@ -23,3 +23,6 @@ A fase possui checkpoint final e pacotes reproduzíveis; sem iniciar novos ciclo
 
 ## Preservação de evidências no documento nativo
 A UX-10 identificou e corrigiu dependência de URLs `blob:` para fotos e documentos, que deixam de existir após fechar o navegador. Novas evidências são incorporadas como Data URI a `.h2fiso`, com SHA-256 original. Evidências legadas do tipo `blob:` não podem ser materializadas sem acesso ao arquivo original; o diagnóstico e a emissão controlada recusam arquivos temporários, com indicação de reinserção. Limite: 8 MiB por anexo autorizado.
+
+## Integridade do arquivo nativo
+A UX-10 acrescentou rejeição explícita de pacotes `.h2fiso` com manifesto SHA-256 ausente ou divergente dos bytes documentais serializados. Isto protege contra corrupção e adulteração detectável, não constitui prova de autoria nem assinatura criptográfica do emitente.

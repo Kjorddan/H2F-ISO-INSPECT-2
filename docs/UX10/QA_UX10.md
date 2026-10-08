@@ -26,3 +26,6 @@ Os resultados numéricos, workflow final e hash de commit serão preenchidos som
 - 40 testes UX10 de núcleo planejados, incluindo flag de anexo `blob:` não arquivado e fonte `data:` com SHA-256.
 - O sétimo cenário UX10 Chromium anexa foto PNG, exporta `.h2fiso`, confere referência `data:image/png;base64,` e SHA-256, reabre o documento e confirma persistência.
 - O pacote nativo H2F é JSON com bytes embutidos em base64, não oferece criptografia de anexo no arquivo; proteger o arquivo físico é responsabilidade do ambiente do usuário.
+
+## Gate adicional .h2fiso
+43 casos core UX10 previstos. Além da persistência da foto, a validação do manifesto será exercitada em três testes: arquivo H2F íntegro PASS; status END alterado após exportação REJEITADO; manifesto sem SHA-256 REJEITADO. Este check não substitui assinatura digital ou autenticação do autor. O esquema H2F mantém compatibilidade de leitura de documentos JSON, mas pacotes `.h2fiso` legados sem hash documental exigem reexportação.
