@@ -1,0 +1,69 @@
+import{test,expect}from'@playwright/test';
+import{createDocument,createRevisionSnapshot,appendRevision}from'../../src/editor-core/document-structure.js';
+import{readFile,mkdir,writeFile}from'node:fs/promises';
+const start=async page=>{await page.goto('/');await page.evaluate(()=>localStorage.clear());await page.reload()};
+const releaseDialog=async page=>{await page.getByRole('button',{name:'PDF / Impressão UX-09'}).click();await expect(page.locator('[data-testid="ux09-document-dialog"]')).toBeVisible();await page.getByLabel('Modo de emissão').selectOption('CONTROLLED')};
+const createApprovedSnapshot=async page=>{
+ await page.locator('.documentPanel').getByRole('combobox').selectOption('APROVADO');
+ await page.locator('.documentPanel').getByRole('button',{name:'Criar snapshot formal'}).click();
+};
+test('final audit panel is available and differentiates warnings from blockers',async({page})=>{
+ await start(page);await page.locator('.ux10AuditPanel summary').click();
+ await expect(page.locator('.ux10AuditPanel')).toContainText('Diagnóstico integrado');
+ await expect(page.locator('.ux10AuditPanel')).toContainText('Bloqueios');
+ await expect(page.locator('.ux10AuditPanel')).toContainText('Alertas');
+ await page.screenshot({path:'test-results/ux10-integrated-audit-panel.png',fullPage:true});
+});
+test('approved new full-integrity snapshot passes END/evidence SHA-256 gate',async({page})=>{
+ await start(page);await createApprovedSnapshot(page);await releaseDialog(page);
+ await expect(page.locator('[data-testid="ux09-controlled-gate"]')).toContainText('Snapshot completo conferido');
+ await expect(page.getByRole('button',{name:'Gerar PDF único'})).toBeEnabled();
+ await page.screenshot({path:'test-results/ux10-controlled-release-verified.png',fullPage:true});
+});
+test('mutating technical titleblock after approved snapshot blocks controlled export',async({page})=>{
+ await start(page);await createApprovedSnapshot(page);
+ await page.getByRole('button',{name:'Formatar folha UX-08'}).click();
+ await page.getByLabel('Carimbo Projeto').fill('ALTERADO DEPOIS DA APROVAÇÃO');
+ await page.getByRole('button',{name:'Concluir'}).click();
+ await releaseDialog(page);
+ await expect(page.locator('[data-testid="ux09-controlled-gate"]')).toContainText('mudou');
+ await expect(page.getByRole('button',{name:'Gerar PDF único'})).toBeDisabled();
+ await page.screenshot({path:'test-results/ux10-post-approval-change-rejected.png',fullPage:true});
+});
+test('legacy UX09 snapshot stays readable but cannot authorize UX10 controlled PDF',async({page})=>{
+ await start(page);
+ let d={...createDocument(),revisionState:'APROVADO'};
+ d=appendRevision(d,await createRevisionSnapshot(d,[],{revision:'A',state:'APROVADO'}));
+ await page.locator('input.hiddenFileInput[accept*=".h2fiso"]').setInputFiles({name:'ux10-legacy.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify({documentModel:d,entities:[]}))});
+ await releaseDialog(page);
+ await expect(page.locator('[data-testid="ux09-controlled-gate"]')).toContainText('Snapshot legado');
+ await expect(page.getByRole('button',{name:'Gerar PDF único'})).toBeDisabled();
+});
+test('preview multi-sheet PDF unaffected by controlled release requirement',async({page})=>{
+ test.setTimeout(120000);await start(page);
+ await page.locator('.tabs button[title="Nova folha"]').click();
+ await page.getByRole('button',{name:'Formatar folha UX-08'}).click();
+ await page.getByLabel('Formato da folha').selectOption('A4');
+ await page.getByLabel('Orientação da folha').selectOption('portrait');
+ await page.getByRole('button',{name:'Concluir'}).click();
+ await page.getByRole('button',{name:'PDF / Impressão UX-09'}).click();
+ await expect(page.locator('[data-testid="ux09-plan-page"]')).toHaveCount(2);
+ const event=page.waitForEvent('download',{timeout:90000});
+ await page.getByRole('button',{name:'Gerar PDF único'}).click();
+ const f=await event,bytes=await readFile(await f.path());
+ expect(bytes.subarray(0,5).toString('ascii')).toBe('%PDF-');
+ expect((bytes.toString('latin1').match(/\/Type\s*\/Page\s/g)||[]).length).toBe(2);
+ await mkdir('test-results',{recursive:true});await writeFile('test-results/ux10-golden-multipage-a3-a4.pdf',bytes);
+ await page.screenshot({path:'test-results/ux10-golden-multipage-export.png',fullPage:true});
+});
+test('UX07 custom editor, UX08 sheet designer and UX09 release dialog coexist',async({page})=>{
+ await start(page);
+ await page.getByRole('button',{name:'＋ Novo símbolo'}).click();
+ await expect(page.locator('[data-testid="ux07-shape-editor"]')).toBeVisible();
+ await page.getByRole('button',{name:'Cancelar'}).click();
+ await page.getByRole('button',{name:'Formatar folha UX-08'}).click();
+ await expect(page.locator('[data-testid="ux08-sheet-designer"]')).toBeVisible();
+ await page.getByRole('button',{name:'Concluir'}).click();
+ await page.getByRole('button',{name:'PDF / Impressão UX-09'}).click();
+ await expect(page.locator('[data-testid="ux09-document-dialog"]')).toBeVisible();
+});
