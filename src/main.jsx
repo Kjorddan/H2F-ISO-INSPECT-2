@@ -254,19 +254,20 @@ function App(){
   }catch(err){setShellNotice({title:'Importação recusada',body:String(err.message||err)})}finally{e.target.value=''}
  };
  const downloadCustomLibrary=()=>{const blob=new Blob([ux07SerializeLibrary(customSymbols)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='H2F_BIBLIOTECA_PERSONALIZADA_UX07.json';a.click();URL.revokeObjectURL(url)};
- const ux08Page=patch=>setDocumentModel(d=>ux08SetPage(d,d.activeSheetId,patch));
- const ux08LayoutPatch=patch=>setDocumentModel(d=>ux08UpdateLayout(d,d.activeSheetId,patch));
- const ux08Title=patch=>setDocumentModel(d=>updateTitleBlock(d,d.activeSheetId,patch));
- const ux08Preset=id=>setDocumentModel(d=>ux08ApplyPreset(d,d.activeSheetId,id,{template:ux08Templates.find(t=>t.id===id)||null}));
- const ux08Add=kind=>setDocumentModel(d=>{
-  const sh=activeSheet(d),id='UX08-T-'+Date.now().toString(36)+'-'+Math.floor(Math.random()*10000).toString(36);
-  return ux08AddTable(d,sh.id,ux08NewTable(kind,id));
- });
- const ux08Edit=(id,patch)=>setDocumentModel(d=>ux08EditTable(d,d.activeSheetId,id,patch));
- const ux08Delete=id=>setDocumentModel(d=>ux08RemoveTable(d,d.activeSheetId,id));
+ const ux08Page=patch=>setDocumentModel(ux08SetPage(documentModel,sheet.id,patch));
+ const ux08LayoutPatch=patch=>setDocumentModel(ux08UpdateLayout(documentModel,sheet.id,patch));
+ const ux08Title=patch=>setDocumentModel(updateTitleBlock(documentModel,sheet.id,patch));
+ const ux08Preset=id=>setDocumentModel(ux08ApplyPreset(documentModel,sheet.id,id,{template:ux08Templates.find(t=>t.id===id)||null}));
+ const ux08Add=kind=>{
+  const id='UX08-T-'+Date.now().toString(36)+'-'+Math.floor(Math.random()*10000).toString(36);
+  setDocumentModel(ux08AddTable(documentModel,sheet.id,ux08NewTable(kind,id)));
+ };
+ const ux08Edit=(id,patch)=>setDocumentModel(ux08EditTable(documentModel,sheet.id,id,patch));
+ const ux08Delete=id=>setDocumentModel(ux08RemoveTable(documentModel,sheet.id,id));
  const ux08StoreTemplate=name=>{
+  if(ux08Templates.length>=25)throw Error('Máximo de 25 templates');
   const id='UX08_USER_'+Date.now().toString(36),template=ux08SaveTemplate(sheet,{id,name});
-  setUx08Templates(list=>{if(list.length>=25)throw Error('Máximo de 25 templates');return[...list,template]});
+  setUx08Templates([...ux08Templates,template]);
  };
  const makeDocId=prefix=>`${prefix}-${String(docSeq.current++).padStart(3,'0')}`;
  const anchorAt=(p)=>nearestEntityAnchor(entities,p,{tolerance:18/v.zoom})?.anchor||freeAnchor(p);
