@@ -1,14 +1,42 @@
 {
-  "project": "H2F ISO INSPECT 2.0",
+  "product": "H2F ISO INSPECT 2.0",
+  "projectCycle": "UX-01 ... UX-10",
   "phase": "UX-10",
   "phaseIndex": 10,
   "phaseTotal": 10,
   "status": "CONCLUIDA_AUDITADA_CI_HOMOLOGACAO_CAMPO_PENDENTE",
-  "nextPhase": null,
+  "repository": "Kjorddan/H2F-ISO-INSPECT-2",
+  "branch": "ux-evolution",
+  "mainModified": false,
+  "baselineCheckpoint": "CHECKPOINT_UX09.json",
+  "baselineCommit": "294a30aa9c118b2a6992d527d2e710320019c797",
+  "testedRuntimeCommit": "078afde4f3dfe19a9adc17c2a4a749d40a0900b5",
+  "validatedCIWorkflow": 37775897159,
+  "coreUX10": "43/43 PASS",
+  "chromiumCrossPhase": "66/66 PASS",
+  "build": "PASS",
+  "fullRegression": "PASS",
+  "localServerPackaging": "CI_PASS_WINDOWS_PHYSICAL_SMOKE_NOT_EXECUTED",
+  "builtinSymbols": 227,
+  "inspectionENDNonprocess": "REGRESSION_PASS",
+  "customShapeEditor": "REGRESSION_PASS",
+  "sheetLayout": "REGRESSION_PASS",
+  "PDFMultisheet": "REGRESSION_PASS",
+  "controlledRelease": "EXTENDED_SHA256_V2",
+  "evidencePersistence": "DATA_URI_PLUS_SHA256_UP_TO_8_MiB",
+  "nativeDocumentImport": "SHA256_MANIFEST_VALIDATED",
+  "windowsSecurity": "LOOPBACK_ONLY_STRICT_DIRECTORY_PREFIX",
+  "goldenDatasetPages": 9,
+  "normativeClaim": "REFERENCE_GUIDED_NOT_CERTIFIED",
+  "printedReceipt": "NOT_IMPLEMENTED",
+  "digitalSignature": "NOT_IMPLEMENTED",
+  "clientAcceptance": "NOT_DONE",
+  "fieldHomologation": "PENDING_EXTERNAL_EXECUTION",
   "remainingAfterThis": 0,
-  "fieldHomologation": "PENDENTE",
-  "runStatus": "SUCCESS",
-  "risks": [
+  "nextPhase": null,
+  "autoAdvance": false,
+  "nextAction": "FIELD_VERIFICATION_PER_docs/UX10/PLANO_HOMOLOGACAO_WINDOWS.md",
+  "openRisks": [
     {
       "id": "WIN-FIELD-SMOKE",
       "severity": "HIGH",
@@ -70,7 +98,7 @@
       "description": "Pacotes .h2fiso antigos sem hash documental devem ser reexportados; JSON simples continua importável."
     }
   ],
-  "closed": [
+  "closedFindings": [
     {
       "code": "CTRL-001",
       "description": "SHA-256 v2 de inspeção/END/evidências"
@@ -95,10 +123,5 @@
       "code": "NATIVE-INTEGRITY-007",
       "description": "Importação .h2fiso verifica SHA256 real do documento embutido"
     }
-  ],
-  "releaseClaim": "CONCLUIDO_E_AUDITADO_NO_CI_NAO_HOMOLOGADO_EM_CAMPO",
-  "testedRuntimeCommit": "078afde4f3dfe19a9adc17c2a4a749d40a0900b5",
-  "workflowUX10": 37775897159,
-  "core": "43/43 PASS",
-  "browser": "66/66 PASS"
+  ]
 }

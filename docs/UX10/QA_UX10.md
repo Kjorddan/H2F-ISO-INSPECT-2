@@ -29,3 +29,10 @@ Os resultados numéricos, workflow final e hash de commit serão preenchidos som
 
 ## Gate adicional .h2fiso
 43 casos core UX10 previstos. Além da persistência da foto, a validação do manifesto será exercitada em três testes: arquivo H2F íntegro PASS; status END alterado após exportação REJEITADO; manifesto sem SHA-256 REJEITADO. Este check não substitui assinatura digital ou autenticação do autor. O esquema H2F mantém compatibilidade de leitura de documentos JSON, mas pacotes `.h2fiso` legados sem hash documental exigem reexportação.
+
+## Resultado comprovado — execução final de validação
+- **43/43 testes core UX-10 PASS**.
+- **66/66 testes Chromium UX-02/04/05/06/07/08/09/10 PASS**, incluindo foto arquivada e reaberta.
+- **Full regression + build Vite PASS; Local Server Windows montado no CI**.
+- GitHub Actions: https://github.com/Kjorddan/H2F-ISO-INSPECT-2/actions/runs/37775897159 , runtime commit `078afde4f3dfe19a9adc17c2a4a749d40a0900b5`.
+- A execução é automatizada em Ubuntu/Chrome; teste em Windows real segue PENDENTE.

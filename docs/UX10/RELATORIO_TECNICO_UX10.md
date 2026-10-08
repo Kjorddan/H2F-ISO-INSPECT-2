@@ -26,3 +26,6 @@ A UX-10 identificou e corrigiu dependência de URLs `blob:` para fotos e documen
 
 ## Integridade do arquivo nativo
 A UX-10 acrescentou rejeição explícita de pacotes `.h2fiso` com manifesto SHA-256 ausente ou divergente dos bytes documentais serializados. Isto protege contra corrupção e adulteração detectável, não constitui prova de autoria nem assinatura criptográfica do emitente.
+
+## Resultado CI final
+A suíte integrada UX-10 passou **43/43 casos de núcleo e 66/66 casos Chromium**, incluindo regressão UX-06, teste de anexo `.h2fiso`, PDF multipágina e gate SHA-256 v2. O workflow de validação do runtime é 37775897159; qualquer alteração de código posterior exige novo gate. A fase será fechada como `CONCLUIDA_AUDITADA_CI_HOMOLOGACAO_CAMPO_PENDENTE`, não como homologação assinada em obra.
