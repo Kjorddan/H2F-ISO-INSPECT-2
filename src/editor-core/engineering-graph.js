@@ -1,5 +1,5 @@
 const copy=o=>typeof structuredClone==='function'?structuredClone(o):JSON.parse(JSON.stringify(o));
-export function createEngineeringGraph(){return{schemaVersion:'0.11.0',nodes:{},ports:{},edges:{},connections:{},runs:{},components:{},meta:{nextConnectionSeq:1}}}
+export function createEngineeringGraph(){return{schemaVersion:'0.34.0',nodes:{},ports:{},edges:{},connections:{},attachments:{},runs:{},components:{},meta:{nextConnectionSeq:1,nextAttachmentSeq:1}}}
 const endpointPort=(run,side,nodeId)=>({id:`${run.id}-PORT-${side}`,ownerId:run.id,nodeId,role:side==='START'?'source-end':'target-end',kind:'pipe-end',direction:null,nominalSize:run.engineering.nominalSize||'',spec:run.engineering.spec||'',connectedConnectionId:null});
 export function registerPipeRun(graph,run){
  let g=copy(graph);return syncPipeRun(g,run);
@@ -22,21 +22,21 @@ export function registerComponent(graph,component){
  const g=copy(graph);if(!component?.id)throw new Error('Component id required');
  if(g.components[component.id])throw new Error('Component already registered');
  const nodeId=`${component.id}-NODE`;g.nodes[nodeId]={id:nodeId,kind:'component',ownerComponentId:component.id};
- const ports=(component.ports||[]).map((p,i)=>({id:`${component.id}-PORT-${p.id||`P${i+1}`}`,ownerId:component.id,nodeId,role:p.role||'process',kind:'component-port',direction:p.direction||null,nominalSize:component.engineering?.nominalSize||'',spec:component.engineering?.spec||'',connectedConnectionId:null}));
+ const ports=(component.ports||[]).map((p,i)=>({id:`${component.id}-PORT-${p.id||`P${i+1}`}`,ownerId:component.id,nodeId,role:p.role||'process',kind:'component-port',direction:p.direction||null,nominalSize:component.engineering?.nominalSize||'',spec:component.engineering?.spec||'',connectedConnectionId:null,attachedAttachmentId:null}));
  for(const port of ports)g.ports[port.id]=port;
  g.components[component.id]={id:component.id,kind:'component',symbolId:component.symbolId||'',componentType:component.componentType||component.symbolId||'',nodeId,portIds:ports.map(p=>p.id),engineering:{...(component.engineering||{})}};
  return g;
 }
 export function unregisterComponent(graph,componentId){
  let g=copy(graph),c=g.components[componentId];if(!c)return g;
- for(const pid of c.portIds||[]){const cid=g.ports[pid]?.connectedConnectionId;if(cid)g=disconnectConnection(g,cid);delete g.ports[pid]}
+ for(const pid of c.portIds||[]){const cid=g.ports[pid]?.connectedConnectionId,aid=g.ports[pid]?.attachedAttachmentId;if(cid)g=disconnectConnection(g,cid);if(aid)g=detachAttachment(g,aid);delete g.ports[pid]}
  if(c.nodeId)delete g.nodes[c.nodeId];delete g.components[componentId];return g;
 }
 
 export function unregisterPipeRun(graph,runId){
  let g=copy(graph),run=g.runs[runId];if(!run)return g;
  for(const pid of run.portIds||[]){const cid=g.ports[pid]?.connectedConnectionId;if(cid)g=disconnectConnection(g,cid);delete g.ports[pid]}
- for(const id of run.nodeIds||[])delete g.nodes[id];for(const id of run.edgeIds||[])delete g.edges[id];delete g.runs[runId];return g;
+ for(const eid of run.edgeIds||[]){for(const a of Object.values(g.attachments||{}))if(a.segmentId===eid)g=detachAttachment(g,a.id);delete g.edges[eid]}for(const id of run.nodeIds||[])delete g.nodes[id];delete g.runs[runId];return g;
 }
 export function connectPorts(graph,sourcePortId,targetPortId,props={}){
  if(sourcePortId===targetPortId)throw new Error('Cannot connect a port to itself');
@@ -46,21 +46,38 @@ export function connectPorts(graph,sourcePortId,targetPortId,props={}){
  g.connections[id]={id,kind:props.kind||'physical',sourcePortId,targetPortId,source:a.nodeId,target:b.nodeId,properties:{...(props.properties||{})}};
  g.ports[sourcePortId].connectedConnectionId=id;g.ports[targetPortId].connectedConnectionId=id;return g;
 }
+
+export function attachComponentToPipeSegment(graph,componentPortId,segmentId,props={}){
+ const g=copy(graph),port=g.ports[componentPortId],edge=g.edges[segmentId];
+ if(!port)throw new Error('Unknown component port');
+ if(!edge)throw new Error('Unknown pipe segment');
+ if(port.attachedAttachmentId||port.connectedConnectionId)throw new Error('Port already connected or attached');
+ const id=props.id||`ATT-${String(g.meta.nextAttachmentSeq++).padStart(4,'0')}`;
+ g.attachments[id]={id,kind:props.kind||'pipe-attachment',componentPortId,segmentId,componentNodeId:port.nodeId,source:edge.source,target:edge.target,properties:{...(props.properties||{})}};
+ g.ports[componentPortId].attachedAttachmentId=id;
+ return g;
+}
+export function detachAttachment(graph,attachmentId){
+ const g=copy(graph),a=g.attachments?.[attachmentId];if(!a)return g;
+ if(g.ports[a.componentPortId])g.ports[a.componentPortId].attachedAttachmentId=null;
+ delete g.attachments[attachmentId];return g;
+}
 export function disconnectConnection(graph,connectionId){
  const g=copy(graph),c=g.connections[connectionId];if(!c)return g;
  if(g.ports[c.sourcePortId])g.ports[c.sourcePortId].connectedConnectionId=null;if(g.ports[c.targetPortId])g.ports[c.targetPortId].connectedConnectionId=null;delete g.connections[connectionId];return g;
 }
 export function connectedComponent(graph,startNodeId){
  if(!graph.nodes[startNodeId])return[];const adj={};for(const id of Object.keys(graph.nodes))adj[id]=[];
- for(const e of Object.values(graph.edges)){adj[e.source]?.push(e.target);adj[e.target]?.push(e.source)}for(const c of Object.values(graph.connections)){adj[c.source]?.push(c.target);adj[c.target]?.push(c.source)}
+ for(const e of Object.values(graph.edges)){adj[e.source]?.push(e.target);adj[e.target]?.push(e.source)}for(const c of Object.values(graph.connections)){adj[c.source]?.push(c.target);adj[c.target]?.push(c.source)}for(const a of Object.values(graph.attachments||{})){adj[a.componentNodeId]?.push(a.source,a.target);adj[a.source]?.push(a.componentNodeId);adj[a.target]?.push(a.componentNodeId)}
  const seen=new Set([startNodeId]),q=[startNodeId];while(q.length){const n=q.shift();for(const m of adj[n]||[])if(!seen.has(m)){seen.add(m);q.push(m)}}return[...seen];
 }
 export function areNodesConnected(graph,a,b){return connectedComponent(graph,a).includes(b)}
-export function graphStats(graph){return{runs:Object.keys(graph.runs).length,nodes:Object.keys(graph.nodes).length,ports:Object.keys(graph.ports).length,pipeEdges:Object.keys(graph.edges).length,connections:Object.keys(graph.connections).length}}
+export function graphStats(graph){return{runs:Object.keys(graph.runs).length,nodes:Object.keys(graph.nodes).length,ports:Object.keys(graph.ports).length,pipeEdges:Object.keys(graph.edges).length,connections:Object.keys(graph.connections).length,attachments:Object.keys(graph.attachments||{}).length}}
 export function validateEngineeringGraph(graph){
  const issues=[];
  for(const e of Object.values(graph.edges)){if(!graph.nodes[e.source])issues.push({severity:'ERROR',code:'EDGE_SOURCE_ORPHAN',entityId:e.id});if(!graph.nodes[e.target])issues.push({severity:'ERROR',code:'EDGE_TARGET_ORPHAN',entityId:e.id})}
- const portUse={};for(const p of Object.values(graph.ports)){if(!graph.nodes[p.nodeId])issues.push({severity:'ERROR',code:'PORT_NODE_ORPHAN',entityId:p.id});if(!p.connectedConnectionId)issues.push({severity:'INFO',code:'PORT_UNUSED',entityId:p.id})}
+ const portUse={};for(const p of Object.values(graph.ports)){if(!graph.nodes[p.nodeId])issues.push({severity:'ERROR',code:'PORT_NODE_ORPHAN',entityId:p.id});if(!p.connectedConnectionId&&!p.attachedAttachmentId)issues.push({severity:'INFO',code:'PORT_UNUSED',entityId:p.id})}
+ for(const a of Object.values(graph.attachments||{})){if(!graph.ports[a.componentPortId])issues.push({severity:'ERROR',code:'ATTACHMENT_PORT_ORPHAN',entityId:a.id});if(!graph.edges[a.segmentId])issues.push({severity:'ERROR',code:'ATTACHMENT_SEGMENT_ORPHAN',entityId:a.id});if(!graph.nodes[a.componentNodeId])issues.push({severity:'ERROR',code:'ATTACHMENT_NODE_ORPHAN',entityId:a.id})}
  for(const c of Object.values(graph.connections)){if(!graph.ports[c.sourcePortId]||!graph.ports[c.targetPortId])issues.push({severity:'ERROR',code:'CONNECTION_PORT_ORPHAN',entityId:c.id});for(const pid of[c.sourcePortId,c.targetPortId]){portUse[pid]=(portUse[pid]||0)+1;if(portUse[pid]>1)issues.push({severity:'ERROR',code:'DUPLICATE_PORT_CONNECTION',entityId:pid})}}
  return{valid:!issues.some(i=>i.severity==='ERROR'),issues};
 }
