@@ -3,11 +3,11 @@ import{LIBRARY_CATEGORIES,BUILTIN_SYMBOLS,LIBRARY_SCOPES,SYMBOL_PRIMITIVES,valid
 let n=0;const test=(name,fn)=>{fn();n++;console.log('PASS',name)};
 test('11 categorias obrigatórias',()=>assert.equal(LIBRARY_CATEGORIES.length,11));
 test('biblioteca válida e IDs únicos',()=>assert.equal(validateLibrary().valid,true));
-test('86 símbolos built-in',()=>assert.equal(BUILTIN_SYMBOLS.length,86));
+test('catálogo preserva e expande baseline de 86 símbolos',()=>assert.ok(BUILTIN_SYMBOLS.length>=110));
 const must=(cat,names)=>test(`${cat} contém catálogo mínimo`,()=>{const ids=new Set(BUILTIN_SYMBOLS.filter(s=>s.category===cat).map(s=>s.id));for(const id of names)assert.ok(ids.has(id),id)});
-must('VÁLVULAS',['valve-gate','valve-globe','valve-ball','valve-butterfly','valve-check','valve-needle','valve-plug','valve-diaphragm','valve-control','valve-safety','valve-relief','valve-generic']);
-must('CONEXÕES',['elbow-90','elbow-45','tee','lateral','cross','coupling','union','cap','plug','reducer','weldolet','sockolet','threadolet','olet-generic']);
-must('FLANGES',['flange-wn','flange-so','flange-sw','flange-lj','flange-blind','flange-threaded','flange-pair']);
+must('VÁLVULAS',['valve-gate','valve-globe','valve-ball','valve-butterfly','valve-check','valve-swing-check','valve-lift-check','valve-dual-plate-check','valve-needle','valve-plug','valve-diaphragm','valve-control','valve-safety','valve-relief','valve-mov','valve-aov','valve-hydraulic','valve-manual','valve-generic']);
+must('CONEXÕES',['elbow-90','elbow-90-lr','elbow-90-sr','elbow-45','bend','miter','tee','tee-reducing','lateral','cross','coupling','half-coupling','union','nipple','cap','plug','reducer','reducer-concentric','reducer-eccentric','swage','weldolet','sockolet','threadolet','nipolet','branch-welded','branch-reinforced','olet-generic','spectacle-blind','spacer']);
+must('FLANGES',['flange-wn','flange-long-wn','flange-so','flange-sw','flange-lj','flange-blind','flange-threaded','flange-orifice','flange-pair']);
 must('SUPORTES',['support-rest','support-guide','support-anchor','support-shoe','support-hanger','support-spring','support-generic','support-special']);
 must('INSTRUMENTAÇÃO',['inst-pi','inst-pt','inst-ti','inst-tt','inst-fi','inst-ft','inst-li','inst-lt','inst-generic','inst-local','inst-transmitter']);
 must('EQUIPAMENTOS',['equip-vessel','equip-tank','equip-pump','equip-compressor','equip-exchanger','equip-column','equip-furnace','equip-filter','equip-reactor','equip-generic','equip-nozzle']);
