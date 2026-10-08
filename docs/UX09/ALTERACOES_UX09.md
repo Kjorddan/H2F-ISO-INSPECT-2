@@ -15,7 +15,7 @@
 
 ### Testes e empacotamento
 - `tests/ux09-print-workflow.test.mjs`: **35 testes** de plano, limites, paginação, dimensões, escopo, transações, controle SHA e registro honesto.
-- `tests/browser/ux09.spec.mjs`: **8 cenários** Chromium sobre diálogos, emissão, PDFs reais, arquivo único multipágina, continuidade, gate aprovado e impressão.
+- `tests/browser/ux09.spec.mjs`: **8/8 cenários** Chromium sobre diálogos, emissão, PDFs reais, arquivo único multipágina, continuidade, gate aprovado e impressão.
 - `playwright.ux09.config.mjs` e `.github/workflows/ux09.yml`: full regression, build Vite, Playwright Chromium, ZIP Windows Local Server, código-fonte rastreado e evidência.
 - `package.json`: adiciona UX-09 ao `npm test`; preservados os gates UX-01 a UX-08.
 
@@ -27,3 +27,6 @@ Não há implementação de assinatura ICP-Brasil, QR de autenticação document
 - `src/ui/ux09-export-canvas.jsx`: refinamento final de SVG viewBox com enquadramento no papel físico, de acordo com a orientação; rodapés adaptados à área útil de cada folha e continuação em diferentes formatos.
 - `src/editor-core/ux09-print-plan.js`: preflight não destrutivo alerta se entidades extrapolam o papel ou invadem carimbo; não altera Engineering Graph.
 - Testes Chromium preservam amostras PDF reais `ux09-actual-one-page.pdf` e `ux09-actual-mixed-formats.pdf` para inspeção independente.
+
+## Aceitação final
+A execução 37760055985 aprovou o núcleo 35/35 e os cenários Chromium 8/8. O PDF de tabela longa foi efetivamente gerado, com três páginas e 14 registros END `PLANNED`, sem perdas e sem resultado inventado. A correção de viewBox e posicionamento do rodapé foi validada visualmente em PDFs A4 e A3.

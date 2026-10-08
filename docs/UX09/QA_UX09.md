@@ -1,10 +1,10 @@
 # UX-09 — QA e critérios de aceitação
 
-**Status:** aguardar atualização automática com o workflow de liberação; nenhuma execução em Windows físico alegada.
+**Status: CONCLUÍDA E AUDITADA nos testes automatizados.** Pipeline de validação [GitHub Actions 37760055985](https://github.com/Kjorddan/H2F-ISO-INSPECT-2/actions/runs/37760055985), `35/35` core, `8/8` Chromium, build e regressão PASS. O CI monta os arquivos Windows offline, mas **não executa smoke test num Windows real**.
 
 | Gate | Regra |
 |---|---|
-| Core UX-09 | 35 testes sobre plano, dimensões reais, paginação e SHA-256 |
+| Core UX-09 | 35/35 PASS sobre plano, dimensões reais, paginação e SHA-256 |
 | Chromium UX-09 | 8 cenários; PDF real `%PDF-`, duas folhas e dimensão física, impressão no visualizador |
 | Regressão UX-02 a UX-08 | Sem perda de símbolos, PipeRuns, mounts, tabelas ou snapshots |
 | PDF em milímetros | Formatos A0–A4/CUSTOM, retrato e paisagem |
@@ -33,3 +33,6 @@ Testes automatizados não substituem auditoria independente de paginação em dr
 
 ## Revisão visual final
 Foram detectadas e corrigidas margens brancas excessivas em A4 retrato decorrentes de dupla preservação de aspecto entre canvas 1120×720 e papel físico. O exportador passou a renderizar o viewBox diretamente no retângulo físico calculado por `ux08FrameGeometry`. O novo CI/Playwright deve verificar o arquivo final após essa correção. Foram incluídos 3 testes do preflight para limites de papel, carimbo e imutabilidade de geometria.
+
+## Evidência PDF independente em 08/10/2026
+O artefato `test-results/ux09-actual-mixed-formats.pdf` foi examinado com `pdfinfo`: 2 páginas, A4 retrato 595,276 × 841,89 pt e A3 paisagem 1190,55 × 841,89 pt. Revisão visual do raster confirmou que o conteúdo preenche corretamente cada papel, com carimbo e rodapé dentro da MediaBox, após correção do viewBox. O arquivo `test-results/ux09-actual-end-table-continuation.pdf` foi examinado e contém **3 páginas**: N-0 a N-4 na primeira, N-5 a N-9 na segunda, N-10 a N-13 na terceira, todos com `PLANNED`. O navegador confirmou os downloads reais em PDF, sem captura da interface CAD. A captura de tela da página 2 confirmou legibilidade, identificação e rodapé Página 2/3.

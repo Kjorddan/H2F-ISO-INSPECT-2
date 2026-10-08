@@ -2,7 +2,7 @@
 
 ## Fase 9/10: PDF, impressão e fluxo documental
 
-**Baseline UX-08**: `ca3a56bba572013c6174d10644c2cbffeb92a1d3`. **Branch exclusiva**: `ux-evolution`. **Status**: implementada; auditoria automatizada da entrega na matriz QA.
+**Baseline UX-08**: `ca3a56bba572013c6174d10644c2cbffeb92a1d3`. **Branch exclusiva**: `ux-evolution`. **Status:** CONCLUÍDA E AUDITADA. Workflow 37760055985: 35/35 core, 8/8 Chromium, build e regressão PASS.
 
 ### Escopo
 1. Exportação PDF vetorial com um único arquivo multipágina.
@@ -27,3 +27,6 @@ Os resultados do GitHub Actions e a decisão final de fase constam em `docs/UX09
 
 ### Correções pós-auditoria inicial
 Foi realizado ajuste de enquadramento do SVG no papel físico, inclusive para A4 em retrato. O rodapé de paginação agora acompanha a área do formato ativo. As páginas de continuação foram redesenhadas com posições relativas ao papel. O preflight alerta para entidades além do limite físico e possível sobreposição do carimbo, sem modificar o isométrico.
+
+## Auditoria de PDF real
+`pdfinfo`, `pdftotext` e renderização em PNG confirmaram a fidelidade do A4 retrato/A3 paisagem e as três páginas de continuação da tabela END, com preservação integral dos 14 registros planejados. O controle SHA-256 impede marcar documentos alterados após o snapshot como emissão controlada, mas permanece explícito que não há assinatura digital. Todo o conteúdo permanece na branch `ux-evolution`.

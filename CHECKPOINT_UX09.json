@@ -1,11 +1,38 @@
 {
+  "product": "H2F ISO INSPECT 2.0",
+  "cycle": "UX/UI + Biblioteca Industrial + Isométrico + Formatação Profissional",
   "phase": "UX-09",
   "phaseIndex": 9,
   "phaseTotal": 10,
   "status": "CONCLUIDA_AUDITADA",
+  "repository": "Kjorddan/H2F-ISO-INSPECT-2",
+  "branch": "ux-evolution",
+  "baselineCheckpoint": "CHECKPOINT_UX08.json",
+  "baselineCommit": "ca3a56bba572013c6174d10644c2cbffeb92a1d3",
+  "testedRuntimeCommit": "59fb643494831650b3a007fd38d74cf59e767fbf",
+  "testedAcceptanceCommit": "c60b34ad2937afea4f3b238c29ba17a71a92a6fd",
+  "workflowUX09": 37760055985,
+  "builtinSymbols": 227,
+  "ux09Core": "35/35 PASS",
+  "ux09Browser": "8/8 PASS",
+  "regression": "PASS",
+  "build": "PASS",
+  "vectorPdfSingleMultiSheet": "PASS",
+  "tableContinuationPdf": "3 pages, 14 END PLANNED records, no omitted rows",
+  "mixedPdfPaper": [
+    "A4 portrait",
+    "A3 landscape"
+  ],
+  "physicalMm": "PASS",
+  "emissionGateSha256": "PASS",
+  "paperPreflight": "PASS",
+  "localServer": "CI_ASSEMBLY_PASS_WINDOWS_FIELD_SMOKE_NOT_RUN",
   "remainingAfterThis": 1,
   "nextPhase": "UX-10",
-  "advanceRule": "AGUARDAR_EXCLUSIVAMENTE_COMANDO_PODE_SEGUIR",
+  "advanceRule": "AGUARDAR_PODE_SEGUIR",
+  "normativeScope": "REFERENCE_GUIDED_NOT_CERTIFIED",
+  "digitalSignature": "NOT_IMPLEMENTED",
+  "printingReceipt": "NOT_IMPLEMENTED",
   "technicalDebts": [
     {
       "id": "PRINT-CROSS-BROWSER-FIELD",
@@ -55,18 +82,5 @@
       "severity": "MEDIUM",
       "description": "Biblioteca corporativa local ainda não dispõe de RBAC/RLS por servidor."
     }
-  ],
-  "closedFromUX08": [
-    "PRINT_MULTIPAGE_TABLE_PAGINATION: document print plan covers all rows by creating continuation pages"
-  ],
-  "outOfScope": [
-    "Sem UX-10 neste trabalho",
-    "Sem assinatura digital reconhecida",
-    "Sem aceite END fabricado"
-  ],
-  "ux09Core": "35/35 PASS",
-  "ux09Browser": "8/8 PASS",
-  "regression": "PASS",
-  "build": "PASS",
-  "workflowUX09": 37760055985
+  ]
 }
