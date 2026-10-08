@@ -11,20 +11,20 @@ export function Ux09ExportCanvas({page,document,entities=[],inspectionStore={},r
  const status=page.documentMode==='CONTROLLED'?'EMISSÃO CONTROLADA · NÃO ASSINADA':'PRÉVIA NÃO CONTROLADA';
  const paper=ux08FrameGeometry(sheet).paper,footerY=paper.y+paper.height-5,footerHeight=17;
  const footerText=[status,document.revisionState||'RASCUNHO','REV '+page.revision,'SEM ASSINATURA'].join(' · ');
- return <svg xmlns="http://www.w3.org/2000/svg" width="1120" height="720" viewBox="0 0 1120 720" data-ux09-page={page.pageIndex} data-ux09-sheet={page.sheetId} data-ux09-kind={page.kind}>
+ return <svg xmlns="http://www.w3.org/2000/svg" width={paper.width} height={paper.height} viewBox={[paper.x,paper.y,paper.width,paper.height].join(' ')} data-ux09-page={page.pageIndex} data-ux09-sheet={page.sheetId} data-ux09-kind={page.kind}>
  <style>{SVG_STYLES}</style><rect width="1120" height="720" fill="#fff"/>
  {!kind&&<g data-ux09-scene="true">{sceneEntities.map(entity=>React.createElement(renderEntity,{key:entity.id,e:entity,selected:false,onDown:()=>{},allEntities:entities}))}</g>}
  {!kind&&<Ux08SheetOverlay sheet={sheet} documentModel={document} entities={sceneEntities} inspectionStore={inspectionStore}/>}
  {kind&&<g data-ux09-continuation="true">
- <rect x="28" y="28" width="1064" height="664" fill="none" stroke="#344c63" strokeWidth="1.7"/>
- <rect x="28" y="28" width="1064" height="65" fill="#e8f0f7"/>
- <text x="48" y="52" fontSize="16" fontWeight="700" fill="#1f3447">H2F ISO INSPECT · CONTINUAÇÃO DE TABELA</text>
- <text x="48" y="75" fontSize="12" fill="#334155">{page.sourceSheetName} · {page.tableTitle} · rev. {page.revision}</text>
- <rect x="48" y="110" width="1024" height="38" fill="#e2e8f0" stroke="#344c63" strokeWidth=".8"/>
- {page.headers.map((col,k)=><text key={k} x={58+k*1024/page.headers.length} y="133" fontSize="12" fontWeight="700" fill="#1f3447">{String(col).slice(0,40)}</text>)}
- {page.rows.map((row,i)=><g key={i}><line x1="48" x2="1072" y1={184+i*34} y2={184+i*34} stroke="#cbd5e1" strokeWidth=".6"/>
- {row.slice(0,page.headers.length).map((cell,k)=><text key={k} x={58+k*1024/page.headers.length} y={171+i*34} fill="#1f3447" fontSize="12">{String(cell??'').slice(0,Math.floor(48/page.headers.length*2))}</text>)}</g>)}
- <text x="48" y="660" fontSize="11" fill="#64748b">Linhas {page.fromRow}–{page.toRow} de {page.totalRows} · continuação documental de dados existentes</text>
+ <rect x={paper.x+15} y={paper.y+15} width={paper.width-30} height={paper.height-30} fill="none" stroke="#344c63" strokeWidth="1.5"/>
+ <rect x={paper.x+15} y={paper.y+15} width={paper.width-30} height="66" fill="#e8f0f7"/>
+ <text x={paper.x+25} y={paper.y+40} fontSize="15" fontWeight="700" fill="#1f3447">H2F ISO INSPECT · CONTINUAÇÃO</text>
+ <text x={paper.x+25} y={paper.y+63} fontSize="11" fill="#334155">{page.sourceSheetName} · {page.tableTitle} · rev. {page.revision}</text>
+ <rect x={paper.x+25} y={paper.y+101} width={paper.width-50} height="32" fill="#e2e8f0" stroke="#344c63" strokeWidth=".8"/>
+ {page.headers.map((col,k)=><text key={k} x={paper.x+30+k*(paper.width-55)/page.headers.length} y={paper.y+123} fontSize="10" fontWeight="700" fill="#1f3447">{String(col).slice(0,25)}</text>)}
+ {page.rows.map((row,i)=><g key={i}><line x1={paper.x+25} x2={paper.x+paper.width-25} y1={paper.y+165+i*Math.max(19,Math.min(31,(paper.height-180)/Math.max(page.rows.length,1)))} y2={paper.y+165+i*Math.max(19,Math.min(31,(paper.height-180)/Math.max(page.rows.length,1)))} stroke="#cbd5e1" strokeWidth=".6"/>
+ {row.slice(0,page.headers.length).map((cell,k)=><text key={k} x={paper.x+30+k*(paper.width-55)/page.headers.length} y={paper.y+152+i*Math.max(19,Math.min(31,(paper.height-180)/Math.max(page.rows.length,1)))} fill="#1f3447" fontSize="10">{String(cell??'').slice(0,Math.max(10,Math.floor(paper.width/page.headers.length/6)))}</text>)}</g>)}
+ <text x={paper.x+25} y={paper.y+paper.height-28} fontSize="10" fill="#64748b">Linhas {page.fromRow}–{page.toRow} de {page.totalRows} · dados existentes</text>
  </g>}
  <rect x={paper.x+1} y={footerY-footerHeight+2} width={paper.width-2} height={footerHeight} fill="#fff" fillOpacity=".98"/>
  <text className="ux09Footer" x={paper.x+5} y={footerY} fontSize={Math.max(6,Math.min(9,paper.width/78))}>{footerText}</text>
