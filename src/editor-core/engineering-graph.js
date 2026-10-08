@@ -5,7 +5,7 @@ export function registerPipeRun(graph,run){
  let g=copy(graph);return syncPipeRun(g,run);
 }
 export function syncPipeRun(graph,run){
- const g=copy(graph),old=g.runs[run.id];
+ let g=copy(graph);const old=g.runs[run.id];
  if(old){for(const id of old.nodeIds||[])delete g.nodes[id];for(const id of old.edgeIds||[])delete g.edges[id];for(const id of old.portIds||[])if(!g.ports[id]?.connectedConnectionId)delete g.ports[id]}
  const nodeIds=run.vertexIds.map((id,i)=>{g.nodes[id]={id,kind:i===0||i===run.vertexIds.length-1?'pipe-endpoint':'pipe-vertex',ownerRunId:run.id};return id});
  const edgeIds=run.segments.map(s=>{g.edges[s.id]={id:s.id,kind:'pipe-segment',runId:run.id,source:s.startVertexId,target:s.endVertexId,physicalLength:s.physicalLength,properties:{...s.properties}};return s.id});
