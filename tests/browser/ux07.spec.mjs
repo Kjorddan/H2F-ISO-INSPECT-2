@@ -1,6 +1,6 @@
 import{test,expect}from'@playwright/test';
 const point=async(page,x,y)=>page.locator('[data-testid="ux07-drawing-surface"]').evaluate((svg,{x,y})=>{const p=svg.createSVGPoint();p.x=x;p.y=y;const a=p.matrixTransform(svg.getScreenCTM());return{x:a.x,y:a.y}},{x,y});
-const draw=async(page,tool,a={x:10,y:10},b={x:60,y:35})=>{await page.getByRole('button',{name:tool,exact:true}).click();const start=await point(page,a.x,a.y),end=await point(page,b.x,b.y);await page.mouse.move(start.x,start.y);await page.mouse.down();await page.mouse.move(end.x,end.y,{steps:6});await page.mouse.up()};
+const draw=async(page,tool,a={x:10,y:10},b={x:60,y:35})=>{await page.locator('.ux07Tools').getByRole('button',{name:tool,exact:true}).click();const start=await point(page,a.x,a.y),end=await point(page,b.x,b.y);await page.mouse.move(start.x,start.y);await page.mouse.down();await page.mouse.move(end.x,end.y,{steps:6});await page.mouse.up()};
 const open=async(page)=>{await page.goto('/');await page.evaluate(()=>localStorage.clear());await page.reload();await page.getByRole('button',{name:'＋ Novo símbolo'}).click();await expect(page.locator('[data-testid="ux07-shape-editor"]')).toBeVisible()};
 test('new shape begins invalid until its geometry is authored',async({page})=>{
  await open(page);
