@@ -49,7 +49,7 @@ function portDefinitionsFor(id){
  if(TERMINAL.has(id))return[port('P1',0,.5,'terminal')];
  if(OLETS.has(id))return[port('P1',.5,.5,'host'),port('P2',.5,0,'branch')];
  if(TWO_INLINE.has(id))return[port('P1',0,.5,'process'),port('P2',1,.5,'process')];
- if(id==='equip-nozzle')return[port('N1',0,.5,'equipment-nozzle')];
+ if(id==='equip-nozzle')return[port('P1',0,.5,'equipment')];
  if(id==='equip-generic')return[];
  if(id.startsWith('equip-')){
   if(['equip-column','equip-vessel-vertical','equip-tower','equip-exchanger-vertical','equip-mixer','equip-cyclone','equip-reactor','equip-boiler','equip-heater'].includes(id))return[port('N1',.5,0,'equipment-nozzle'),port('N2',.5,1,'equipment-nozzle'),port('N3',0,.5,'equipment-nozzle')];
@@ -67,7 +67,7 @@ function placementFor(id,category){
  if(OLETS.has(id))return{modes:['ATTACHED','FREE'],inline:false,junction:false,terminal:false,attached:true,free:true};
  if(TWO_INLINE.has(id))return{modes:['INLINE','FREE'],inline:true,junction:false,terminal:false,attached:false,free:true};
  if(category==='SUPORTES')return{modes:['ATTACHED','FREE'],inline:false,junction:false,terminal:false,attached:true,free:true};
- if(category==='INSTRUMENTAÇÃO')return{modes:['FREE'],inline:false,junction:false,terminal:false,attached:false,free:true};
+ if(category==='INSTRUMENTAÇÃO')return{modes:['ATTACHED','FREE'],inline:false,junction:false,terminal:false,attached:true,free:true};
  if(['INSPEÇÃO','END'].includes(category))return{modes:['ATTACHED','FREE'],inline:false,junction:false,terminal:false,attached:true,free:true};
  if(category==='SÍMBOLOS DE FOLHA')return{modes:['SHEET','FREE'],inline:false,junction:false,terminal:false,attached:false,free:true};
  return{modes:['FREE'],inline:false,junction:false,terminal:false,attached:false,free:true};
