@@ -13,6 +13,14 @@ export function validateNativePackage(pkg){
   if(!pkg.manifest.schemaVersion) throw Error('schemaVersion obrigatório');
   if(!pkg['document.json']) throw Error('document.json obrigatório'); return true;
 }
+export async function validateNativePackageIntegrity(pkg){
+ validateNativePackage(pkg);
+ const expected=pkg.manifest?.documentSha256;
+ if(!/^[a-f0-9]{64}$/.test(String(expected||'')))throw Error('Arquivo .h2fiso sem hash documental SHA-256 válido');
+ const actual=await sha256(JSON.stringify(pkg['document.json']));
+ if(actual!==expected)throw Error('Integridade .h2fiso comprometida: documento difere do manifesto');
+ return true;
+}
 export function migrateDocument(doc,fromVersion,toVersion=SCHEMA_VERSION){
   if(!fromVersion) throw Error('versão de origem obrigatória');
   const out=clone(doc); out.schemaVersion=toVersion; out.migration={from:fromVersion,to:toVersion}; return out;
