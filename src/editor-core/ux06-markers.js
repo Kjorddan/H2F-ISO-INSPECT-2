@@ -15,7 +15,7 @@ export function insertUx06MarkerTransaction(s,{symbol,id,point,runId=null,segmen
  if(!Number.isFinite(point?.x)||!Number.isFinite(point?.y))throw Error('Invalid position');
  if(runId!=null&&!isUx06PhysicalMarker(symbol))throw Error('Only physical markers mount to segments');
  if(symbol.category==='SÍMBOLOS DE FOLHA'&&!sheetId)throw Error('Sheet ID required');
- const e={...createSymbolEntityFrom(symbol,point,{id,tag}),symbolDefinition:symbol,note:'',ux06:{context:ux06SymbolContext(symbol),sheetId,recordState:'NOT_REGISTERED'}};
+ const e={...createSymbolEntityFrom(symbol,point,{id,tag}),symbolDefinition:symbol,note:'',sheetId:symbol.category==='SÍMBOLOS DE FOLHA'?sheetId:null,ux06:{context:ux06SymbolContext(symbol),sheetId,recordState:'NOT_REGISTERED'}};
  let g=s.graph;
  if(runId!=null){
   const run=s.entities.find(r=>r.id===runId&&isPipeRun(r)),seg=run?.segments?.[segmentIndex];
