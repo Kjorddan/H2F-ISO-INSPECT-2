@@ -133,7 +133,6 @@ function App(){
  const [offlineState,setOfflineState]=useState(()=>createOfflineState({online:typeof navigator==='undefined'?true:navigator.onLine}));
  const [ndtMethod,setNdtMethod]=useState('UT');
  const [ux06Target,setUx06Target]=useState('');
- const ux10ReleaseContext=useMemo(()=>({inspectionStore,evidenceStore,integrityStore,underlays,traceState,customSymbols}),[inspectionStore,evidenceStore,integrityStore,underlays,traceState,customSymbols]);
  const inspectionSummary=inspectionStats(inspectionStore);
  const evidenceSummary=evidenceStats(evidenceStore);
  const integritySummary=integrityStats(integrityStore);
@@ -169,6 +168,7 @@ function App(){
  const graphInfo=useMemo(()=>graphStats(engineeringGraph),[engineeringGraph]);
  const graphValidation=useMemo(()=>validateEngineeringGraph(engineeringGraph),[engineeringGraph]);
  const ux06Diagnostics=useMemo(()=>validateUx06Markers(entities,engineeringGraph,inspectionStore),[entities,engineeringGraph,inspectionStore]);
+ const ux10ReleaseContext=useMemo(()=>({inspectionStore,evidenceStore,integrityStore,underlays,traceState,customSymbols}),[inspectionStore,evidenceStore,integrityStore,underlays,traceState,customSymbols]);
  const ux10Diagnostics=useMemo(()=>ux10AuditIntegrated({document:documentModel,entities,graph:engineeringGraph,inspectionStore,customSymbols,emissionLog}),[documentModel,entities,engineeringGraph,inspectionStore,customSymbols,emissionLog]);
  useEffect(()=>{setEngineeringGraph(current=>{let next=current;const runs=entities.filter(isPipeRun),ids=new Set(runs.map(r=>r.id));for(const id of Object.keys(next.runs))if(!ids.has(id))next=unregisterPipeRun(next,id);for(const run of runs)next=syncPipeRun(next,run);
  const liveSymbols=new Set(entities.filter(e=>e.kind==='industrial-symbol').map(e=>e.id));
