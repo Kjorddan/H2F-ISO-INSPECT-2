@@ -9,6 +9,14 @@ export function detectPipeCrossings(runs){
  const out=[];for(let i=0;i<runs.length;i++)for(let j=i+1;j<runs.length;j++)for(let a=0;a<runs[i].points.length-1;a++)for(let b=0;b<runs[j].points.length-1;b++){const hit=segmentIntersection(runs[i].points[a],runs[i].points[a+1],runs[j].points[b],runs[j].points[b+1]);if(hit)out.push({kind:'CROSSING',runA:runs[i].id,segmentA:runs[i].segments[a]?.id,runB:runs[j].id,segmentB:runs[j].segments[b]?.id,point:hit.point,createsConnection:false})}return out;
 }
 export function nearestPipeSegment(runs,p){let best=null;for(const run of runs)for(let i=0;i<run.points.length-1;i++){const h=pointSegmentProjection(p,run.points[i],run.points[i+1]);if(!best||h.distance<best.distance)best={runId:run.id,segmentId:run.segments[i]?.id,index:i,...h}}return best}
+export function nearestPipeEndpoint(runs,p){
+ let best=null;
+ for(const run of runs)for(const side of['START','END']){
+  const index=side==='START'?0:run.points.length-1,point=run.points[index],distance=Math.hypot(point.x-p.x,point.y-p.y);
+  if(!best||distance<best.distance)best={runId:run.id,side,index,point:{...point},distance,portId:`${run.id}-PORT-${side}`};
+ }
+ return best;
+}
 export function topologyDiagnostics(graph,runs=[]){
  const issues=[];const runIds=new Set(runs.map(r=>r.id));
  for(const id of Object.keys(graph.runs))if(!runIds.has(id))issues.push({severity:'WARNING',code:'GRAPH_RUN_WITHOUT_SCENE',entityId:id});
