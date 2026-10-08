@@ -1,0 +1,49 @@
+{
+  "phase": "UX-04",
+  "status": "CONCLUIDA_AUDITADA",
+  "phaseIndex": 4,
+  "phaseTotal": 10,
+  "remainingAfterThis": 6,
+  "nextPhase": "UX-05",
+  "remaining": [
+    {
+      "phase": "UX-05",
+      "scope": "Instrumentação, suportes e equipamentos"
+    },
+    {
+      "phase": "UX-06",
+      "scope": "Inspeção, END, anotações e símbolos de folha"
+    },
+    {
+      "phase": "UX-07",
+      "scope": "Criador de formas personalizadas"
+    },
+    {
+      "phase": "UX-08",
+      "scope": "Formatação de folha, carimbo, tabelas e templates"
+    },
+    {
+      "phase": "UX-09",
+      "scope": "PDF, impressão e workflow documental"
+    },
+    {
+      "phase": "UX-10",
+      "scope": "Auditoria integrada, E2E, Golden Masters e correções finais"
+    }
+  ],
+  "technicalDebts": [
+    {
+      "id": "CLIENT-SYMBOL-PROFILES",
+      "severity": "MEDIUM",
+      "target": "UX-10",
+      "description": "Consolidar perfis de simbologia específicos por cliente/projeto após homologação visual."
+    },
+    {
+      "id": "ATTACHMENT-REMAP-COMPLEX-EDIT",
+      "severity": "MEDIUM",
+      "target": "UX-10",
+      "description": "Executar cenários adicionais de remapeamento de branch attachment após edição estrutural extrema do segmento hospedeiro."
+    }
+  ],
+  "advanceRule": "aguardar comando Pode seguir"
+}
