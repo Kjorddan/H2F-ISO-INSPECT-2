@@ -32,3 +32,45 @@ export function insertUx06MarkerTransaction(s,{symbol,id,point,runId=null,segmen
 const LEGACY={'ndt-ut':'UT','ndt-pt':'PT','ndt-mt':'MT','ndt-rt':'RT','ndt-etr':'ET','ndt-iris':'IRIS','ndt-mfl':'MFL'};
 export const ux06NdtMethod=s=>s?.ndtMethod||LEGACY[s?.id]||'OTHER';
 export const ux06MarkerStatus=x=>x?.ux06?.recordId?'REGISTRO PLANEJADO':'SOMENTE MARCADOR — NÃO É RESULTADO';
+
+export function registerUx06RecordTransaction(s,{markerId,recordId=null,target=null}={}){
+ try{
+  const marker=s.entities.find(e=>e.id===markerId&&isUx06PhysicalMarker(e));if(!marker)throw Error('Physical marker required');
+  if(marker.ux06?.recordId)throw Error('Marker already has linked record');
+  const m=marker.mount,hit=target||(m?{kind:'pipe-segment',id:m.segmentId,entityId:m.runId}:null);
+  if(!hit)throw Error('Physical target is mandatory');
+  const symbol=marker.symbolDefinition||{},store=cp(s.inspectionStore),id=recordId||'UX06-REC-'+markerId;
+  let kind,record;
+  if(marker.category==='END'){
+   if(!['weld','tml','pipe-segment'].includes(hit.kind)||!hit.id)throw Error('Supported NDT target required');
+   if(hit.kind==='weld'&&!store.welds.some(x=>x.id===hit.id))throw Error('Missing weld');
+   if(hit.kind==='tml'&&!store.points.some(x=>x.id===hit.id))throw Error('Missing TML/CML');
+   if(hit.kind==='pipe-segment'&&!s.graph.edges?.[hit.id])throw Error('Missing PipeSegment');
+   const method=ux06NdtMethod(symbol);if(!NDT_METHODS.includes(method))throw Error('Invalid method');
+   if(store.ndt.some(x=>x.id===id))throw Error('Duplicate END ID');
+   record=createNDT({id,method,target:{kind:hit.kind,id:hit.id},status:'PLANNED',notes:'Técnica H2F: '+symbol.name+'; requer procedimento e aceitação independentes.'});kind='NDT';
+  }else{
+   if(!hit.entityId||!s.entities.some(x=>x.id===hit.entityId))throw Error('Missing physical entity');
+   const type=symbol.recordKind||(symbol.id==='insp-tml'?'TML':symbol.id==='insp-weld'?'WELD':'VISUAL');
+   if(type==='TML'){
+    kind=symbol.id==='insp-cml'?'CML':'TML';if(store.points.some(x=>x.id===id))throw Error('Duplicate CML/TML');
+    record=createMonitoringPoint({id,type:kind,label:marker.tag||id,target:{entityId:hit.entityId,kind:hit.kind,segmentId:hit.id},marker:{x:marker.x+marker.width/2,y:marker.y+marker.height/2}});
+   }else if(type==='WELD'){
+    kind='WELD';if(store.welds.some(x=>x.id===id))throw Error('Duplicate weld');
+    record=createWeld({id,number:marker.tag||id,type:symbol.variant||'',status:'PLANNED',target:{entityId:hit.entityId,kind:hit.kind,segmentId:hit.id}});
+   }else throw Error('Anomaly or evidence requires distinct substantiated record');
+  }
+  const inspectionStore=kind==='NDT'?addNDT(store,record):kind==='WELD'?addWeld(store,record):addMonitoringPoint(store,record);
+  const entities=s.entities.map(x=>x.id===markerId?{...x,ux06:{...x.ux06,recordId:id,recordKind:kind,recordState:'PLANNED'}}:x);
+  return{ok:true,entities,graph:s.graph,inspectionStore,created:{recordId:id,recordType:kind,status:'PLANNED'}};
+ }catch(e){return bad(s,e)}
+}
+export function validateUx06Markers(entities,graph,inspectionStore){
+ const issues=[];
+ for(const m of entities.filter(e=>isUx06Symbol(e)&&e.kind==='industrial-symbol')){
+  if(m.category==='SÍMBOLOS DE FOLHA'&&!m.ux06?.sheetId)issues.push({code:'SHEET_SCOPE_REQUIRED',id:m.id});
+  if(m.mount&&!Object.values(graph.mounts||{}).some(x=>x.componentId===m.id&&x.segmentId===m.mount.segmentId))issues.push({code:'MARKER_MOUNT_ORPHAN',id:m.id});
+  if(m.ux06?.recordId&&![...inspectionStore.points,...inspectionStore.welds,...inspectionStore.ndt].some(x=>x.id===m.ux06.recordId))issues.push({code:'MARKER_RECORD_ORPHAN',id:m.id});
+ }
+ return{valid:issues.length===0,issues};
+}
