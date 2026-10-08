@@ -2,6 +2,20 @@ import{createPolyline,polylineLength,pointSegmentProjection}from'./polyline.js';
 const clonePoint=p=>({x:Number(p.x),y:Number(p.y)});
 const clean=v=>String(v??'').trim();
 export const PIPE_DEFAULTS=Object.freeze({lineNumber:'',nominalSize:'',schedule:'',spec:'',service:'',material:'',insulation:''});
+export const PIPE_LINE_STYLES=Object.freeze({
+ PROCESS:{id:'PROCESS',label:'Linha de processo',dash:'solid',secondary:false},
+ EXISTING:{id:'EXISTING',label:'Linha existente',dash:'solid',secondary:false},
+ FUTURE:{id:'FUTURE',label:'Linha futura',dash:'8 5',secondary:false},
+ REMOVED:{id:'REMOVED',label:'Linha removida',dash:'3 4',secondary:false},
+ BURIED:{id:'BURIED',label:'Linha enterrada',dash:'12 4 2 4',secondary:false},
+ JACKETED:{id:'JACKETED',label:'Linha encamisada',dash:'solid',secondary:true},
+ INSULATED:{id:'INSULATED',label:'Linha isolada',dash:'solid',secondary:true},
+ BATTERY_LIMIT:{id:'BATTERY_LIMIT',label:'Limite de bateria',dash:'14 5 2 5',secondary:false}
+});
+const normalizeVisualStyle=value=>{
+ const id=typeof value==='string'?value:value?.id;
+ return PIPE_LINE_STYLES[id]?{...PIPE_LINE_STYLES[id]}:{...PIPE_LINE_STYLES.PROCESS};
+};
 const normalizeEngineering=p=>({
  lineNumber:clean(p.lineNumber),nominalSize:clean(p.nominalSize),schedule:clean(p.schedule),spec:clean(p.spec),service:clean(p.service),material:clean(p.material),insulation:clean(p.insulation)
 });
@@ -14,7 +28,7 @@ export function createPipeRun(id,points=[],props={}){
  const base=createPolyline(id,points,{name:props.name||props.lineNumber||id});
  const vertexIds=points.map((_,i)=>vertexId(id,i+1));
  const segments=points.slice(0,-1).map((_,i)=>({id:segmentId(id,i+1),runId:id,index:i,startVertexId:vertexIds[i],endVertexId:vertexIds[i+1],physicalLength:null,properties:{}}));
- return{...base,kind:'pipe-run',name:props.name||props.lineNumber||id,engineering:{...PIPE_DEFAULTS,...normalizeEngineering(props)},vertexIds,segments,meta:{nextVertexSeq:points.length+1,nextSegmentSeq:segments.length+1}};
+ return{...base,kind:'pipe-run',name:props.name||props.lineNumber||id,engineering:{...PIPE_DEFAULTS,...normalizeEngineering(props)},visualStyle:normalizeVisualStyle(props.visualStyle),vertexIds,segments,meta:{nextVertexSeq:points.length+1,nextSegmentSeq:segments.length+1}};
 }
 export const isPipeRun=e=>e?.kind==='pipe-run';
 export const isLinearEntity=e=>e?.kind==='polyline'||isPipeRun(e);
@@ -27,6 +41,10 @@ export function updatePipeEngineering(run,patch={}){
  if(!isPipeRun(run))throw new TypeError('PipeRun required');
  const engineering={...run.engineering,...normalizeEngineering({...run.engineering,...patch})};
  const name=engineering.lineNumber||run.name||run.id;return{...run,name,engineering};
+}
+export function updatePipeVisualStyle(run,style){
+ if(!isPipeRun(run))throw new TypeError('PipeRun required');
+ return{...run,visualStyle:normalizeVisualStyle(style)};
 }
 export function updatePipeSegment(run,segmentIdValue,patch={}){
  if(!isPipeRun(run))throw new TypeError('PipeRun required');
@@ -67,7 +85,8 @@ export function validatePipeRun(run){
  if(!Array.isArray(run?.segments)||run.segments.length!==Math.max(0,run.points.length-1))issues.push('segment-count');
  if(new Set(run?.vertexIds||[]).size!==(run?.vertexIds||[]).length)issues.push('duplicate-vertex-id');
  if(new Set((run?.segments||[]).map(s=>s.id)).size!==(run?.segments||[]).length)issues.push('duplicate-segment-id');
+ if(!PIPE_LINE_STYLES[run?.visualStyle?.id||'PROCESS'])issues.push('visual-style');
  (run?.segments||[]).forEach((s,i)=>{if(s.runId!==run.id||s.index!==i||s.startVertexId!==run.vertexIds[i]||s.endVertexId!==run.vertexIds[i+1])issues.push(`segment-ref-${i}`)});
  return{valid:issues.length===0,issues};
 }
-export function pipeRunSummary(run){return{id:run.id,lineNumber:run.engineering.lineNumber,nominalSize:run.engineering.nominalSize,spec:run.engineering.spec,service:run.engineering.service,waypoints:run.points.length,segments:run.segments.length,graphicLength:pipeRunGraphicLength(run)}}
+export function pipeRunSummary(run){return{id:run.id,lineNumber:run.engineering.lineNumber,nominalSize:run.engineering.nominalSize,spec:run.engineering.spec,service:run.engineering.service,visualStyle:run.visualStyle?.id||'PROCESS',waypoints:run.points.length,segments:run.segments.length,graphicLength:pipeRunGraphicLength(run)}}
