@@ -30,16 +30,19 @@ const categoryProfile={
  'SÍMBOLOS DE FOLHA':{usageContexts:['ISOMETRIC','SHEET'],technicalReferences:refs.sheet,subcategory:'SHEET'}
 };
 const TWO_INLINE=new Set([
- 'elbow-90','elbow-45','coupling','union','reducer',
- 'flange-wn','flange-so','flange-sw','flange-lj','flange-threaded','flange-pair',
- 'valve-gate','valve-globe','valve-ball','valve-butterfly','valve-check','valve-needle','valve-plug','valve-diaphragm','valve-control','valve-safety','valve-relief','valve-generic'
+ 'elbow-90','elbow-90-lr','elbow-90-sr','elbow-45','bend','miter',
+ 'coupling','union','nipple','reducer','reducer-concentric','reducer-eccentric','swage',
+ 'spectacle-blind','spacer',
+ 'flange-wn','flange-long-wn','flange-so','flange-sw','flange-lj','flange-threaded','flange-pair','flange-orifice',
+ 'valve-gate','valve-globe','valve-ball','valve-butterfly','valve-check','valve-swing-check','valve-lift-check','valve-dual-plate-check',
+ 'valve-needle','valve-plug','valve-diaphragm','valve-control','valve-safety','valve-relief','valve-mov','valve-aov','valve-hydraulic','valve-manual','valve-generic'
 ]);
-const BRANCH=new Set(['tee','lateral','cross']);
+const BRANCH=new Set(['tee','tee-reducing','lateral','cross']);
 const TERMINAL=new Set(['cap','plug','flange-blind']);
-const OLETS=new Set(['weldolet','sockolet','threadolet','olet-generic']);
+const OLETS=new Set(['weldolet','sockolet','threadolet','nipolet','half-coupling','branch-welded','branch-reinforced','olet-generic']);
 const port=(id,u,v,role='process',direction='bidirectional')=>({id,u,v,role,direction});
 function portDefinitionsFor(id){
- if(id==='tee')return[port('P1',0,.5,'main-in'),port('P2',1,.5,'main-out'),port('P3',.5,0,'branch')];
+ if(id==='tee'||id==='tee-reducing')return[port('P1',0,.5,'main-in'),port('P2',1,.5,'main-out'),port('P3',.5,0,'branch')];
  if(id==='lateral')return[port('P1',0,.5,'main-in'),port('P2',1,.5,'main-out'),port('P3',.7,0,'branch')];
  if(id==='cross')return[port('P1',0,.5,'main'),port('P2',1,.5,'main'),port('P3',.5,0,'branch'),port('P4',.5,1,'branch')];
  if(TERMINAL.has(id))return[port('P1',0,.5,'terminal')];
@@ -72,8 +75,10 @@ function subcategoryFor(id,category,primitive){
  if(OLETS.has(id))return'BRANCH_OUTLET';
  if(BRANCH.has(id))return'BRANCH_FITTING';
  if(TERMINAL.has(id))return'TERMINAL';
- if(id.startsWith('elbow'))return'CHANGE_OF_DIRECTION';
- if(id==='reducer')return'REDUCER';
+ if(id.startsWith('elbow')||id==='bend'||id==='miter')return'CHANGE_OF_DIRECTION';
+ if(['reducer','reducer-concentric','reducer-eccentric','swage'].includes(id))return'REDUCER';
+ if(['spectacle-blind','spacer'].includes(id))return'LINE_BLIND';
+ if(['coupling','union','nipple'].includes(id))return'INLINE_CONNECTOR';
  if(id.startsWith('flange-'))return'FLANGE';
  if(id.startsWith('valve-'))return'VALVE';
  if(id.startsWith('support-'))return'PIPE_SUPPORT';
@@ -109,18 +114,61 @@ export const BUILTIN_SYMBOLS=freeze([
  def('pipe-break','TUBULAÇÃO','Quebra de tubulação','BREAK','pipe-break'),
  def('flow-arrow','TUBULAÇÃO','Seta de fluxo','FLOW','flow'),
 
- def('elbow-90','CONEXÕES','Cotovelo 90°','EL90','elbow90'),def('elbow-45','CONEXÕES','Cotovelo 45°','EL45','elbow45'),
- def('tee','CONEXÕES','Tee','TEE','tee'),def('lateral','CONEXÕES','Lateral','LAT','lateral'),def('cross','CONEXÕES','Cruzeta','CRUZ','cross'),
- def('coupling','CONEXÕES','Luva','LUVA','coupling'),def('union','CONEXÕES','União','UNION','union'),def('cap','CONEXÕES','Cap','CAP','cap'),def('plug','CONEXÕES','Plug','PLUG','plug'),
- def('reducer','CONEXÕES','Redução','RED','reducer'),def('weldolet','CONEXÕES','Weldolet','WOL','olet'),def('sockolet','CONEXÕES','Sockolet','SOL','olet'),def('threadolet','CONEXÕES','Threadolet','TOL','olet'),def('olet-generic','CONEXÕES','Olet genérico','OLET','olet'),
+ def('elbow-90','CONEXÕES','Cotovelo 90°','EL90','elbow90'),
+ def('elbow-90-lr','CONEXÕES','Cotovelo 90° LR','EL90-LR','elbow90-lr'),
+ def('elbow-90-sr','CONEXÕES','Cotovelo 90° SR','EL90-SR','elbow90-sr'),
+ def('elbow-45','CONEXÕES','Cotovelo 45°','EL45','elbow45'),
+ def('bend','CONEXÕES','Curva / Bend','BEND','bend'),
+ def('miter','CONEXÕES','Curva segmentada / Miter','MITER','miter'),
+ def('tee','CONEXÕES','Tee igual','TEE','tee'),
+ def('tee-reducing','CONEXÕES','Tee redutor','TEE-R','tee-reducing'),
+ def('lateral','CONEXÕES','Lateral','LAT','lateral'),def('cross','CONEXÕES','Cruzeta','CRUZ','cross'),
+ def('coupling','CONEXÕES','Luva','LUVA','coupling'),def('half-coupling','CONEXÕES','Meia luva / Half Coupling','H-CPL','half-coupling'),
+ def('union','CONEXÕES','União','UNION','union'),def('nipple','CONEXÕES','Niple','NIP','nipple'),
+ def('cap','CONEXÕES','Cap','CAP','cap'),def('plug','CONEXÕES','Plug','PLUG','plug'),
+ def('reducer','CONEXÕES','Redução genérica','RED','reducer'),
+ def('reducer-concentric','CONEXÕES','Redução concêntrica','RC','reducer-concentric'),
+ def('reducer-eccentric','CONEXÕES','Redução excêntrica','RE','reducer-eccentric'),
+ def('swage','CONEXÕES','Swage','SWG','swage'),
+ def('weldolet','CONEXÕES','Weldolet','WOL','olet-weld'),
+ def('sockolet','CONEXÕES','Sockolet','SOL','olet-socket'),
+ def('threadolet','CONEXÕES','Threadolet','TOL','olet-threaded'),
+ def('nipolet','CONEXÕES','Nipolet','NOL','nipolet'),
+ def('branch-welded','CONEXÕES','Derivação soldada','BR-W','branch-welded'),
+ def('branch-reinforced','CONEXÕES','Derivação reforçada','BR-R','branch-reinforced'),
+ def('olet-generic','CONEXÕES','Olet genérico','OLET','olet'),
+ def('spectacle-blind','CONEXÕES','Raquete 8 / Spectacle Blind','SB','spectacle-blind'),
+ def('spacer','CONEXÕES','Spacer','SPC','spacer'),
 
- def('flange-wn','FLANGES','Flange Welding Neck','WN','flange'),def('flange-so','FLANGES','Flange Slip-On','SO','flange'),def('flange-sw','FLANGES','Flange Socket Weld','SW','flange'),
- def('flange-lj','FLANGES','Flange Lap Joint','LJ','flange'),def('flange-blind','FLANGES','Flange cego','BLIND','flange-blind'),def('flange-threaded','FLANGES','Flange roscado','THD','flange'),def('flange-pair','FLANGES','Par flangeado','PAIR','flange-pair'),
+ def('flange-wn','FLANGES','Flange Welding Neck','WN','flange-wn'),
+ def('flange-long-wn','FLANGES','Flange Long Welding Neck','LWN','flange-long-wn'),
+ def('flange-so','FLANGES','Flange Slip-On','SO','flange-so'),
+ def('flange-sw','FLANGES','Flange Socket Weld','SW','flange-sw'),
+ def('flange-lj','FLANGES','Flange Lap Joint','LJ','flange-lj'),
+ def('flange-blind','FLANGES','Flange cego','BLIND','flange-blind'),
+ def('flange-threaded','FLANGES','Flange roscado','THD','flange-threaded'),
+ def('flange-orifice','FLANGES','Flange de orifício','ORF','flange-orifice'),
+ def('flange-pair','FLANGES','Par flangeado','PAIR','flange-pair'),
 
- def('valve-gate','VÁLVULAS','Válvula gaveta','VG','valve'),def('valve-globe','VÁLVULAS','Válvula globo','VGL','valve'),def('valve-ball','VÁLVULAS','Válvula esfera','VB','valve-ball'),
- def('valve-butterfly','VÁLVULAS','Válvula borboleta','VBF','valve-butterfly'),def('valve-check','VÁLVULAS','Válvula de retenção','VR','valve-check'),def('valve-needle','VÁLVULAS','Válvula agulha','VA','valve-needle'),
- def('valve-plug','VÁLVULAS','Válvula macho','VM','valve-plug'),def('valve-diaphragm','VÁLVULAS','Válvula diafragma','VD','valve-diaphragm'),def('valve-control','VÁLVULAS','Válvula de controle','CV','valve-control'),
- def('valve-safety','VÁLVULAS','Válvula de segurança','PSV','valve-relief'),def('valve-relief','VÁLVULAS','Válvula de alívio','PRV','valve-relief'),def('valve-generic','VÁLVULAS','Válvula genérica','V','valve'),
+ def('valve-gate','VÁLVULAS','Válvula gaveta','VG','valve-gate'),
+ def('valve-globe','VÁLVULAS','Válvula globo','VGL','valve-globe'),
+ def('valve-ball','VÁLVULAS','Válvula esfera','VB','valve-ball'),
+ def('valve-butterfly','VÁLVULAS','Válvula borboleta','VBF','valve-butterfly'),
+ def('valve-check','VÁLVULAS','Válvula de retenção genérica','VR','valve-check'),
+ def('valve-swing-check','VÁLVULAS','Válvula de retenção portinhola','VR-S','valve-swing-check'),
+ def('valve-lift-check','VÁLVULAS','Válvula de retenção lift','VR-L','valve-lift-check'),
+ def('valve-dual-plate-check','VÁLVULAS','Válvula de retenção dual plate','VR-DP','valve-dual-plate-check'),
+ def('valve-needle','VÁLVULAS','Válvula agulha','VA','valve-needle'),
+ def('valve-plug','VÁLVULAS','Válvula macho','VM','valve-plug'),
+ def('valve-diaphragm','VÁLVULAS','Válvula diafragma','VD','valve-diaphragm'),
+ def('valve-control','VÁLVULAS','Válvula de controle','CV','valve-control'),
+ def('valve-safety','VÁLVULAS','Válvula de segurança','PSV','valve-safety'),
+ def('valve-relief','VÁLVULAS','Válvula de alívio','PRV','valve-relief'),
+ def('valve-mov','VÁLVULAS','Válvula motorizada elétrica','MOV','valve-mov'),
+ def('valve-aov','VÁLVULAS','Válvula atuada pneumaticamente','AOV','valve-aov'),
+ def('valve-hydraulic','VÁLVULAS','Válvula atuada hidraulicamente','HOV','valve-hydraulic'),
+ def('valve-manual','VÁLVULAS','Válvula com volante manual','HV','valve-manual'),
+ def('valve-generic','VÁLVULAS','Válvula genérica','V','valve'),
 
  def('inst-pi','INSTRUMENTAÇÃO','Pressure Indicator','PI','instrument',{instrumentCode:'PI'}),def('inst-pt','INSTRUMENTAÇÃO','Pressure Transmitter','PT','instrument',{instrumentCode:'PT'}),
  def('inst-ti','INSTRUMENTAÇÃO','Temperature Indicator','TI','instrument',{instrumentCode:'TI'}),def('inst-tt','INSTRUMENTAÇÃO','Temperature Transmitter','TT','instrument',{instrumentCode:'TT'}),
