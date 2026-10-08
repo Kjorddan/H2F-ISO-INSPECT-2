@@ -1,9 +1,10 @@
 import React,{useEffect,useMemo,useState}from'react';
-import{ux09DefaultOptions,ux09BuildPlan,ux09VerifyControlled}from'../editor-core/ux09-print-plan.js';
-export function Ux09DocumentDialog({documentModel,entities,inspectionStore,emissionLog=[],onClose,onExport,onPrint}){
+import{ux09DefaultOptions,ux09BuildPlan}from'../editor-core/ux09-print-plan.js';
+import{ux10VerifyFormalSnapshot}from'../editor-core/ux10-final-audit.js';
+export function Ux09DocumentDialog({documentModel,entities,inspectionStore,releaseContext={},emissionLog=[],onClose,onExport,onPrint}){
  const [options,setOptions]=useState(()=>ux09DefaultOptions()),[gate,setGate]=useState({allowed:false,reason:'Verificando revisão formal…'}),[busy,setBusy]=useState(false),[error,setError]=useState('');
  const plan=useMemo(()=>{try{return ux09BuildPlan({document:documentModel,entities,inspection:inspectionStore,options})}catch(e){return{error:e.message,pages:[],warnings:[],totalPageCount:0}}},[documentModel,entities,inspectionStore,options]);
- useEffect(()=>{let active=true;ux09VerifyControlled(documentModel,entities).then(r=>{if(active)setGate(r)}).catch(e=>{if(active)setGate({allowed:false,reason:e.message})});return()=>{active=false}},[documentModel,entities]);
+ useEffect(()=>{let active=true;ux10VerifyFormalSnapshot(documentModel,entities,releaseContext).then(r=>{if(active)setGate(r)}).catch(e=>{if(active)setGate({allowed:false,reason:e.message})});return()=>{active=false}},[documentModel,entities,releaseContext]);
  const change=(key,value)=>{setError('');setOptions(o=>({...o,[key]:value}))};
  const action=async(fn)=>{setBusy(true);setError('');try{await fn(options,plan,gate)}catch(e){setError(e.message||String(e))}finally{setBusy(false)}};
  return <div className="ux09Backdrop" role="presentation" onPointerDown={e=>{if(e.target===e.currentTarget)onClose()}}>
@@ -13,7 +14,7 @@ export function Ux09DocumentDialog({documentModel,entities,inspectionStore,emiss
  <fieldset><legend>Folhas</legend><label>Área de emissão<select aria-label="Área da impressão" value={options.scope} onChange={e=>change('scope',e.target.value)}><option value="ALL_SHEETS">Todas as folhas</option><option value="CURRENT_SHEET">Somente folha atual</option></select></label>
  <label className="ux09Check"><input type="checkbox" checked={options.includeTableContinuations} onChange={e=>change('includeTableContinuations',e.target.checked)}/>Gerar páginas de continuação para tabelas grandes</label></fieldset>
  <fieldset><legend>Tipo de documento</legend><label>Modo de geração<select aria-label="Modo de emissão" value={options.documentMode} onChange={e=>change('documentMode',e.target.value)}><option value="PREVIEW">Prévia não controlada</option><option value="CONTROLLED">Emissão controlada (requer revisão formal aprovada)</option></select></label>
- <div className={gate.allowed?'ux09Gate success':'ux09Gate'} data-testid="ux09-controlled-gate">{gate.allowed?'Snapshot formal conferido · SHA-256 correspondente':'Emissão controlada bloqueada: '+gate.reason}</div>
+ <div className={gate.allowed?'ux09Gate success':'ux09Gate'} data-testid="ux09-controlled-gate">{gate.allowed?'Snapshot completo conferido · SHA-256 documental e END/evidências':'Emissão controlada bloqueada: '+gate.reason}</div>
  <small>Mesmo no modo controlado, o arquivo não contém assinatura digital certificada. “Download solicitado” não é comprovação de entrega ou impressão.</small>
  </fieldset><fieldset><legend>Qualidade</legend><span>PDF vetorial por folha, com dimensões reais em mm (A0–A4 e personalizadas), carimbo e paginação.</span><span>Conteúdo do PDF composto separadamente, sem caixas de seleção, barras ou botões do editor.</span></fieldset>
  </div>
