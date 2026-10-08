@@ -253,7 +253,9 @@ function App(){
   setMarquee({start:p,current:p,add:e.shiftKey||e.ctrlKey||e.metaKey,direction:'contain'});setInteraction({type:'marquee'});host.current.setPointerCapture?.(e.pointerId);
  };
  const entityDown=(e,entity)=>{
-  e.stopPropagation();if(tool!=='Selecionar'||e.button!==0)return;
+  e.stopPropagation();if(e.button!==0)return;
+  if(symbolPlacement){insertLibrarySymbol(symbolPlacement,eventWorld(e));return}
+  if(tool!=='Selecionar')return;
   const additive=e.shiftKey||e.ctrlKey||e.metaKey;let ids;
   if(additive){const next=toggleSelection(selection,entity.id);setSelection(next);ids=next.ids}else if(isSelected(selection,entity.id)){ids=selection.ids}else{const next=selectOnly(selection,entity.id);setSelection(next);ids=next.ids}
   if(!ids.includes(entity.id))return;
