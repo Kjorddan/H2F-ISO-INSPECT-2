@@ -71,7 +71,9 @@ test('UX07 custom editor, UX08 sheet designer and UX09 release dialog coexist',a
 
 test('photo evidence is embedded in .h2fiso with SHA-256 and survives re-import',async({page})=>{
  test.setTimeout(120000);await start(page);
- await page.locator('.pipeRunEntity').first().click();
+ const point=await page.locator('[data-testid="editor-scene"]').evaluate(svg=>{const p=svg.createSVGPoint();p.x=730;p.y=390;const q=p.matrixTransform(svg.getScreenCTM());return{x:q.x,y:q.y}});
+ await page.mouse.click(point.x,point.y);
+ await expect(page.locator('.evidencePanel input[type="file"]')).toBeEnabled();
  const binary=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScL9VQAAAABJRU5ErkJggg==','base64');
  await page.locator('.evidencePanel input[type="file"]').setInputFiles({name:'foto-inspecao.png',mimeType:'image/png',buffer:binary});
  await expect(page.locator('.evidencePreview')).toHaveCount(1);
