@@ -63,5 +63,7 @@
     "Sem UX-10 neste trabalho",
     "Sem assinatura digital reconhecida",
     "Sem aceite END fabricado"
-  ]
+  ],
+  "ux09Core": "35/35 PASS (auditoria de checkpoint pendente)",
+  "ux09Browser": "8/8 PASS (auditoria de checkpoint pendente)"
 }

@@ -24,3 +24,6 @@
 A UX-09 encerra o desenvolvimento de impressão e exportação documental do ciclo. **Resta apenas a UX-10**: auditoria final integrada, Golden Masters, correções e validação operacional. A UX-10 não é iniciada automaticamente.
 
 Os resultados do GitHub Actions e a decisão final de fase constam em `docs/UX09/QA_UX09.md` e `CHECKPOINT_UX09.json` quando concluída a liberação.
+
+### Correções pós-auditoria inicial
+Foi realizado ajuste de enquadramento do SVG no papel físico, inclusive para A4 em retrato. O rodapé de paginação agora acompanha a área do formato ativo. As páginas de continuação foram redesenhadas com posições relativas ao papel. O preflight alerta para entidades além do limite físico e possível sobreposição do carimbo, sem modificar o isométrico.
