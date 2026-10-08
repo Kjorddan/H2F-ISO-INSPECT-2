@@ -1,0 +1,74 @@
+{
+  "product": "H2F ISO INSPECT 2.0",
+  "cycle": "UX/UI + Biblioteca Industrial + Isométrico + Formatação Profissional",
+  "phase": "UX-08",
+  "phaseIndex": 8,
+  "phaseTotal": 10,
+  "status": "CONCLUIDA_AUDITADA",
+  "repository": "Kjorddan/H2F-ISO-INSPECT-2",
+  "branch": "ux-evolution",
+  "baselineCheckpoint": "CHECKPOINT_UX07.json",
+  "baselineCommit": "51449d138491a82264cebb0bb67e7febee0d58b0",
+  "testedRuntimeCommit": "7cf34bbec07600fb658cd9c8d0a1eb7c36766447",
+  "workflowUX08": 37731318525,
+  "workflowUX02Regression": 37731318597,
+  "builtinSymbols": 227,
+  "ux08Core": "40/40 PASS",
+  "ux08Browser": "11/11 PASS",
+  "build": "PASS",
+  "regression": "PASS",
+  "sheetFormats": [
+    "A0",
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "CUSTOM"
+  ],
+  "titleBlock": "EDITABLE_PERSISTED",
+  "tableFamilies": 7,
+  "presets": 3,
+  "sheetDuplicateEditorialRemap": "PASS",
+  "localServer": "CI_ASSEMBLY_PASS_WINDOWS_FIELD_SMOKE_NOT_RUN",
+  "remainingAfterThis": 2,
+  "nextPhase": "UX-09",
+  "advanceRule": "AGUARDAR_PODE_SEGUIR",
+  "limitations": [
+    "Não certifica geometria conforme norma ISO ou convenção de cliente",
+    "Não executa PDF/impressão final nesta fase",
+    "Tabelas não são quantitativos executivos nem laudos END",
+    "Smoke test em Windows real pendente"
+  ],
+  "technicalDebts": [
+    {
+      "id": "PRINT_MULTIPAGE_TABLE_PAGINATION",
+      "target": "UX-09",
+      "severity": "MEDIUM"
+    },
+    {
+      "id": "DRAWING_TABLE_COLLISION",
+      "target": "UX-09",
+      "severity": "MEDIUM"
+    },
+    {
+      "id": "CLIENT-SYMBOL-PROFILES",
+      "target": "UX-10",
+      "severity": "MEDIUM"
+    },
+    {
+      "id": "ATTACHMENT-REMAP-COMPLEX-EDIT",
+      "target": "UX-10",
+      "severity": "MEDIUM"
+    },
+    {
+      "id": "WINDOWS-FIELD-SMOKE-TEST",
+      "target": "UX-10",
+      "severity": "MEDIUM"
+    },
+    {
+      "id": "MULTI_TENANT_CUSTOM_LIBRARY",
+      "target": "FUTURE_SERVER",
+      "severity": "MEDIUM"
+    }
+  ]
+}

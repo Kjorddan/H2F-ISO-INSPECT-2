@@ -1,5 +1,7 @@
 # UX-08 — Plano de QA e matriz de conformidade interna
 
+**Resultado auditado: GitHub Actions [37731318525](https://github.com/Kjorddan/H2F-ISO-INSPECT-2/actions/runs/37731318525), commit `7cf34bbec07600fb658cd9c8d0a1eb7c36766447`. Regressão completa PASS, UX-08 core 40/40 PASS, Chromium 11/11 PASS, build PASS e montagem Windows offline no CI PASS. UX-02 workflow de regressão [37731318597](https://github.com/Kjorddan/H2F-ISO-INSPECT-2/actions/runs/37731318597) PASS.**
+
 ## Gates automatizados
 | Teste / compromisso | Evidência esperada |
 |---|---|

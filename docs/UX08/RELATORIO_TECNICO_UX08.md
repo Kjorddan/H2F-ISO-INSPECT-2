@@ -3,7 +3,7 @@
 ## Fase 8 de 10 — Formatação de folhas, carimbos, tabelas e templates
 
 **Repositório:** `Kjorddan/H2F-ISO-INSPECT-2`. **Branch exclusiva:** `ux-evolution`. **Baseline auditado:** UX-07 `51449d138491a82264cebb0bb67e7febee0d58b0`.
-**Estado documental:** recursos UX-08 implementados; testes automatizados acompanham o código e estão documentados em `QA_UX08.md`.
+**Estado documental:** UX-08 CONCLUÍDA E AUDITADA. Confirmação técnica no GitHub Actions 37731318525: núcleo 40/40 PASS, browser Chromium 11/11 PASS, regressão e build PASS.
 **Após esta fase, restam duas:** UX-09 (PDF, impressão e workflow documental) e UX-10 (auditoria final).
 
 ## Funcionalidades entregues
