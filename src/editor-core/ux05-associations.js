@@ -52,3 +52,15 @@ export function equipmentNozzleCandidates(equipment,runs,graph,maxDistance=24){
  }
  return candidates.sort((a,b)=>a.distance-b.distance);
 }
+
+export function syncMountedSymbolPositions(entities){
+ const runs=new Map(entities.filter(isPipeRun).map(r=>[r.id,r]));
+ return entities.map(e=>{
+  if(!e.mount?.runId||!e.mount?.segmentId)return e;
+  const run=runs.get(e.mount.runId),idx=run?.segments?.findIndex(s=>s.id===e.mount.segmentId);
+  if(idx==null||idx<0)return e;
+  const p=run.points[idx],q=run.points[idx+1],t=Math.max(0,Math.min(1,e.mount.t??.5));
+  const x=p.x+(q.x-p.x)*t-e.width/2,y=p.y+(q.y-p.y)*t-e.height/2;
+  return Math.abs(e.x-x)<1e-8&&Math.abs(e.y-y)<1e-8?e:{...e,x,y};
+ });
+}
