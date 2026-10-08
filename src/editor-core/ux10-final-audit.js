@@ -25,7 +25,10 @@ export async function ux10CreateFormalSnapshot(document,entities=[],context={},m
  const base=await createRevisionSnapshot(document,entities,meta);
  return Object.freeze({...base,ux10ReleaseSchema:UX10_RELEASE_SCHEMA,ux10ReleaseSha256:await ux10ReleaseHash(document,entities,context)});
 }
+export const ux10EvidenceIsArchived=e=>e?.kind==='LINK'||(typeof e?.sourceRef==='string'&&e.sourceRef.startsWith('data:')&&/^[a-f0-9]{64}$/.test(String(e.sha256||'')));
 export async function ux10VerifyFormalSnapshot(document,entities=[],context={}){
+ const missing=(context.evidenceStore?.evidence||[]).filter(e=>!ux10EvidenceIsArchived(e));
+ if(missing.length)return{allowed:false,reason:missing.length+' evidência(s) sem conteúdo arquivado e SHA-256; reinsira os arquivos antes da emissão'};
  const latest=document?.revisions?.at(-1);
  if(!['APROVADO','AS BUILT'].includes(document?.revisionState))return{allowed:false,reason:'Revisão deve estar APROVADO ou AS BUILT'};
  if(!latest?.immutable||!latest.sha256)return{allowed:false,reason:'Snapshot formal imutável necessário'};
@@ -52,6 +55,7 @@ export function ux10AuditIntegrated({document,entities=[],graph=null,inspectionS
   if(graph){for(const item of validateUx06Markers(entities,graph,inspectionStore).issues)add('BLOCKER',item.code,item.id)}
  }
  if(evidenceStore?.evidence&&evidenceStore?.photoOverlays&&evidenceStore?.anomalies&&evidenceStore?.recommendations){for(const item of validateEvidenceStore(evidenceStore))add('BLOCKER','EVIDENCE_'+item.code,item.id)}
+ if(evidenceStore?.evidence){for(const e of evidenceStore.evidence)if(!ux10EvidenceIsArchived(e))add('BLOCKER','EVIDENCE_UNARCHIVED',String(e.id))}
  if(integrityStore?.assessments&&integrityStore?.damageCatalogs){for(const item of validateIntegrityStore(integrityStore))add('BLOCKER','INTEGRITY_'+item.code,item.id)}
  if(graph){for(const item of validateEngineeringGraph(graph).issues.filter(i=>i.severity==='ERROR'))add('BLOCKER','GRAPH_'+item.code,item.entityId);
  for(const edge of Object.values(graph.edges||{}))if(!graph.runs?.[edge.runId])add('BLOCKER','EDGE_ORPHAN',edge.id);
