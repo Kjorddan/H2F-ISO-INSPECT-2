@@ -34,6 +34,26 @@ export function registerComponent(graph,component){
  g.components[component.id]={id:component.id,kind:'component',symbolId:component.symbolId||'',componentType:component.componentType||component.symbolId||'',nodeId,portIds:ports.map(p=>p.id),engineering:{...(component.engineering||{})}};
  return g;
 }
+export function updateComponentPorts(graph,componentId,newPorts){
+ const next=copy(graph),c=next.components?.[componentId];
+ if(!c)throw new Error('Unknown component');
+ if(!Array.isArray(newPorts))throw new Error('Ports array required');
+ const ids=new Set();for(const p of newPorts){
+  if(!p?.id||ids.has(p.id)||p.role!=='equipment-nozzle')throw new Error('Invalid or duplicate equipment nozzle');
+  ids.add(p.id);
+ }
+ const newIds=new Set(newPorts.map(p=>`${componentId}-PORT-${p.id}`));
+ for(const id of c.portIds||[]){if(!newIds.has(id)){
+  if(next.ports[id]?.connectedConnectionId||next.ports[id]?.attachedAttachmentId)throw new Error('Cannot remove connected nozzle');
+  delete next.ports[id];
+ }}
+ for(const p of newPorts){
+  const id=`${componentId}-PORT-${p.id}`,prior=next.ports[id];
+  next.ports[id]={...prior,id,ownerId:componentId,nodeId:c.nodeId,kind:'component-port',role:'equipment-nozzle',direction:p.direction||'bidirectional',connectedConnectionId:prior?.connectedConnectionId||null,attachedAttachmentId:null};
+ }
+ c.portIds=newPorts.map(p=>`${componentId}-PORT-${p.id}`);
+ return next;
+}
 export function unregisterComponent(graph,componentId){
  let g=copy(graph),c=g.components[componentId];if(!c)return g;
  for(const m of Object.values(g.mounts||{}))if(m.componentId===componentId)delete g.mounts[m.id];

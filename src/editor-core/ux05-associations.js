@@ -1,4 +1,4 @@
-import{registerComponent,connectPorts,mountComponentToPipeSegment}from'./engineering-graph.js';
+import{registerComponent,connectPorts,mountComponentToPipeSegment,updateComponentPorts}from'./engineering-graph.js';
 import{createSymbolEntityFrom}from'./library.js';
 import{isPipeRun}from'./piping.js';
 import{pointSegmentProjection}from'./polyline.js';
@@ -63,4 +63,26 @@ export function syncMountedSymbolPositions(entities){
   const x=p.x+(q.x-p.x)*t-e.width/2,y=p.y+(q.y-p.y)*t-e.height/2;
   return Math.abs(e.x-x)<1e-8&&Math.abs(e.y-y)<1e-8?e:{...e,x,y};
  });
+}
+
+export function configureEquipmentNozzlesTransaction(state,{equipmentId,nozzles}){
+ try{
+  const entity=state.entities.find(e=>e.id===equipmentId&&e.category==='EQUIPAMENTOS');
+  if(!entity||!Array.isArray(nozzles))throw new Error('Valid equipment nozzle configuration required');
+  const ids=new Set();
+  for(const p of nozzles){
+   if(!p?.id||ids.has(p.id)||!/^[A-Za-z0-9_-]{1,18}$/.test(p.id)||p.role!=='equipment-nozzle'||!Number.isFinite(p.x)||!Number.isFinite(p.y)||p.x<0||p.x>entity.width||p.y<0||p.y>entity.height)throw new Error('Invalid nozzle ID/position');
+   ids.add(p.id);
+  }
+  const graph=updateComponentPorts(state.graph,equipmentId,nozzles);
+  const defs=nozzles.map(p=>({id:p.id,u:p.x/entity.width,v:p.y/entity.height,role:'equipment-nozzle',direction:p.direction||'bidirectional'}));
+  const current=entity.symbolDefinition||{};
+  const updated={...entity,ports:nozzles.map(p=>({...p})),symbolDefinition:{...current,portDefinitions:defs,nozzleTemplate:'UX05_USER_CONFIGURED'}};
+  return{ok:true,entities:state.entities.map(e=>e.id===equipmentId?updated:e),graph,created:{componentId:equipmentId,nozzleCount:nozzles.length}};
+ }catch(error){return{ok:false,rolledBack:true,error:String(error?.message||error),entities:state.entities,graph:state.graph}}
+}
+export function nextEquipmentNozzle(entity){
+ const used=new Set((entity?.ports||[]).map(p=>p.id)),number=Array.from({length:999},(_,i)=>i+1).find(n=>!used.has(`N${n}`));
+ if(!number)throw new Error('Maximum configured nozzles reached');
+ return{id:`N${number}`,x:entity.width,y:entity.height/2,role:'equipment-nozzle',direction:'bidirectional'};
 }

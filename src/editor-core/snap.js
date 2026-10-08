@@ -31,6 +31,14 @@ export function collectEntitySnapCandidates(entities,{excludeEntityId=null,inclu
     segments.push({a,b,entityId:e.id,segmentIndex:i});
    }
   }else if(Number.isFinite(e.x)&&Number.isFinite(e.y)&&Number.isFinite(e.width)&&Number.isFinite(e.height)){
+   if(e.category==='EQUIPAMENTOS'&&Array.isArray(e.ports)){
+    const cx=e.x+e.width/2,cy=e.y+e.height/2,angle=(e.rotation||0)*Math.PI/180;
+    for(const port of e.ports.filter(p=>p.role==='equipment-nozzle'&&Number.isFinite(p.x)&&Number.isFinite(p.y))){
+     const px=e.x+port.x,py=e.y+port.y;
+     const p={x:cx+(px-cx)*Math.cos(angle)-(py-cy)*Math.sin(angle),y:cy+(px-cx)*Math.sin(angle)+(py-cy)*Math.cos(angle)};
+     out.push(candidate(SNAP_TYPES.PORT,p,{entityId:e.id,portId:`${e.id}-PORT-${port.id}`,nozzleId:port.id,role:'equipment-nozzle'}));
+    }
+   }
    const anchors=[
     {x:e.x,y:e.y},{x:e.x+e.width,y:e.y},{x:e.x+e.width,y:e.y+e.height},{x:e.x,y:e.y+e.height},
     {x:e.x+e.width/2,y:e.y+e.height/2}
