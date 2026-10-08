@@ -1,0 +1,66 @@
+{
+  "product": "H2F ISO INSPECT 2.0",
+  "phase": "UX-06",
+  "phaseIndex": 6,
+  "phaseTotal": 10,
+  "status": "CONCLUIDA_AUDITADA",
+  "remainingAfterThis": 4,
+  "nextPhase": "UX-07",
+  "advanceRule": "AGUARDAR_EXCLUSIVAMENTE_COMANDO_PODE_SEGUIR",
+  "remaining": [
+    {
+      "phase": "UX-07",
+      "scope": "Criador de formas personalizadas"
+    },
+    {
+      "phase": "UX-08",
+      "scope": "Formatação de folha, carimbo, tabelas e templates"
+    },
+    {
+      "phase": "UX-09",
+      "scope": "PDF, impressão e workflow documental"
+    },
+    {
+      "phase": "UX-10",
+      "scope": "Auditoria integrada, E2E, Golden Masters e correções finais"
+    }
+  ],
+  "technicalDebts": [
+    {
+      "id": "CLIENT-SYMBOL-PROFILES",
+      "severity": "MEDIUM",
+      "target": "UX-10",
+      "description": "Homologar símbolos H2F com normas e convenções específicas por cliente/projeto, antes de declaração de conformidade."
+    },
+    {
+      "id": "ATTACHMENT-REMAP-COMPLEX-EDIT",
+      "severity": "MEDIUM",
+      "target": "UX-10",
+      "description": "Ampliar testes de remapeamento de mounts/attachments sob edições estruturais extremas do PipeRun."
+    },
+    {
+      "id": "WINDOWS-FIELD-SMOKE-TEST",
+      "severity": "MEDIUM",
+      "target": "UX-10",
+      "description": "Executar Local Server em Windows alvo, com validação manual independente."
+    },
+    {
+      "id": "SHEET-DUPLICATE-EDITORIAL-SYMBOLS",
+      "severity": "LOW",
+      "target": "UX-08",
+      "description": "Definir a semântica de duplicação/exclusão e layout de símbolos editoriais por folha e carimbo; UX-06 apenas vincula e filtra visibilidade."
+    },
+    {
+      "id": "NDT-TECHNIQUE-VOCABULARY",
+      "severity": "LOW",
+      "target": "UX-10",
+      "description": "Rever tipagem de métodos vs. técnicas END para casos atualmente mapeados a OTHER, sem atribuir conformidade falsa."
+    }
+  ],
+  "scopeLimits": [
+    "Sem cálculo de integridade ou aceitação END",
+    "Sem certificação normativa dos glyphs",
+    "Sem resultados/laudos automáticos",
+    "Sem UX-07 a UX-10"
+  ]
+}

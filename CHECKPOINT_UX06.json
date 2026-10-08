@@ -1,0 +1,75 @@
+{
+  "product": "H2F ISO INSPECT 2.0",
+  "cycle": "UX/UI + Biblioteca Industrial + Isométrico + Formatação Profissional",
+  "phase": "UX-06",
+  "phaseIndex": 6,
+  "phaseTotal": 10,
+  "status": "CONCLUIDA_AUDITADA",
+  "repository": "Kjorddan/H2F-ISO-INSPECT-2",
+  "branch": "ux-evolution",
+  "baselineCheckpoint": "CHECKPOINT_UX05.json",
+  "baselineCommit": "7595ddef5b3f537675902b08bda89d273d8d28e1",
+  "testedRuntimeCommit": "cbb538bc1029f82bccc712e8c9872be2beecf061",
+  "workflowUX06": 37718911623,
+  "workflowUX02Regression": 37718911615,
+  "workflowUX03Regression": 37718901798,
+  "workflowUX04Regression": 37718901847,
+  "workflowUX05Regression": 37718901721,
+  "builtinSymbols": 227,
+  "categoryCounts": {
+    "TUBULAÇÃO": 3,
+    "CONEXÕES": 29,
+    "FLANGES": 9,
+    "VÁLVULAS": 19,
+    "INSTRUMENTAÇÃO": 34,
+    "SUPORTES": 29,
+    "EQUIPAMENTOS": 30,
+    "INSPEÇÃO": 19,
+    "END": 23,
+    "ANOTAÇÕES": 16,
+    "SÍMBOLOS DE FOLHA": 16
+  },
+  "ux06Core": "22/22 PASS",
+  "ux06Browser": "8/8 PASS",
+  "ux02Core": "20/20 PASS",
+  "ux04Core": "24/24 PASS",
+  "ux05Core": "21/21 PASS",
+  "regression": "PASS",
+  "build": "PASS",
+  "localServer": "CI_ASSEMBLY_PASS_WINDOWS_FIELD_SMOKE_NOT_RUN",
+  "remainingAfterThis": 4,
+  "nextPhase": "UX-07",
+  "advanceRule": "AGUARDAR_PODE_SEGUIR",
+  "technicalDebts": [
+    {
+      "id": "CLIENT-SYMBOL-PROFILES",
+      "severity": "MEDIUM",
+      "target": "UX-10",
+      "description": "Homologar símbolos H2F com normas e convenções específicas por cliente/projeto, antes de declaração de conformidade."
+    },
+    {
+      "id": "ATTACHMENT-REMAP-COMPLEX-EDIT",
+      "severity": "MEDIUM",
+      "target": "UX-10",
+      "description": "Ampliar testes de remapeamento de mounts/attachments sob edições estruturais extremas do PipeRun."
+    },
+    {
+      "id": "WINDOWS-FIELD-SMOKE-TEST",
+      "severity": "MEDIUM",
+      "target": "UX-10",
+      "description": "Executar Local Server em Windows alvo, com validação manual independente."
+    },
+    {
+      "id": "SHEET-DUPLICATE-EDITORIAL-SYMBOLS",
+      "severity": "LOW",
+      "target": "UX-08",
+      "description": "Definir a semântica de duplicação/exclusão e layout de símbolos editoriais por folha e carimbo; UX-06 apenas vincula e filtra visibilidade."
+    },
+    {
+      "id": "NDT-TECHNIQUE-VOCABULARY",
+      "severity": "LOW",
+      "target": "UX-10",
+      "description": "Rever tipagem de métodos vs. técnicas END para casos atualmente mapeados a OTHER, sem atribuir conformidade falsa."
+    }
+  ]
+}
