@@ -13,7 +13,7 @@ function render(s,x,y,w,h,kind,key,path,caption=false){
  if(caption){const value=String(s.displayText||s.acronym||'').replace(/\s+/g,' ').slice(0,10);children.push(React.createElement('text',{key:'t',x:36,y:27,textAnchor:'middle',fontSize:9},value))}
  return React.createElement('g',{className:'symbolGlyph ux06Glyph ux06-'+kind,'data-ux06-kind':kind,'data-ux06-variant':key,transform:'translate('+x+' '+y+') scale('+(w/72)+' '+(h/46)+')'},...children);
 }
-export function InspectionGlyph({symbol,x,y,width,height}){const k=v(symbol,'insp',OLD_I);return render(symbol,x,y,width,height,'inspection',k,I[k]||I.TML)}
+export function InspectionGlyph({symbol,x,y,width,height}){const raw=v(symbol,'insp',OLD_I),aliases={WELD_BUTT:'BUTT_WELD',WELD_FILLET:'FILLET_WELD',WELD_FIELD:'FIELD_WELD',WELD_SHOP:'SHOP_WELD',REPLACE:'REPLACEMENT'},k=aliases[raw]||raw;return render(symbol,x,y,width,height,'inspection',k,I[k]||I.TML)}
 export function NdtGlyph({symbol,x,y,width,height}){const k=v(symbol,'ndt',OLD_N);return render(symbol,x,y,width,height,'ndt',k,N[k]||N.UT)}
 export function AnnotationGlyph({symbol,x,y,width,height}){const k=v(symbol,'ann',OLD_A);return render(symbol,x,y,width,height,'annotation',k,A[k]||A.BOX,k==='BALLOON')}
 export function SheetGlyph({symbol,x,y,width,height}){const k=v(symbol,'sheet',OLD_S);return render(symbol,x,y,width,height,'sheet',k,S[k]||S.SHEET_REF)}
