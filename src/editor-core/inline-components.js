@@ -7,7 +7,12 @@ const copy=o=>typeof structuredClone==='function'?structuredClone(o):JSON.parse(
 const EPS=1e-6;
 export const INLINE_CATEGORIES=Object.freeze(['VÁLVULAS','FLANGES','CONEXÕES']);
 export const isTeeSymbol=s=>s?.id==='tee';
-export const isInlineSymbol=s=>!!s&&INLINE_CATEGORIES.includes(s.category)&&!isTeeSymbol(s)&&(s.connectionPoints?.length||defaultSymbolPorts(s,s.size?.width||72,s.size?.height||46).length)>=2;
+export const isInlineSymbol=s=>{
+ if(!s||isTeeSymbol(s))return false;
+ const ports=(s.connectionPoints?.length||defaultSymbolPorts(s,s.size?.width||72,s.size?.height||46).length);
+ if(s.placement&&typeof s.placement.inline==='boolean')return s.placement.inline&&ports===2;
+ return INLINE_CATEGORIES.includes(s.category)&&ports>=2;
+};
 
 function peerPort(graph,portId){const p=graph.ports[portId],cid=p?.connectedConnectionId,c=cid?graph.connections[cid]:null;if(!c)return null;return c.sourcePortId===portId?c.targetPortId:c.sourcePortId}
 function segmentAngle(run,index){const a=run.points[index],b=run.points[index+1];return Math.atan2(b.y-a.y,b.x-a.x)*180/Math.PI}
