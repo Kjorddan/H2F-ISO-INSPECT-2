@@ -47,7 +47,7 @@ export function ux09BuildPlan({document,entities=[],inspection={},options={}}={}
  if(pages.length>UX09_MAX_PAGES)throw Error('Limite de '+UX09_MAX_PAGES+' páginas excedido');
  const collisions=ux09LayoutWarnings(included);
  warnings.push(...collisions);
- return{schema:UX09_SCHEMA,pages:pages.map((p,i)=>({...p,pageIndex:i+1,pageCount:pages.length})),warnings,mode:cfg.documentMode,scope:cfg.scope,sourceSheetCount:included.length,totalPageCount:pages.length};
+ return{schema:UX09_SCHEMA,pages:pages.map((p,i)=>({...p,pageIndex:i+1,pageCount:pages.length,documentMode:cfg.documentMode})),warnings,mode:cfg.documentMode,scope:cfg.scope,sourceSheetCount:included.length,totalPageCount:pages.length};
 }
 export function ux09LayoutWarnings(sheets){
  const warnings=[];
