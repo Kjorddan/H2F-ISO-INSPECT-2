@@ -123,3 +123,36 @@
 .ux07CardEdit{display:block;margin:0 auto 6px;padding:3px 7px;border-radius:4px;border:1px solid #bfdbfe;background:#eff6ff;color:#1e40af;font-size:10px}
 @media(max-width:900px){.ux07Body{grid-template-columns:180px minmax(200px,1fr)}.ux07Props{grid-column:1/-1;max-height:150px;border-left:0;border-top:1px solid #cbd5e1}.ux07Editor{height:calc(100vh - 22px)}.ux07Backdrop{padding:8px}.ux07Tools button{padding:4px}.ux07Settings{padding:8px}}
 @media(max-width:540px){.ux07Body{display:flex;flex-direction:column;overflow:auto}.ux07Settings{max-height:160px;flex:none}.ux07Workspace{min-height:260px;flex:none}.ux07Stage{height:190px}.ux07Props{max-height:180px;flex:none}.ux07Footer{padding:7px;flex-wrap:wrap}.ux07Validation{flex-basis:100%}}
+
+/* UX-08 — folha, carimbo e tabelas: apresentação editorial não interativa, sem alterar o CAD. */
+.scene .ux08SheetOverlay{pointer-events:none}.scene .ux08SheetOverlay text{fill:#263d56;stroke:none;dominant-baseline:auto}
+.scene .ux08SheetOverlay .ux08Table text,.scene .ux08SheetOverlay .ux08TitleBlock text{letter-spacing:.05px}
+.ux08Backdrop{position:fixed;inset:0;z-index:450;background:#101d2fba;display:grid;place-items:center;padding:12px}
+.ux08Dialog{width:min(1390px,calc(100vw - 24px));height:min(850px,calc(100vh - 24px));display:flex;flex-direction:column;overflow:hidden;background:#f8fafc;border:1px solid #93a5b5;border-radius:10px;box-shadow:0 18px 60px #0008;text-align:left;color:#182e45}
+.ux08Head{display:flex;justify-content:space-between;align-items:center;background:#183148;color:white;padding:10px 15px}
+.ux08Head h2{font-size:16px;line-height:1.25;margin:0 0 3px}.ux08Head small{font-size:10px;color:#cbd5e1}
+.ux08Head button{color:white;background:#30465c;border:1px solid #8293a4;border-radius:4px;cursor:pointer;font-size:18px;width:32px;height:32px}
+.ux08Body{display:grid;grid-template-columns:minmax(195px,260px) minmax(300px,1fr) minmax(215px,285px);min-height:0;flex:1;gap:0}
+.ux08Controls,.ux08Tables{overflow:auto;min-height:0;background:#f8fafc;padding:12px;border-right:1px solid #cfdae5}
+.ux08Tables{border-right:0;border-left:1px solid #cfdae5}
+.ux08Dialog fieldset{border:1px solid #cfdae5;border-radius:5px;padding:8px 9px;margin:0 0 9px;min-width:0}
+.ux08Dialog legend{font-size:11px;font-weight:750;padding:0 5px;color:#24394d}
+.ux08Dialog label{display:flex;flex-direction:column;gap:3px;font-size:10px;margin:5px 0;color:#334155;font-weight:600;min-width:0}
+.ux08Dialog input:not([type=checkbox]),.ux08Dialog textarea,.ux08Dialog select{width:100%;min-width:0;padding:6px;color:#132e45;background:white;border:1px solid #b4c3d2;border-radius:4px;box-sizing:border-box;font-size:11px}
+.ux08Dialog .ux08Check{flex-direction:row;align-items:center;gap:6px}.ux08Dialog .ux08Check input{flex-shrink:0}
+.ux08Dialog button{border:1px solid #bdcbd7;border-radius:4px;background:#fff;color:#253e56;padding:6px 9px;cursor:pointer;font-size:11px}
+.ux08Dialog button:hover{background:#e7f2fc}.ux08Dialog button:disabled{opacity:.48;cursor:not-allowed}
+.ux08Pair{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.ux08Fields{border-top:1px solid #d8e1e8;margin-top:6px;padding-top:6px;max-height:240px;overflow:auto}
+.ux08Center{min-width:0;min-height:0;display:flex;flex-direction:column;gap:8px;padding:14px;background:#e6ebf1}
+.ux08PreviewTop{display:flex;justify-content:space-between;gap:6px;font-size:12px}.ux08PreviewTop span{font-size:10px;color:#596e80}
+.ux08Center svg{width:100%;height:auto;min-height:0;flex:1;max-height:100%;border:1px solid #adbcca;border-radius:4px;background:#fff}
+.ux08Center svg text{font-family:Inter,Segoe UI,Arial,sans-serif;fill:#243b53}
+.ux08Center p{font-size:10px;line-height:1.35;color:#526579}
+.ux08Tables h3{font-size:12px;color:#24394d;margin:2px 0 13px}
+.ux08TableList{display:flex;flex-direction:column;gap:8px;margin-top:8px}.ux08TableEditor{background:white;border:1px solid #c5d2df;border-radius:5px;padding:8px;display:flex;flex-direction:column;gap:3px;min-width:0}
+.ux08TableEditor>b{font-size:11px}.ux08TableActions{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.ux08Foot{display:flex;align-items:center;gap:10px;background:#eff3f7;border-top:1px solid #bbc9d5;padding:8px 12px;font-size:11px}
+.ux08Foot>span{flex:1;min-width:0;overflow-wrap:anywhere}.ux08Foot button{font-weight:750;background:#205b95;border-color:#205b95;color:#fff;padding:7px 14px}
+@media(max-width:1020px){.ux08Body{grid-template-columns:210px minmax(270px,1fr)}.ux08Tables{grid-column:1/-1;max-height:190px;border-top:1px solid #cbd5e1;border-left:0}.ux08TableList{flex-direction:row;overflow:auto}.ux08TableEditor{min-width:210px}}
+@media(max-width:650px){.ux08Backdrop{padding:4px}.ux08Dialog{width:calc(100vw - 8px);height:calc(100vh - 8px)}.ux08Body{display:flex;flex-direction:column;overflow:auto}.ux08Controls{max-height:220px;flex:none}.ux08Center{flex:none;min-height:210px;height:250px}.ux08Tables{max-height:200px;flex:none}.ux08Head h2{font-size:13px}.ux08Foot{padding:5px}}
