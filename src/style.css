@@ -74,3 +74,52 @@
 .ux06MarkerEditor button{font-size:11px;border:1px solid #64748b;border-radius:4px;padding:6px;cursor:pointer}
 .ux06MarkerEditor button:disabled{opacity:.45;cursor:not-allowed}
 .ux06Glyph path{stroke-linecap:round;stroke-linejoin:round}
+
+/* UX-07 — vector editor in a contained, keyboard-accessible dialog; no canvas overflow. */
+.ux07Backdrop{position:fixed;inset:0;z-index:400;background:#0f172ac9;display:grid;place-items:center;padding:18px;color:#213044}
+.ux07Editor{display:grid;grid-template-rows:auto minmax(0,1fr) auto;background:#fff;width:min(1300px,calc(100vw - 26px));max-height:calc(100vh - 28px);height:min(780px,calc(100vh - 28px));min-height:0;border-radius:10px;box-shadow:0 20px 55px #0008;overflow:hidden;text-align:left}
+.ux07Head{background:#182c40;color:#fff;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;z-index:1}
+.ux07Head h2{font-size:16px;margin:0 0 4px;font-weight:750}
+.ux07Head small{font-size:11px;color:#cbd5e1}
+.ux07Head button{border:1px solid #64748b;color:#fff;background:transparent;border-radius:5px;width:31px;height:31px;font-size:20px;cursor:pointer}
+.ux07Body{min-width:0;min-height:0;display:grid;grid-template-columns:minmax(180px,225px) minmax(280px,1fr) minmax(190px,245px)}
+.ux07Settings,.ux07Props{min-height:0;min-width:0;overflow:auto;padding:13px;background:#f8fafc}
+.ux07Settings{border-right:1px solid #e2e8f0}.ux07Props{border-left:1px solid #e2e8f0}
+.ux07Editor h3{font-size:12px;margin:4px 0 11px;color:#24364b}
+.ux07Editor label{display:block;color:#334155;font-size:11px;font-weight:650;margin-bottom:8px}
+.ux07Editor input,.ux07Editor textarea,.ux07Editor select{width:100%;margin:3px 0 0;padding:6px 7px;min-width:0;box-sizing:border-box;background:#fff;color:#0f172a;font-size:11px}
+.ux07Editor textarea{min-height:52px;resize:vertical}
+.ux07Info{font-size:10px;font-weight:400;line-height:1.45;color:#475569;overflow-wrap:anywhere}
+.ux07Workspace{min-width:0;min-height:0;display:flex;flex-direction:column;padding:12px;gap:9px}
+.ux07Tools{display:flex;flex-wrap:wrap;gap:4px;align-content:flex-start}
+.ux07Editor button{cursor:pointer}.ux07Tools button,.ux07ToolbarBottom button,.ux07Reorder button,.ux07Reference button{font-size:10px;border:1px solid #cbd5e1;background:#fff;border-radius:4px;padding:6px 7px;color:#34465a}
+.ux07Tools button.active,.ux07PrimitiveList button.active{background:#dbeafe;border-color:#2563eb;color:#1e40af}
+.ux07Stage{flex:1;min-height:110px;min-width:0;display:grid;place-items:center;background:#dce4ed;border:1px solid #94a3b8;border-radius:6px;overflow:hidden}
+.ux07Stage svg{width:100%;height:100%;max-height:100%;touch-action:none;cursor:crosshair}
+.ux07Stage svg .customGlyph{stroke:#183550;stroke-width:.35;fill:none;vector-effect:none}
+.ux07Stage svg .customGlyph text{font-size:3.5px;fill:#183550;stroke:none;font-weight:650}
+.ux07Stage svg .ux07Primitive.chosen .customGlyph{stroke:#1d4ed8;stroke-width:.65}
+.ux07Stage svg .ux07Primitive{cursor:move}
+.ux07Stage svg .ux07Port circle{fill:#fff;stroke:#e87915;stroke-width:.4}
+.ux07Stage svg .ux07Port text{fill:#9a3412}
+.ux07Stage svg .ux07Primitive *{pointer-events:visibleStroke}
+.ux07ToolbarBottom{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:7px;font-size:10px;color:#475569}
+.ux07ToolbarBottom>div{display:flex;gap:5px}
+.ux07PrimitiveList{display:flex;flex-direction:column;gap:4px;max-height:170px;overflow:auto}
+.ux07PrimitiveList>button{border:1px solid #cbd5e1;border-radius:4px;background:#fff;text-align:left;padding:6px;font-size:11px}
+.ux07ElementFields{margin-top:12px;border-top:1px solid #dbe2ea;padding-top:9px}
+.ux07ElementFields>b{display:block;margin-bottom:6px}
+.ux07ElementFields label{display:grid;grid-template-columns:50px 1fr;align-items:center;gap:6px}
+.ux07ElementFields label input{margin:0}
+.ux07ElementFields label:has(textarea){display:block}
+.ux07Reorder{display:flex;gap:4px;margin-bottom:12px}
+.ux07Reference{display:flex;align-items:center;justify-content:space-between;gap:5px;font-size:10px;border:1px solid #dbe2ea;padding:4px;border-radius:3px}
+.ux07Reference button{flex:none}
+.ux07Footer{background:#f8fafc;border-top:1px solid #cbd5e1;padding:10px 16px;display:flex;align-items:center;gap:8px;min-width:0}
+.ux07Validation{flex:1;min-width:0;font-size:10px;color:#475569;overflow-wrap:anywhere}
+.ux07Footer>button{padding:9px 12px;background:#fff;border-radius:5px;border:1px solid #cbd5e1;white-space:nowrap;font-size:11px}
+.ux07Footer>.ux07Save{background:#205a94;color:#fff;border-color:#205a94;font-weight:700}
+.ux07Footer>.ux07Save:disabled{background:#cbd5e1;border-color:#cbd5e1;color:#64748b;cursor:not-allowed}
+.ux07CardEdit{display:block;margin:0 auto 6px;padding:3px 7px;border-radius:4px;border:1px solid #bfdbfe;background:#eff6ff;color:#1e40af;font-size:10px}
+@media(max-width:900px){.ux07Body{grid-template-columns:180px minmax(200px,1fr)}.ux07Props{grid-column:1/-1;max-height:150px;border-left:0;border-top:1px solid #cbd5e1}.ux07Editor{height:calc(100vh - 22px)}.ux07Backdrop{padding:8px}.ux07Tools button{padding:4px}.ux07Settings{padding:8px}}
+@media(max-width:540px){.ux07Body{display:flex;flex-direction:column;overflow:auto}.ux07Settings{max-height:160px;flex:none}.ux07Workspace{min-height:260px;flex:none}.ux07Stage{height:190px}.ux07Props{max-height:180px;flex:none}.ux07Footer{padding:7px;flex-wrap:wrap}.ux07Validation{flex-basis:100%}}
