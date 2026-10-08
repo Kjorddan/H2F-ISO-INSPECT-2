@@ -80,3 +80,14 @@ test('second sheet layout changes do not mutate first sheet formatting',async({p
  await expect(page.getByLabel('Formato da folha')).toHaveValue('A3');
  await page.screenshot({path:'test-results/ux08-multiple-sheet-layouts.png',fullPage:true});
 });
+
+test('invalid frame margin is refused with feedback without crashing CAD',async({page})=>{
+ await open(page);
+ await page.getByLabel('Margem left').fill('-1');
+ await expect(page.locator('.ux08Foot')).toContainText('margin-left');
+ await expect(page.getByLabel('Margem left')).toHaveValue('20');
+ await expect(page.locator('[data-testid="ux08-layout-preview"] .ux08PageFrame')).toHaveCount(1);
+ await page.getByLabel('Margem left').fill('25');
+ await expect(page.getByLabel('Margem left')).toHaveValue('25');
+ await page.screenshot({path:'test-results/ux08-validation-recovery.png',fullPage:true});
+});
