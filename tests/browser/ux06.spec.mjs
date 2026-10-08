@@ -65,3 +65,13 @@ test('sheet match line remains editable and scoped to SHEET-1',async({page})=>{
  await expect(p.getByLabel('Texto do marcador')).toHaveValue('CONTINUA FOLHA 02');
  await page.screenshot({path:'test-results/ux06-match-line-sheet.png',fullPage:true});
 });
+
+test('sheet symbols are visible only on their own sheet',async({page})=>{
+ await choose(page,'Match line / limite de folha');await click(page,500,310);
+ await expect(page.locator('[data-symbol-id="sheet-match-line"]')).toHaveCount(1);
+ await page.locator('.tabs button[title="Nova folha"]').click();
+ await expect(page.locator('[data-symbol-id="sheet-match-line"]')).toHaveCount(0);
+ await page.locator('.tabs button.sheet').filter({hasText:'Folha 1'}).click();
+ await expect(page.locator('[data-symbol-id="sheet-match-line"]')).toHaveCount(1);
+ await page.screenshot({path:'test-results/ux06-sheet-scope.png',fullPage:true});
+});
