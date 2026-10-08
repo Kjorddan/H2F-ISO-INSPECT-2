@@ -1,5 +1,5 @@
 import{test,expect}from'@playwright/test';
-import{readFile}from'node:fs/promises';
+import{readFile,writeFile,mkdir}from'node:fs/promises';
 import{createDocument,addSheet,createRevisionSnapshot,appendRevision}from'../../src/editor-core/document-structure.js';
 import{ux08NewTable,ux08AddTable}from'../../src/editor-core/ux08-sheet-layout.js';
 import{createInspectionStore,createNDT,addNDT}from'../../src/editor-core/inspection.js';
@@ -64,6 +64,8 @@ test('draft one-page PDF downloads as genuine PDF file, not editor screenshot',a
  const bytes=await readFile(await download.path());
  expect(bytes.subarray(0,5).toString('ascii')).toBe('%PDF-');
  expect(bytes.length).toBeGreaterThan(1800);
+ await mkdir('test-results',{recursive:true});await writeFile('test-results/ux09-actual-one-page.pdf',bytes);
+ expect((bytes.toString('latin1').match(/\\/Type\\s*\\/Page\\s/g)||[]).length).toBe(1);
  await expect(page.locator('.ux09Error[role="status"]')).not.toContainText('Falha');
 });
 test('multisheet PDF downloads a single file and reuses sheet plan',async({page})=>{
@@ -74,6 +76,8 @@ test('multisheet PDF downloads a single file and reuses sheet plan',async({page}
  await page.getByRole('button',{name:'Gerar PDF único'}).click();
  const file=await evt;const bytes=await readFile(await file.path());
  expect(bytes.subarray(0,5).toString('ascii')).toBe('%PDF-');
+ await mkdir('test-results',{recursive:true});await writeFile('test-results/ux09-actual-mixed-formats.pdf',bytes);
+ expect((bytes.toString('latin1').match(/\\/Type\\s*\\/Page\\s/g)||[]).length).toBe(2);
  await page.screenshot({path:'test-results/ux09-multipage-pdf-download.png',fullPage:true});
 });
 test('print action opens a browser PDF viewer instead of printing CAD controls',async({page,context})=>{
