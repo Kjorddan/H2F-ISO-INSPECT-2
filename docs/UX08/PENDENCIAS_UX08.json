@@ -1,0 +1,69 @@
+{
+  "product": "H2F ISO INSPECT 2.0",
+  "phase": "UX-08",
+  "phaseIndex": 8,
+  "phaseTotal": 10,
+  "status": "IMPLEMENTADA_AGUARDANDO_AUDITORIA_FINAL",
+  "remainingAfterThis": 2,
+  "nextPhase": "UX-09",
+  "advanceRule": "AGUARDAR_EXCLUSIVAMENTE_COMANDO_PODE_SEGUIR",
+  "remaining": [
+    {
+      "phase": "UX-09",
+      "scope": "PDF, impressão e workflow documental"
+    },
+    {
+      "phase": "UX-10",
+      "scope": "Auditoria integrada E2E, Golden Masters e correções finais"
+    }
+  ],
+  "technicalDebts": [
+    {
+      "id": "PRINT_MULTIPAGE_TABLE_PAGINATION",
+      "severity": "MEDIUM",
+      "target": "UX-09",
+      "description": "Planejar quebra de tabelas extensas em múltiplas folhas/PDF, sem perda de linhas nem sobreposição."
+    },
+    {
+      "id": "DRAWING_TABLE_COLLISION",
+      "severity": "MEDIUM",
+      "target": "UX-09",
+      "description": "Revisar conflitos visuais entre tabelas e geometria do isométrico em folhas densas."
+    },
+    {
+      "id": "CLIENT-SYMBOL-PROFILES",
+      "severity": "MEDIUM",
+      "target": "UX-10",
+      "description": "Homologar convencões gráficas e carimbo de clientes específicos."
+    },
+    {
+      "id": "ATTACHMENT-REMAP-COMPLEX-EDIT",
+      "severity": "MEDIUM",
+      "target": "UX-10",
+      "description": "Revalidar mounts após edição estrutural extrema."
+    },
+    {
+      "id": "WINDOWS-FIELD-SMOKE-TEST",
+      "severity": "MEDIUM",
+      "target": "UX-10",
+      "description": "Smoke test Local Server no Windows real ainda não realizado."
+    },
+    {
+      "id": "MULTI_TENANT_CUSTOM_LIBRARY",
+      "severity": "MEDIUM",
+      "target": "FUTURE_SERVER",
+      "description": "Templates e bibliotecas pessoais são locais e não possuem RBAC/RLS de empresa em servidor."
+    }
+  ],
+  "closedFromUX06": [
+    {
+      "id": "SHEET-DUPLICATE-EDITORIAL-SYMBOLS",
+      "reason": "Duplicação/remoção de símbolos editoriais com remapeamento de sheetId e IDs próprios."
+    }
+  ],
+  "outOfScope": [
+    "Sem exportação/impressão/PDF final nesta etapa",
+    "Sem certificação automática de conformidade ISO",
+    "Sem autorização de assinatura de desenhos"
+  ]
+}
