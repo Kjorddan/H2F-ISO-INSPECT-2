@@ -53,7 +53,7 @@ test('biblioteca UX-04 diferencia fitting, flange e válvula por geometria',asyn
 });
 
 test('estilo visual de PipeRun é independente dos dados de engenharia',async({page})=>{
- await page.locator('[data-entity-id="PR-001"]').click();
+ await clickWorld(page,700,390);
  const line=page.getByLabel('Line Number');const before=await line.inputValue();
  const style=page.getByLabel('Estilo visual');
  await style.selectOption('FUTURE');
@@ -74,8 +74,8 @@ test('cross inserido no trecho cria quatro runs e quatro conexões explícitas',
  await clickWorld(page,730,390);
  await expect(page.locator('[data-symbol-id="cross"]')).toHaveCount(1);
  await expect(page.locator('.pipeRunEntity')).toHaveCount(4);
- await expect(page.locator('footer')).toContainText('Grafo: 4 runs');
- await expect(page.locator('footer')).toContainText('4 conexões');
+ await expect(page.locator('footer')).toContainText('Grafo: 4 run(s)');
+ await expect(page.locator('footer')).toContainText('4 conexão(ões)');
  await page.screenshot({path:'test-results/ux04-cross-topology.png',fullPage:true});
 });
 
@@ -84,8 +84,8 @@ test('weldolet cria branch anexado sem quebrar o run principal',async({page})=>{
  await clickWorld(page,730,390);
  await expect(page.locator('[data-symbol-id="weldolet"]')).toHaveCount(1);
  await expect(page.locator('.pipeRunEntity')).toHaveCount(2);
- await expect(page.locator('footer')).toContainText('Grafo: 2 runs');
- await expect(page.locator('footer')).toContainText('1 conexão');
+ await expect(page.locator('footer')).toContainText('Grafo: 2 run(s)');
+ await expect(page.locator('footer')).toContainText('1 conexão(ões)');
  await page.screenshot({path:'test-results/ux04-weldolet-attachment.png',fullPage:true});
 });
 
@@ -94,7 +94,7 @@ test('flange cego conecta no endpoint sem dividir a tubulação',async({page})=>
  await clickWorld(page,675,390);
  await expect(page.locator('[data-symbol-id="flange-blind"]')).toHaveCount(1);
  await expect(page.locator('.pipeRunEntity')).toHaveCount(1);
- await expect(page.locator('footer')).toContainText('Grafo: 1 runs');
+ await expect(page.locator('footer')).toContainText('Grafo: 1 run(s)');
  await expect(page.locator('footer')).toContainText('1 conexão');
  await page.screenshot({path:'test-results/ux04-blind-terminal.png',fullPage:true});
 });
@@ -105,6 +105,6 @@ test('válvula inline continua dividindo o run com duas conexões',async({page})
  await expect(page.locator('[data-symbol-id="valve-gate"]')).toHaveCount(1);
  await expect(page.locator('.pipeRunEntity')).toHaveCount(2);
  await expect(page.locator('footer')).toContainText('Grafo: 2 runs');
- await expect(page.locator('footer')).toContainText('2 conexões');
+ await expect(page.locator('footer')).toContainText('2 conexão(ões)');
  await page.screenshot({path:'test-results/ux04-valve-inline.png',fullPage:true});
 });
