@@ -4,7 +4,7 @@ import{LIBRARY_CATEGORIES,LIBRARY_SCOPES,SYMBOL_PRIMITIVES}from'../editor-core/l
 import{UX07_BOUNDS,UX07_MAX_PRIMITIVES,ux07DefaultPrimitive,ux07GesturePrimitive,ux07PrimitiveErrors,ux07ValidateShape,ux07UpdatePrimitive,ux07DeletePrimitive,ux07MovePrimitive,ux07TranslatePrimitive,ux07AddReferencePoint}from'../editor-core/ux07-custom-shapes.js';
 const FIELDS={line:['x1','y1','x2','y2'],arc:['x1','y1','cx','cy','x2','y2'],circle:['cx','cy','r'],ellipse:['cx','cy','rx','ry'],rectangle:['x','y','width','height'],text:['x','y'],polyline:[],polygon:[]};
 const NAME={line:'Linha',polyline:'Polilinha',arc:'Arco Bézier',circle:'Círculo',ellipse:'Elipse',rectangle:'Retângulo',polygon:'Polígono',text:'Texto'};
-const pos=(evt,svg)=>{const matrix=svg.getScreenCTM();if(!matrix)return{x:36,y:23};const p=svg.createSVGPoint();p.x=evt.clientX;p.y=evt.clientY;const w=p.matrixTransform(matrix.inverse());return{x:Math.max(0,Math.min(72,w.x)),y:Math.max(0,Math.min(46,w.y))}};
+const pos=(evt,svg)=>{const matrix=svg.getScreenCTM();if(!matrix)return{x:36,y:23};const p=svg.createSVGPoint();p.x=evt.clientX;p.y=evt.clientY;const w=p.matrixTransform(matrix.inverse());const clampRound=(value,max)=>Math.round(Math.max(0,Math.min(max,value))*10)/10;return{x:clampRound(w.x,72),y:clampRound(w.y,46)}};
 export function Ux07ShapeEditor({symbol,onChange,onSave,onClose,existing=[]}){
  const svgRef=useRef(null),dragRef=useRef(null),undoRef=useRef([]),redoRef=useRef([]);
  const[selected,setSelected]=useState(-1),[tool,setTool]=useState('select'),[preview,setPreview]=useState(null),[alert,setAlert]=useState('');
