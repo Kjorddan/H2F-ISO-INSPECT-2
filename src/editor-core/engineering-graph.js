@@ -96,7 +96,8 @@ export function connectedComponent(graph,startNodeId){
  const seen=new Set([startNodeId]),q=[startNodeId];while(q.length){const n=q.shift();for(const m of adj[n]||[])if(!seen.has(m)){seen.add(m);q.push(m)}}return[...seen];
 }
 export function areNodesConnected(graph,a,b){return connectedComponent(graph,a).includes(b)}
-export function graphStats(graph){return{runs:Object.keys(graph.runs).length,nodes:Object.keys(graph.nodes).length,ports:Object.keys(graph.ports).length,pipeEdges:Object.keys(graph.edges).length,connections:Object.keys(graph.connections).length,attachments:Object.keys(graph.attachments||{}).length,mounts:Object.keys(graph.mounts||{}).length}}
+export function graphStats(graph){return{runs:Object.keys(graph.runs).length,nodes:Object.keys(graph.nodes).length,ports:Object.keys(graph.ports).length,pipeEdges:Object.keys(graph.edges).length,connections:Object.keys(graph.connections).length,attachments:Object.keys(graph.attachments||{}).length}}
+export function graphMountStats(graph){return{mounts:Object.keys(graph.mounts||{}).length}}
 export function validateEngineeringGraph(graph){
  const issues=[];
  for(const e of Object.values(graph.edges)){if(!graph.nodes[e.source])issues.push({severity:'ERROR',code:'EDGE_SOURCE_ORPHAN',entityId:e.id});if(!graph.nodes[e.target])issues.push({severity:'ERROR',code:'EDGE_TARGET_ORPHAN',entityId:e.id})}
