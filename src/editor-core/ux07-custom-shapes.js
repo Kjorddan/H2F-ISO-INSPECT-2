@@ -111,7 +111,7 @@ export function ux07PrepareRevision(current,candidate){
 export function ux07MergeImported(current,incoming){
  if(!Array.isArray(incoming)||incoming.length>UX07_MAX_SYMBOLS)throw Error('Too many imports');
  const map=new Map(current.map(s=>[s.id,s]));
- for(const raw of incoming){const s=ux07SafeCreate(raw),v=ux07ValidateShape(s);
+ for(const raw of incoming){const s=ux07SafeCreate(raw),v=ux07ValidateShape(s,{requireGeometry:false});
   if(!v.valid)throw Error(v.errors.join(','));
   const prior=map.get(s.id);
   if(!prior||s.version>prior.version)map.set(s.id,s);
