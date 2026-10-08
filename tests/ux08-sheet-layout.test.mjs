@@ -3,7 +3,7 @@ import{createDocument,addSheet,duplicateSheet,createSheet,updateTitleBlock,sheet
 import{createInspectionStore,createMonitoringPoint,addMonitoringPoint,addMeasurement,createWeld,addWeld,createNDT,addNDT}from'../src/editor-core/inspection.js';
 import{createPipeRun}from'../src/editor-core/piping.js';
 import{BUILTIN_SYMBOLS}from'../src/editor-core/library.js';
-import{UX08_SCHEMA,UX08_PAPER,UX08_TEMPLATE_STORAGE,UX08_PRESETS,ux08DefaultLayout,ux08Layout,ux08ValidateSheet,ux08SetPage,ux08UpdateLayout,ux08FrameGeometry,ux08NewTable,ux08AddTable,ux08EditTable,ux08RemoveTable,ux08TableData,ux08ApplyPreset,ux08SaveTemplate,ux08ReadTemplates,ux08SerializeTemplates}from'../src/editor-core/ux08-sheet-layout.js';
+import{UX08_SCHEMA,UX08_PAPER,UX08_TEMPLATE_STORAGE,UX08_PRESETS,ux08DefaultLayout,ux08Layout,ux08ValidateSheet,ux08SetPage,ux08UpdateLayout,ux08FrameGeometry,ux08NewTable,ux08AddTable,ux08EditTable,ux08RemoveTable,ux08TableData,ux08ApplyPreset,ux08SaveTemplate,ux08ReadTemplates,ux08SerializeTemplates,ux08DuplicateSheetPresentation,ux08DeleteSheetPresentation}from'../src/editor-core/ux08-sheet-layout.js';
 let n=0;const test=(name,f)=>{f();n++;console.log('PASS',name)};
 const doc=()=>createDocument(),sheet=d=>d.sheets[0];
 const inspected=()=>{let s=createInspectionStore();s=addWeld(s,createWeld({id:'W-1',number:'W01',status:'PLANNED',target:{entityId:'P-1'}}));s=addMonitoringPoint(s,createMonitoringPoint({id:'T-1',label:'T01',target:{entityId:'P-1'}}));s=addNDT(s,createNDT({id:'N-1',method:'PAUT',target:{kind:'weld',id:'W-1'},status:'PLANNED'}));return s};
@@ -44,4 +44,32 @@ test('sheet duplicate retains layout fields (compatible with legacy document)',(
 test('baseline industrial catalog remains 227 symbols',()=>assert.equal(BUILTIN_SYMBOLS.length,227));
 test('paper standard viewport retained for graph/editor regression',()=>assert.deepEqual(UX08_PAPER,{width:1120,height:720}));
 test('revision payload includes sheet formatting without modifying revisions',()=>{const a=ux08ApplyPreset(doc(),'SHEET-1','H2F_CAMPO_END');assert.ok(revisionPayload(a,[pipe]).includes('H2F_CAMPO_END'));assert.equal(a.revisions.length,0)});
+test('duplicate sheet remaps table identifiers and sheet name in title block',()=>{
+ const a=ux08AddTable(doc(),'SHEET-1',ux08NewTable('END','TB-ORIGINAL'));
+ const b=ux08DuplicateSheetPresentation(a,[],'SHEET-1');
+ assert.equal(b.document.sheets.length,2);
+ assert.notEqual(ux08Layout(b.document.sheets[1]).tables[0].id,'TB-ORIGINAL');
+ assert.equal(b.document.sheets[1].titleBlock.sheet,b.document.sheets[1].name);
+});
+test('duplicate sheet copies UX06 editorial symbols with fresh scoped IDs',()=>{
+ const mark={id:'S-OLD',kind:'industrial-symbol',category:'SÍMBOLOS DE FOLHA',sheetId:'SHEET-1',ux06:{sheetId:'SHEET-1',context:'SHEET'}};
+ const result=ux08DuplicateSheetPresentation(doc(),[mark],'SHEET-1');
+ assert.equal(result.entities.length,2);assert.notEqual(result.entities[1].id,mark.id);
+ assert.equal(result.entities[1].ux06.sheetId,result.createdSheetId);assert.equal(mark.sheetId,'SHEET-1');
+});
+test('duplication does not replicate process equipment or pipelines',()=>{
+ const result=ux08DuplicateSheetPresentation(doc(),[pipe],'SHEET-1');assert.equal(result.entities.length,1);
+ assert.equal(result.entities[0],pipe);assert.equal(result.duplicatedEditorialMarks,0);
+});
+test('deleting sheet cleans only its editorial markers',()=>{
+ const base=addSheet(doc(),{name:'Folha 2'});
+ const marks=[{id:'E-1',category:'SÍMBOLOS DE FOLHA',sheetId:'SHEET-1'},{id:'E-2',category:'SÍMBOLOS DE FOLHA',sheetId:base.activeSheetId},pipe];
+ const result=ux08DeleteSheetPresentation(base,marks,base.activeSheetId);
+ assert.equal(result.deleted,true);assert.equal(result.entities.length,2);assert.ok(result.entities.some(e=>e.id==='E-1'));assert.ok(result.entities.some(e=>e.id==='P-1'));
+});
+test('cannot delete last sheet or its editorial symbols',()=>{
+ const m={id:'E-ONLY',category:'SÍMBOLOS DE FOLHA',sheetId:'SHEET-1'};
+ const result=ux08DeleteSheetPresentation(doc(),[m],'SHEET-1');
+ assert.equal(result.deleted,false);assert.equal(result.entities[0],m);
+});
 console.log('UX-08 Sheet Layout: '+n+'/'+n+' PASS');
