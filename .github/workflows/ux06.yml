@@ -1,0 +1,81 @@
+name: UX-06 Inspection NDT Annotations Sheet
+on:
+  workflow_dispatch:
+  push:
+    branches: [ux-evolution]
+    paths:
+      - 'src/**'
+      - 'tests/ux06-inspection-ndt-annotations-sheet.test.mjs'
+      - 'tests/browser/ux06.spec.mjs'
+      - 'playwright.ux06.config.mjs'
+      - 'package.json'
+      - '.github/workflows/ux06.yml'
+permissions:
+  contents: read
+jobs:
+  ux06:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Full regression and UX-06 core
+        run: npm test
+      - name: Build Vite
+        run: npm run build
+      - name: Playwright runner
+        run: npm install --no-save @playwright/test@1.55.1
+      - name: UX-06 Chromium
+        run: npx playwright test -c playwright.ux06.config.mjs
+      - name: Assemble UX-06 Windows Local Server
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="H2F_ISO_INSPECT_2.0_UX06_LOCAL_SERVER"
+          rm -rf "$OUT"
+          mkdir -p "$OUT"/{www,server,config,data,uploads,backups,logs,runtime}
+          cp -a dist/. "$OUT/www/"
+          cp local-server/server/H2F.LocalServer.ps1 "$OUT/server/"
+          cp local-server/config/server.json "$OUT/config/"
+          cp local-server/INICIAR_H2F_ISO_INSPECT.bat "$OUT/"
+          cp local-server/PARAR_H2F_ISO_INSPECT.bat "$OUT/"
+          cp local-server/ABRIR_H2F_ISO_INSPECT.bat "$OUT/"
+          cp local-server/README_LOCAL.md "$OUT/LEIA_PRIMEIRO.md"
+          cat > "$OUT/VERSION.json" <<EOF
+          {"product":"H2F ISO INSPECT 2.0","phase":"UX-06","branch":"ux-evolution","commit":"${GITHUB_SHA}","distribution":"LOCAL_SERVER_WINDOWS"}
+          EOF
+          zip -qr "${OUT}.zip" "$OUT"
+      - name: Upload Local Server
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: H2F_ISO_INSPECT_2.0_UX06_LOCAL_SERVER
+          path: H2F_ISO_INSPECT_2.0_UX06_LOCAL_SERVER.zip
+          if-no-files-found: error
+          retention-days: 30
+      - name: Package UX-06 complete tracked source
+        if: success()
+        run: git archive --format=zip --output H2F_ISO_INSPECT_2.0_UX06_SOURCE.zip HEAD
+      - name: Upload UX-06 source package
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: H2F_ISO_INSPECT_2.0_UX06_SOURCE
+          path: H2F_ISO_INSPECT_2.0_UX06_SOURCE.zip
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: H2F_ISO_INSPECT_UX06_EVIDENCE
+          path: |
+            playwright-report-ux06
+            test-results
+          if-no-files-found: warn
+          retention-days: 30
