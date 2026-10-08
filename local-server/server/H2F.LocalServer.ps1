@@ -20,13 +20,11 @@ if (Test-Path $ConfigPath) {
   }
 }
 
-$ip = if ($config.host -eq "127.0.0.1" -or $config.host -eq "localhost") {
-  [System.Net.IPAddress]::Loopback
-} elseif ($config.host -eq "0.0.0.0") {
-  [System.Net.IPAddress]::Any
-} else {
-  [System.Net.IPAddress]::Parse($config.host)
+# UX-10: the Windows package is an unauthenticated offline viewer; never bind to LAN/WAN.
+if ($config.host -notin @("127.0.0.1", "localhost", "::1")) {
+  throw "Modo Local Server exige loopback (127.0.0.1, localhost ou ::1); bloqueado bind remoto."
 }
+$ip = if ($config.host -eq "::1") { [System.Net.IPAddress]::IPv6Loopback } else { [System.Net.IPAddress]::Loopback }
 
 $port = [int]$config.port
 $listener = [System.Net.Sockets.TcpListener]::new($ip, $port)
@@ -96,6 +94,9 @@ try {
   while ($true) {
     $client = $listener.AcceptTcpClient()
     try {
+      # Slow-client defence for loopback-only mode.
+      $client.ReceiveTimeout = 5000
+      $client.SendTimeout = 5000
       $stream = $client.GetStream()
       $reader = [IO.StreamReader]::new($stream, $utf8, $false, 4096, $true)
       $requestLine = $reader.ReadLine()
@@ -130,7 +131,11 @@ try {
       if ([string]::IsNullOrWhiteSpace($relative)) { $relative = "index.html" }
 
       $candidate = [IO.Path]::GetFullPath((Join-Path $Root $relative))
+      # Ensure a full directory boundary, never accept 'www-evil' alongside 'www'.
       $rootFull = [IO.Path]::GetFullPath($Root)
+      if (-not $rootFull.EndsWith([IO.Path]::DirectorySeparatorChar.ToString())) {
+        $rootFull += [IO.Path]::DirectorySeparatorChar
+      }
       if (-not $candidate.StartsWith($rootFull, [StringComparison]::OrdinalIgnoreCase)) {
         Send-Response $stream 403 "Forbidden" $utf8.GetBytes("Forbidden") "text/plain; charset=utf-8"
         continue
