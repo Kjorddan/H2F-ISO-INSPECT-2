@@ -1,8 +1,8 @@
 import assert from'node:assert/strict';
 import{BUILTIN_SYMBOLS,getSymbol,defaultSymbolPorts,libraryStats}from'../src/editor-core/library.js';
 import{createPipeRun,updatePipeVisualStyle,PIPE_LINE_STYLES,validatePipeRun}from'../src/editor-core/piping.js';
-import{createEngineeringGraph,registerPipeRun,validateEngineeringGraph,areNodesConnected}from'../src/editor-core/engineering-graph.js';
-import{isInlineSymbol,isTeeSymbol,isBranchJunctionSymbol,isCrossSymbol,insertInlineComponentTransaction,insertTeeBranchTransaction,insertCrossBranchTransaction}from'../src/editor-core/inline-components.js';
+import{createEngineeringGraph,registerPipeRun,validateEngineeringGraph,areNodesConnected,graphStats}from'../src/editor-core/engineering-graph.js';
+import{isInlineSymbol,isTeeSymbol,isBranchJunctionSymbol,isCrossSymbol,isTerminalSymbol,isAttachedBranchSymbol,insertInlineComponentTransaction,insertTeeBranchTransaction,insertCrossBranchTransaction,insertTerminalComponentTransaction,insertAttachedBranchTransaction}from'../src/editor-core/inline-components.js';
 
 let n=0;const t=(name,fn)=>{fn();n++;console.log('PASS',name)};
 const ids=cat=>new Set(BUILTIN_SYMBOLS.filter(s=>s.category===cat).map(s=>s.id));
@@ -46,6 +46,16 @@ t('cross transaction creates four explicit connections and two branches',()=>{
 t('ordinary flange remains inline transaction compatible',()=>{
  const tx=insertInlineComponentTransaction({entities:[run],graph},{runId:'MAIN',segmentIndex:0,point:{x:40,y:0},symbol:getSymbol('flange-orifice'),componentId:'FO-1',leftRunId:'FL',rightRunId:'FR'});
  assert.equal(tx.ok,true);assert.equal(tx.graph.components['FO-1'].portIds.length,2);assert.equal(Object.keys(tx.graph.connections).length,2);
+});
+t('blind flange terminal transaction connects only to pipe endpoint',()=>{
+ const s=getSymbol('flange-blind');assert.equal(isTerminalSymbol(s),true);
+ const tx=insertTerminalComponentTransaction({entities:[run],graph},{runId:'MAIN',side:'END',symbol:s,componentId:'FB-END'});
+ assert.equal(tx.ok,true);assert.equal(tx.graph.components['FB-END'].portIds.length,1);assert.equal(Object.keys(tx.graph.connections).length,1);assert.ok(areNodesConnected(tx.graph,'MAIN-V001','FB-END-NODE'));assert.equal(validateEngineeringGraph(tx.graph).valid,true);
+});
+t('weldolet attachment preserves host run and creates branch topology',()=>{
+ const s=getSymbol('weldolet');assert.equal(isAttachedBranchSymbol(s),true);
+ const tx=insertAttachedBranchTransaction({entities:[run],graph},{runId:'MAIN',segmentIndex:0,point:{x:50,y:4},symbol:s,componentId:'WOL-1',branchRunId:'WOL-BR',branchEnd:{x:50,y:-100},branchEngineering:{nominalSize:'2"'}});
+ assert.equal(tx.ok,true);assert.equal(tx.entities.filter(e=>e.id==='MAIN').length,1);assert.equal(graphStats(tx.graph).attachments,1);assert.equal(Object.keys(tx.graph.connections).length,1);assert.ok(areNodesConnected(tx.graph,'MAIN-V001','WOL-BR-V002'));assert.equal(validateEngineeringGraph(tx.graph).valid,true);
 });
 t('blind flange is rejected by generic inline transaction',()=>{
  const tx=insertInlineComponentTransaction({entities:[run],graph},{runId:'MAIN',segmentIndex:0,point:{x:40,y:0},symbol:getSymbol('flange-blind'),componentId:'FB-1'});
