@@ -1,3 +1,4 @@
+# UX-06 final source packaging: audited 4 distinct welding glyph variants, 9 Chromium tests.
 # UX-06 audited packaging: checkpoint includes reports, pending work and SHA references.
 name: UX-06 Inspection NDT Annotations Sheet
 on:

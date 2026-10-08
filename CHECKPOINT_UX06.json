@@ -9,9 +9,9 @@
   "branch": "ux-evolution",
   "baselineCheckpoint": "CHECKPOINT_UX05.json",
   "baselineCommit": "7595ddef5b3f537675902b08bda89d273d8d28e1",
-  "testedRuntimeCommit": "cbb538bc1029f82bccc712e8c9872be2beecf061",
-  "workflowUX06": 37718911623,
-  "workflowUX02Regression": 37718911615,
+  "testedRuntimeCommit": "aa84eb5d0642efa9fd3e3732fdea17d4628ef1e9",
+  "workflowUX06": 37719385720,
+  "workflowUX02Regression": 37719385844,
   "workflowUX03Regression": 37718901798,
   "workflowUX04Regression": 37718901847,
   "workflowUX05Regression": 37718901721,
@@ -30,7 +30,7 @@
     "SÍMBOLOS DE FOLHA": 16
   },
   "ux06Core": "22/22 PASS",
-  "ux06Browser": "8/8 PASS",
+  "ux06Browser": "9/9 PASS",
   "ux02Core": "20/20 PASS",
   "ux04Core": "24/24 PASS",
   "ux05Core": "21/21 PASS",
@@ -71,5 +71,6 @@
       "target": "UX-10",
       "description": "Rever tipagem de métodos vs. técnicas END para casos atualmente mapeados a OTHER, sem atribuir conformidade falsa."
     }
-  ]
+  ],
+  "weldingVariantsVisualQA": "4/4 PASS"
 }

@@ -2,14 +2,14 @@
 
 **Status técnico:** CONCLUIDA_AUDITADA quanto ao escopo e comportamento automatizado; Windows real requer smoke test de campo.
 **Branch exclusiva:** `ux-evolution`
-**Commit de runtime testado:** `cbb538bc1029f82bccc712e8c9872be2beecf061`
+**Commit de runtime testado:** `aa84eb5d0642efa9fd3e3732fdea17d4628ef1e9`
 
 | Gate | Resultado |
 |---|---|
 | `npm ci` | PASS |
 | `npm test` — toda regressão acumulada | PASS |
 | UX-06 core (biblioteca, mounts, registro e rollback) | **22/22 PASS** |
-| UX-06 Playwright/Chrome | **8/8 PASS** |
+| UX-06 Playwright/Chrome | **9/9 PASS** |
 | UX-02 Shell core | 20/20 PASS |
 | UX-03 Library Schema Core | PASS |
 | UX-04 Piping Core | 24/24 PASS |
@@ -25,14 +25,15 @@
 | Aprovação normativa específica por cliente/projeto | **PENDENTE** |
 
 ### Workflows GitHub consultados
-- UX-06 runtime final (22 core + 8 browser): https://github.com/Kjorddan/H2F-ISO-INSPECT-2/actions/runs/37718911623
-- UX-02 browser no mesmo commit: https://github.com/Kjorddan/H2F-ISO-INSPECT-2/actions/runs/37718911615
+- UX-06 runtime final (22 core + 9 browser): https://github.com/Kjorddan/H2F-ISO-INSPECT-2/actions/runs/37719385720
+- UX-02 browser no mesmo commit: https://github.com/Kjorddan/H2F-ISO-INSPECT-2/actions/runs/37719385844
 - UX-03 regressão: https://github.com/Kjorddan/H2F-ISO-INSPECT-2/actions/runs/37718901798
 - UX-04 regressão: https://github.com/Kjorddan/H2F-ISO-INSPECT-2/actions/runs/37718901847
 - UX-05 regressão: https://github.com/Kjorddan/H2F-ISO-INSPECT-2/actions/runs/37718901721
 
 ### Evidências Chromium
 - `ux06-inspection-library.png`: TML/CML e solda/anomalia
+- `ux06-differentiated-weld-glyphs.png`: topo, filete, campo e fabricação com formas próprias, sem substituição por TML
 - `ux06-ndt-library.png`: PAUT, TOFD, IRIS
 - `ux06-sheet-and-annotations.png`: formas editoriais
 - `ux06-tml-before-registration.png` e `ux06-tml-registered.png`

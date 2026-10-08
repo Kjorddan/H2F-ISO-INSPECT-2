@@ -25,7 +25,7 @@ As demais categorias permaneceram nas quantidades da UX-05: TUBULAÇÃO 3, CONEX
 
 **END:** UT, PAUT, TOFD, RT, MT, PT, ET, IRIS, RFA, MFL e variantes (PEC, bobbin, RFT, ACFM, PMI, VT, LT, termografia, dureza etc.). As técnicas não suportadas nativamente no vocabulário NDT existente são identificadas com `OTHER` e técnica textual: não se produz uma falsa certificação ou correspondência normativa.
 
-**Metadados:** cada nova definição contém categoria, subcategoria, contextos `ISOMETRIC/INSPECTION/NDT`, provenance, referências e regra de inserção. Todos os novos glyphs são locais, vetoriais e diferenciados por família.
+**Metadados:** cada nova definição contém categoria, subcategoria, contextos `ISOMETRIC/INSPECTION/NDT`, provenance, referências e regra de inserção. Todos os novos glyphs são locais, vetoriais e diferenciados por família. A auditoria visual final corrigiu as variantes de solda de topo, filete, campo e fabricação, que antes herdavam indevidamente a forma TML, e adicionou teste de geometria para cada uma.
 
 ## Topologia e registros
 
@@ -44,7 +44,7 @@ As demais categorias permaneceram nas quantidades da UX-05: TUBULAÇÃO 3, CONEX
 
 ## Qualidade / distribuição
 
-No commit de runtime `cbb538bc1029f82bccc712e8c9872be2beecf061`: regressão completa PASS, UX-06 core **22/22**, Chromium **8/8**, npm build PASS, workflows UX-02/03/04/05 PASS. O workflow UX-06 monta um Local Server Windows e produz ZIP de fonte rastreada e ZIP de evidências.
+No commit de runtime `aa84eb5d0642efa9fd3e3732fdea17d4628ef1e9`: regressão completa PASS, UX-06 core **22/22**, Chromium **9/9**, npm build PASS, workflows UX-02/03/04/05 PASS. O workflow UX-06 monta um Local Server Windows e produz ZIP de fonte rastreada e ZIP de evidências.
 
 Não se declara smoke test em máquina Windows real. Pesquisa de fontes oficiais e limitações constam em `docs/UX06/PESQUISA_TECNICA_UX06.md`, alterações em `ALTERACOES_UX06.md`, QA em `QA_UX06.md`.
 

@@ -12,6 +12,7 @@
 
 ## Renderização
 - `src/ui/ux06-glyphs.jsx`: glyphs SVG diferenciados por família, sem CDN, sem reprodução de bibliotecas externas.
+- `src/ui/ux06-glyphs.jsx`: mapeamento final das variantes WELD_BUTT/FILLET/FIELD/SHOP para os paths CAD específicos, validado por teste visual.
 - `src/ui/industrial-symbol-glyphs.jsx`: registro modular e roteamento de glyph por categoria.
 - `src/main.jsx`: atributos, rótulos editáveis e propriedades contextuais dos marcadores.
 - `src/style.css`: painel de propriedades e legibilidade do marcador.
@@ -25,7 +26,7 @@
 
 ## QA e regressão
 - `tests/ux06-inspection-ndt-annotations-sheet.test.mjs`: 22 testes automáticos.
-- `tests/browser/ux06.spec.mjs`: 8 testes Chromium, screenshots de diferenciação, anexação, registro e escopo de folha.
+- `tests/browser/ux06.spec.mjs`: 9 testes Chromium, screenshots de diferenciação, anexação, registro e escopo de folha.
 - `playwright.ux06.config.mjs` e `.github/workflows/ux06.yml`: build, npm test, browser acceptance e empacotamento Windows Local Server + fonte + evidências.
 - `tests/ux05-instrument-support-equipment.test.mjs`: **única adaptação de regressão** do passado: total mínimo `>=173` em vez de total congelado `=173`; os 21 testes UX-05 e contagens exatas das suas três categorias permanecem inalterados.
 - `package.json`: adiciona o novo gate UX-06 ao comando `npm test`.
