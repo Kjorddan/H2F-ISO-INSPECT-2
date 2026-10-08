@@ -1,0 +1,67 @@
+{
+  "phase": "UX-09",
+  "phaseIndex": 9,
+  "phaseTotal": 10,
+  "status": "IMPLEMENTADA_AGUARDANDO_AUDITORIA_FINAL",
+  "remainingAfterThis": 1,
+  "nextPhase": "UX-10",
+  "advanceRule": "AGUARDAR_EXCLUSIVAMENTE_COMANDO_PODE_SEGUIR",
+  "technicalDebts": [
+    {
+      "id": "PRINT-CROSS-BROWSER-FIELD",
+      "target": "UX-10",
+      "severity": "HIGH",
+      "description": "Smoke test real Windows, Edge e Chrome com diferentes dimensões e drivers. CI não o substitui."
+    },
+    {
+      "id": "PDF-UNDERLAY-FONT-FIDELITY",
+      "target": "UX-10",
+      "severity": "MEDIUM",
+      "description": "Auditar underlays PDF externos/imagens e fontes especiais no PDF vetorial."
+    },
+    {
+      "id": "PDF-DENSE-SHEET-COLLISIONS",
+      "target": "UX-10",
+      "severity": "MEDIUM",
+      "description": "Validar visualmente interferências entre diagramas e tabelas densas; automatizar avisos adicionais."
+    },
+    {
+      "id": "CONTROLLED-DOCUMENT-SIGNATURE",
+      "target": "FUTURE",
+      "severity": "HIGH",
+      "description": "Não há assinatura criptográfica ICP-Brasil nem validação de identidade. Gate SHA-256 é consistência interna."
+    },
+    {
+      "id": "CLIENT-SYMBOL-PROFILES",
+      "target": "UX-10",
+      "severity": "MEDIUM",
+      "description": "Homologar convenções por cliente."
+    },
+    {
+      "id": "ATTACHMENT-REMAP-COMPLEX-EDIT",
+      "target": "UX-10",
+      "severity": "MEDIUM",
+      "description": "Revalidar complexas edições da geometria de PipeRuns."
+    },
+    {
+      "id": "WINDOWS-FIELD-SMOKE-TEST",
+      "target": "UX-10",
+      "severity": "HIGH",
+      "description": "Local Server em Windows real não testado."
+    },
+    {
+      "id": "MULTI_TENANT_CUSTOM_LIBRARY",
+      "target": "FUTURE_SERVER",
+      "severity": "MEDIUM",
+      "description": "Biblioteca corporativa local ainda não dispõe de RBAC/RLS por servidor."
+    }
+  ],
+  "closedFromUX08": [
+    "PRINT_MULTIPAGE_TABLE_PAGINATION: document print plan covers all rows by creating continuation pages"
+  ],
+  "outOfScope": [
+    "Sem UX-10 neste trabalho",
+    "Sem assinatura digital reconhecida",
+    "Sem aceite END fabricado"
+  ]
+}
