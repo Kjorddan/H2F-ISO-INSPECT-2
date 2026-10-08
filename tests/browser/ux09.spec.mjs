@@ -52,13 +52,13 @@ test('controlled export blocked for draft document',async({page})=>{
  await expect(page.getByRole('button',{name:'Gerar PDF único'})).toBeDisabled();
  await expect(page.getByRole('button',{name:'Abrir para imprimir'})).toBeDisabled();
 });
-test('valid approved snapshot enables unsigned controlled release',async({page})=>{
+test('legacy approved snapshot is blocked until UX-10 full-integrity revision',async({page})=>{
  let d={...createDocument(),revisionState:'APROVADO'};
  d=appendRevision(d,await createRevisionSnapshot(d,[],{revision:'A',state:'APROVADO'}));
  await load(page,d);
  await page.getByLabel('Modo de emissão').selectOption('CONTROLLED');
- await expect(page.locator('[data-testid="ux09-controlled-gate"]')).toContainText('SHA-256 correspondente');
- await expect(page.getByRole('button',{name:'Gerar PDF único'})).toBeEnabled();
+ await expect(page.locator('[data-testid="ux09-controlled-gate"]')).toContainText('Snapshot legado');
+ await expect(page.getByRole('button',{name:'Gerar PDF único'})).toBeDisabled();
  await page.screenshot({path:'test-results/ux09-controlled-hash-gate.png',fullPage:true});
 });
 test('draft one-page PDF downloads as genuine PDF file, not editor screenshot',async({page})=>{
