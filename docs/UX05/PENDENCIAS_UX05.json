@@ -1,0 +1,57 @@
+{
+  "product": "H2F ISO INSPECT 2.0",
+  "phase": "UX-05",
+  "phaseIndex": 5,
+  "phaseTotal": 10,
+  "status": "CONCLUIDA_AUDITADA",
+  "remainingAfterThis": 5,
+  "nextPhase": "UX-06",
+  "advanceRule": "AGUARDAR_EXCLUSIVAMENTE_COMANDO_PODE_SEGUIR",
+  "remaining": [
+    {
+      "phase": "UX-06",
+      "scope": "Inspeção, END, anotações e símbolos de folha"
+    },
+    {
+      "phase": "UX-07",
+      "scope": "Criador de formas personalizadas"
+    },
+    {
+      "phase": "UX-08",
+      "scope": "Formatação de folha, carimbo, tabelas e templates"
+    },
+    {
+      "phase": "UX-09",
+      "scope": "PDF, impressão e workflow documental"
+    },
+    {
+      "phase": "UX-10",
+      "scope": "Auditoria integrada E2E, Golden Masters e correções finais"
+    }
+  ],
+  "technicalDebts": [
+    {
+      "id": "CLIENT-SYMBOL-PROFILES",
+      "severity": "MEDIUM",
+      "target": "UX-10",
+      "description": "Consolidar perfis de simbologia específicos por cliente/projeto após homologação visual."
+    },
+    {
+      "id": "ATTACHMENT-REMAP-COMPLEX-EDIT",
+      "severity": "MEDIUM",
+      "target": "UX-10",
+      "description": "Ampliar cenários de remapeamento de attachment após edição estrutural extrema do segmento hospedeiro."
+    },
+    {
+      "id": "WINDOWS-FIELD-SMOKE-TEST",
+      "severity": "LOW",
+      "target": "UX-10",
+      "description": "Efetuar verificação operacional com usuários nas versões Windows alvo; pacote de CI não é execução em máquina Windows."
+    }
+  ],
+  "outOfScope": [
+    "Verificação de esforços mecânicos de suportação",
+    "Dimensionamento de nozzles / cálculos ASME",
+    "Declaração de certificação gráfica por normas ISO, ISA ou MSS"
+  ]
+}

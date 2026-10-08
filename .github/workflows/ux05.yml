@@ -58,6 +58,17 @@ jobs:
           path: H2F_ISO_INSPECT_2.0_UX05_LOCAL_SERVER.zip
           if-no-files-found: error
           retention-days: 30
+      - name: Package UX-05 complete tracked source
+        if: success()
+        run: git archive --format=zip --output H2F_ISO_INSPECT_2.0_UX05_SOURCE.zip HEAD
+      - name: Upload UX-05 source package
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: H2F_ISO_INSPECT_2.0_UX05_SOURCE
+          path: H2F_ISO_INSPECT_2.0_UX05_SOURCE.zip
+          if-no-files-found: error
+          retention-days: 30
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v4

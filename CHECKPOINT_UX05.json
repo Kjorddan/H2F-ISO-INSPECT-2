@@ -1,0 +1,62 @@
+{
+  "product": "H2F ISO INSPECT 2.0",
+  "cycle": "UX/UI + Biblioteca Industrial + Isométrico + Formatação Profissional",
+  "phase": "UX-05",
+  "phaseIndex": 5,
+  "phaseTotal": 10,
+  "status": "CONCLUIDA_AUDITADA",
+  "repository": "Kjorddan/H2F-ISO-INSPECT-2",
+  "branch": "ux-evolution",
+  "baselineCommit": "1a68379041b7bfa0c964c4f960da6c71a7792245",
+  "testedCommit": "942bcfd0b598332c01273490f718f43bea468de9",
+  "workflowUX05": 37715413516,
+  "workflowUX02Regression": 37715413507,
+  "workflowUX03Regression": 37715215529,
+  "workflowUX04Regression": 37715215624,
+  "builtinSymbols": 173,
+  "categoryCounts": {
+    "TUBULAÇÃO": 3,
+    "CONEXÕES": 29,
+    "FLANGES": 9,
+    "VÁLVULAS": 19,
+    "INSTRUMENTAÇÃO": 34,
+    "SUPORTES": 29,
+    "EQUIPAMENTOS": 30,
+    "INSPEÇÃO": 4,
+    "END": 7,
+    "ANOTAÇÕES": 4,
+    "SÍMBOLOS DE FOLHA": 5
+  },
+  "ux05Core": "21/21 PASS",
+  "ux05Browser": "7/7 PASS",
+  "ux02Core": "20/20 PASS",
+  "ux03Core": "20/20 PASS",
+  "ux04Core": "24/24 PASS",
+  "regression": "PASS",
+  "build": "PASS",
+  "localServer": "ASSEMBLY_PASS_WINDOWS_SMOKE_NOT_RUN",
+  "browserScreenshots": 7,
+  "remainingAfterThis": 5,
+  "nextPhase": "UX-06",
+  "advanceRule": "AGUARDAR_PODE_SEGUIR",
+  "technicalDebts": [
+    {
+      "id": "CLIENT-SYMBOL-PROFILES",
+      "severity": "MEDIUM",
+      "target": "UX-10",
+      "description": "Consolidar perfis de simbologia específicos por cliente/projeto após homologação visual."
+    },
+    {
+      "id": "ATTACHMENT-REMAP-COMPLEX-EDIT",
+      "severity": "MEDIUM",
+      "target": "UX-10",
+      "description": "Ampliar cenários de remapeamento de attachment após edição estrutural extrema do segmento hospedeiro."
+    },
+    {
+      "id": "WINDOWS-FIELD-SMOKE-TEST",
+      "severity": "LOW",
+      "target": "UX-10",
+      "description": "Efetuar verificação operacional com usuários nas versões Windows alvo; pacote de CI não é execução em máquina Windows."
+    }
+  ]
+}
