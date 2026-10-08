@@ -1,3 +1,4 @@
+# UX-08 FINAL AUDITED RELEASE: CHECKPOINT_UX08.json + UX08 docs, 40 core, 11 Chromium, no UX09.
 name: UX-08 Sheet Formatting Title Block Tables
 on:
   workflow_dispatch:
