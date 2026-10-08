@@ -6,9 +6,11 @@ import{registerPipeRun,unregisterPipeRun,registerComponent,connectPorts}from'./e
 const copy=o=>typeof structuredClone==='function'?structuredClone(o):JSON.parse(JSON.stringify(o));
 const EPS=1e-6;
 export const INLINE_CATEGORIES=Object.freeze(['VÁLVULAS','FLANGES','CONEXÕES']);
-export const isTeeSymbol=s=>s?.id==='tee';
+export const isTeeSymbol=s=>['tee','tee-reducing'].includes(s?.id);
+export const isBranchJunctionSymbol=s=>['tee','tee-reducing','lateral'].includes(s?.id);
+export const isCrossSymbol=s=>s?.id==='cross';
 export const isInlineSymbol=s=>{
- if(!s||isTeeSymbol(s))return false;
+ if(!s||isBranchJunctionSymbol(s)||isCrossSymbol(s))return false;
  const ports=(s.connectionPoints?.length||defaultSymbolPorts(s,s.size?.width||72,s.size?.height||46).length);
  if(s.placement&&typeof s.placement.inline==='boolean')return s.placement.inline&&ports===2;
  return INLINE_CATEGORIES.includes(s.category)&&ports>=2;
@@ -50,10 +52,10 @@ export function insertInlineComponentTransaction(state,{runId,segmentIndex,point
 
 export function insertTeeBranchTransaction(state,{runId,segmentIndex,point,symbol,componentId,leftRunId,rightRunId,branchRunId,branchEnd,branchEngineering={}}={}){
  return transact(state,(entities,graph)=>{
-  if(!isTeeSymbol(symbol))throw new Error('Tee symbol required');const run=entities.find(e=>e.id===runId);if(!run)throw new Error('PipeRun not found');
+  if(!isBranchJunctionSymbol(symbol))throw new Error('Three-port branch junction symbol required');const run=entities.find(e=>e.id===runId);if(!run)throw new Error('PipeRun not found');
   const oldStartPeer=peerPort(graph,`${run.id}-PORT-START`),oldEndPeer=peerPort(graph,`${run.id}-PORT-END`);
   const split=splitPipeRunForInline(run,segmentIndex,point,{leftRunId,rightRunId});const cid=componentId||'TEE-001';const component=componentEntity(symbol,split.point,cid,run,split.angle);
-  if(component.ports.length<3)throw new Error('Tee requires three ports');
+  if(component.ports.length!==3)throw new Error('Three-port branch junction requires exactly three ports');
   const end=branchEnd||{x:split.point.x,y:split.point.y-100};if(Math.hypot(end.x-split.point.x,end.y-split.point.y)<EPS)throw new Error('Branch requires non-zero length');
   const bid=branchRunId||`${run.id}-BR`;const branch=createPipeRun(bid,[split.point,end],{...run.engineering,...branchEngineering,name:run.name,visualStyle:run.visualStyle});
   entities=entities.filter(e=>e.id!==run.id);entities.push(split.left,component,split.right,branch);
@@ -61,5 +63,28 @@ export function insertTeeBranchTransaction(state,{runId,segmentIndex,point,symbo
   graph=connectPorts(graph,`${split.left.id}-PORT-END`,`${cid}-PORT-P1`,{kind:'tee-main'});graph=connectPorts(graph,`${cid}-PORT-P2`,`${split.right.id}-PORT-START`,{kind:'tee-main'});graph=connectPorts(graph,`${cid}-PORT-P3`,`${branch.id}-PORT-START`,{kind:'tee-branch'});
   graph=reconnectExternal(graph,oldStartPeer,`${split.left.id}-PORT-START`);graph=reconnectExternal(graph,oldEndPeer,`${split.right.id}-PORT-END`);
   return{entities,graph,created:{componentId:cid,leftRunId:split.left.id,rightRunId:split.right.id,branchRunId:branch.id},transaction:{type:'INSERT_TEE_BRANCH',atomic:true,sourceRunId:run.id,sourceSegmentId:split.sourceSegmentId}};
+ });
+}
+
+export function insertCrossBranchTransaction(state,{runId,segmentIndex,point,symbol,componentId,leftRunId,rightRunId,branchRunIdA,branchRunIdB,branchEndA,branchEndB,branchEngineeringA={},branchEngineeringB={}}={}){
+ return transact(state,(entities,graph)=>{
+  if(!isCrossSymbol(symbol))throw new Error('Cross symbol required');
+  const run=entities.find(e=>e.id===runId);if(!run)throw new Error('PipeRun not found');
+  const oldStartPeer=peerPort(graph,`${run.id}-PORT-START`),oldEndPeer=peerPort(graph,`${run.id}-PORT-END`);
+  const split=splitPipeRunForInline(run,segmentIndex,point,{leftRunId,rightRunId}),cid=componentId||'CROSS-001',component=componentEntity(symbol,split.point,cid,run,split.angle);
+  if(component.ports.length!==4)throw new Error('Cross requires exactly four ports');
+  const endA=branchEndA||{x:split.point.x,y:split.point.y-100},endB=branchEndB||{x:split.point.x,y:split.point.y+100};
+  if(Math.hypot(endA.x-split.point.x,endA.y-split.point.y)<EPS||Math.hypot(endB.x-split.point.x,endB.y-split.point.y)<EPS)throw new Error('Cross branches require non-zero length');
+  const bidA=branchRunIdA||`${run.id}-BR-A`,bidB=branchRunIdB||`${run.id}-BR-B`;
+  const branchA=createPipeRun(bidA,[split.point,endA],{...run.engineering,...branchEngineeringA,name:run.name,visualStyle:run.visualStyle});
+  const branchB=createPipeRun(bidB,[split.point,endB],{...run.engineering,...branchEngineeringB,name:run.name,visualStyle:run.visualStyle});
+  entities=entities.filter(e=>e.id!==run.id);entities.push(split.left,component,split.right,branchA,branchB);
+  graph=unregisterPipeRun(graph,run.id);for(const r of[split.left,split.right,branchA,branchB])graph=registerPipeRun(graph,r);graph=registerComponent(graph,component);
+  graph=connectPorts(graph,`${split.left.id}-PORT-END`,`${cid}-PORT-P1`,{kind:'cross-main'});
+  graph=connectPorts(graph,`${cid}-PORT-P2`,`${split.right.id}-PORT-START`,{kind:'cross-main'});
+  graph=connectPorts(graph,`${cid}-PORT-P3`,`${branchA.id}-PORT-START`,{kind:'cross-branch'});
+  graph=connectPorts(graph,`${cid}-PORT-P4`,`${branchB.id}-PORT-START`,{kind:'cross-branch'});
+  graph=reconnectExternal(graph,oldStartPeer,`${split.left.id}-PORT-START`);graph=reconnectExternal(graph,oldEndPeer,`${split.right.id}-PORT-END`);
+  return{entities,graph,created:{componentId:cid,leftRunId:split.left.id,rightRunId:split.right.id,branchRunIdA:branchA.id,branchRunIdB:branchB.id},transaction:{type:'INSERT_CROSS_BRANCH',atomic:true,sourceRunId:run.id,sourceSegmentId:split.sourceSegmentId}};
  });
 }
