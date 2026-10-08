@@ -2,7 +2,7 @@ import assert from'node:assert/strict';
 import{createDocument,addSheet,updateTitleBlock,createRevisionSnapshot,appendRevision}from'../src/editor-core/document-structure.js';
 import{createInspectionStore,createNDT,addNDT,createMonitoringPoint,addMonitoringPoint}from'../src/editor-core/inspection.js';
 import{ux08NewTable,ux08AddTable,ux08ApplyPreset,ux08UpdateLayout}from'../src/editor-core/ux08-sheet-layout.js';
-import{ux09DefaultOptions,ux09BuildPlan,ux09ValidateOptions,ux09ScopedEntities,ux09FileName,ux09AllTableRows,ux09VerifyControlled,ux09EmissionAttempt,ux09PrintHtml,ux09LayoutWarnings,UX09_SCHEMA,UX09_MAX_PAGES}from'../src/editor-core/ux09-print-plan.js';
+import{ux09DefaultOptions,ux09BuildPlan,ux09ValidateOptions,ux09ScopedEntities,ux09FileName,ux09AllTableRows,ux09VerifyControlled,ux09EmissionAttempt,ux09PrintHtml,ux09LayoutWarnings,ux09EntityPreflightWarnings,UX09_SCHEMA,UX09_MAX_PAGES}from'../src/editor-core/ux09-print-plan.js';
 let passed=0;
 async function test(name,fn){await fn();console.log('PASS '+name);passed++}
 let doc=()=>createDocument(), base=()=>({document:doc(),entities:[],inspection:createInspectionStore()});
@@ -41,4 +41,7 @@ await test('approved emission ledger does not claim print receipt or signed PDF'
 await test('html print planner preserves each page count but does not execute scripts',()=>{const p=ux09BuildPlan({document:addSheet(doc())});const html=ux09PrintHtml(['<svg></svg>','<svg></svg>'],p);assert.equal((html.match(/class="h2fPage"/g)||[]).length,2);assert.ok(html.includes('page-break-after'))});
 await test('html print planner rejects mismatched plan length',()=>assert.throws(()=>ux09PrintHtml([],ux09BuildPlan(base())),/divergentes/));
 await test('schema and page cap are explicit',()=>{assert.equal(UX09_SCHEMA,'h2f-print-release/v1');assert.equal(UX09_MAX_PAGES,200)});
+await test('preflight warns when entity lies outside the physical sheet frame',()=>{const d=doc(),e={id:'OUT',x:1500,y:800,width:20,height:20};const warnings=ux09EntityPreflightWarnings(d.sheets,[e]);assert.ok(warnings.some(w=>w.includes('limite físico')))});
+await test('preflight warns when component intersects titleblock',()=>{const d=doc(),g={x:850,y:585,width:60,height:55,id:'E'};const warnings=ux09EntityPreflightWarnings(d.sheets,[g]);assert.ok(warnings.some(w=>w.includes('carimbo')))});
+await test('preflight does not mutate geometry or related engineering data',()=>{const d=doc(),e={id:'LOCKED',kind:'pipe-run',points:[{x:220,y:200},{x:450,y:220}]},json=JSON.stringify(e);ux09BuildPlan({document:d,entities:[e]});assert.equal(JSON.stringify(e),json)});
 console.log('UX-09 PDF Print Workflow: '+passed+'/'+passed+' PASS');
