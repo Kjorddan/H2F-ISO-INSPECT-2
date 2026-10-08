@@ -1,4 +1,5 @@
 import React from'react';
+import{InspectionGlyph,NdtGlyph,AnnotationGlyph,SheetGlyph}from'./ux06-glyphs.jsx';
 import{InstrumentGlyph,SupportGlyph,EquipmentGlyph}from'./ux05-glyphs.jsx';
 
 const CustomGlyph=({symbol,x,y,width,height})=><g className="symbolGlyph customGlyph">{(symbol.primitives||[]).map((q,i)=>{
@@ -83,6 +84,10 @@ export function SymbolGlyph({symbol,x,y,width,height}){
  if(symbol?.category==='INSTRUMENTAÇÃO')return <InstrumentGlyph symbol={symbol} x={x} y={y} width={width} height={height}/>;
  if(symbol?.category==='SUPORTES')return <SupportGlyph symbol={symbol} x={x} y={y} width={width} height={height}/>;
  if(symbol?.category==='EQUIPAMENTOS')return <EquipmentGlyph symbol={symbol} x={x} y={y} width={width} height={height}/>;
+ if(symbol?.category==='INSPEÇÃO')return <InspectionGlyph symbol={symbol} x={x} y={y} width={width} height={height}/>;
+ if(symbol?.category==='END')return <NdtGlyph symbol={symbol} x={x} y={y} width={width} height={height}/>;
+ if(symbol?.category==='ANOTAÇÕES')return <AnnotationGlyph symbol={symbol} x={x} y={y} width={width} height={height}/>;
+ if(symbol?.category==='SÍMBOLOS DE FOLHA')return <SheetGlyph symbol={symbol} x={x} y={y} width={width} height={height}/>;
  if(p==='pipe')return <g className="symbolGlyph pipeLibraryGlyph"><path d={`M ${x+4} ${y+height*.72} L ${x+width*.36} ${y+height*.72} L ${x+width*.57} ${y+height*.35} L ${x+width-4} ${y+height*.35}`}/><circle cx={x+width*.36} cy={y+height*.72} r="2"/><circle cx={x+width*.57} cy={y+height*.35} r="2"/></g>;
  if(p==='pipe-break')return <g className="symbolGlyph pipeLibraryGlyph"><line x1={x+4} y1={cy} x2={cx-9} y2={cy}/><path d={`M ${cx-9} ${cy} l 6 -7 l 6 14 l 6 -14 l 6 7`}/><line x1={cx+9} y1={cy} x2={x+width-4} y2={cy}/></g>;
  if(['elbow90','elbow90-lr','elbow90-sr','elbow45','bend','miter','tee','tee-reducing','cross','lateral','coupling','half-coupling','union','nipple','cap','plug','reducer','reducer-concentric','reducer-eccentric','swage','olet','olet-weld','olet-socket','olet-threaded','nipolet','branch-welded','branch-reinforced','spectacle-blind','spacer'].includes(p))return <FittingGlyph p={p} x={x} y={y} width={width} height={height}/>;
