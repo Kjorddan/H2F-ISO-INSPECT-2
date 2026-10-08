@@ -75,3 +75,23 @@ test('sheet symbols are visible only on their own sheet',async({page})=>{
  await expect(page.locator('[data-symbol-id="sheet-match-line"]')).toHaveCount(1);
  await page.screenshot({path:'test-results/ux06-sheet-scope.png',fullPage:true});
 });
+
+test('weld variants show separate technical geometry rather than TML diamond',async({page})=>{
+ await page.locator('.libraryCategory').selectOption('INSPEÇÃO');
+ const pairs=[
+  ['Solda de topo','BUTT_WELD'],
+  ['Solda de filete','FILLET_WELD'],
+  ['Solda de campo','FIELD_WELD'],
+  ['Solda de fabricação','SHOP_WELD']
+ ];
+ const paths=[];
+ for(const [name,variant] of pairs){
+  const item=page.locator('.symbolCard').filter({hasText:name}).first();
+  await expect(item).toBeVisible();
+  const glyph=item.locator('.ux06Glyph');
+  await expect(glyph).toHaveAttribute('data-ux06-variant',variant);
+  paths.push(await glyph.locator('path').getAttribute('d'));
+ }
+ expect(new Set(paths).size).toBe(4);
+ await page.screenshot({path:'test-results/ux06-differentiated-weld-glyphs.png',fullPage:true});
+});
