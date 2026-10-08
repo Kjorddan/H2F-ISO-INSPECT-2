@@ -1,3 +1,4 @@
+import{UX06_INSPECTION_SPECS,UX06_NDT_SPECS,UX06_ANNOTATION_SPECS,UX06_SHEET_SPECS}from'./ux06-catalog.js';
 import{UX05_INSTRUMENT_SPECS,UX05_SUPPORT_SPECS,UX05_EQUIPMENT_SPECS}from'./ux05-catalog.js';
 const freeze=o=>Object.freeze(o);
 export const LIBRARY_SCHEMA_VERSION=2;
@@ -224,6 +225,11 @@ export const BUILTIN_SYMBOLS=freeze([
  def('insp-tml','INSPEÇÃO','Ponto TML/CML','TML','inspection-point'),def('insp-weld','INSPEÇÃO','Solda','WELD','weld'),def('insp-anomaly','INSPEÇÃO','Anomalia','ANOM','anomaly'),def('insp-evidence','INSPEÇÃO','Evidência','EVID','evidence'),
  def('ndt-ut','END','Ultrassom','UT','ndt'),def('ndt-pt','END','Líquido penetrante','PT-END','ndt'),def('ndt-mt','END','Partículas magnéticas','MT','ndt'),def('ndt-rt','END','Radiografia','RT','ndt'),def('ndt-etr','END','Correntes parasitas','ECT','ndt'),def('ndt-iris','END','IRIS','IRIS','ndt'),def('ndt-mfl','END','MFL','MFL','ndt'),
 
+ // UX-06 marcadores; uma representação gráfica não é laudo nem aceitação.
+ ...UX06_INSPECTION_SPECS.map(s=>def(s.id,'INSPEÇÃO',s.name,s.code,'inspection-'+s.variant.toLowerCase().replaceAll('_','-'),{subcategory:s.variant,recordKind:s.recordKind,tags:['inspeção',s.variant],description:s.name+' — simbologia H2F; registro técnico exige ação explícita',usageContexts:['ISOMETRIC','INSPECTION'],portDefinitions:[]})),
+ ...UX06_NDT_SPECS.map(s=>def(s.id,'END',s.name,s.code,'ndt-'+s.variant.toLowerCase().replaceAll('_','-'),{subcategory:s.variant,ndtMethod:s.method,tags:['END',s.method,s.variant],description:s.name+' — gráfico sem resultado ou aceitação implícitos',usageContexts:['ISOMETRIC','INSPECTION','NDT'],portDefinitions:[]})),
+ ...UX06_ANNOTATION_SPECS.map(s=>def(s.id,'ANOTAÇÕES',s.name,s.code,'annotation-'+s.variant.toLowerCase().replaceAll('_','-'),{subcategory:s.variant,description:s.name+' — anotação H2F, sem conexão física',usageContexts:['ISOMETRIC','ANNOTATION'],portDefinitions:[]})),
+ ...UX06_SHEET_SPECS.map(s=>def(s.id,'SÍMBOLOS DE FOLHA',s.name,s.code,'sheet-'+s.variant.toLowerCase().replaceAll('_','-'),{subcategory:s.variant,description:s.name+' — símbolo de folha, sem alterar revisão e carimbo',usageContexts:['ISOMETRIC','SHEET'],portDefinitions:[]})),
  def('ann-text','ANOTAÇÕES','Texto','TXT','annotation'),def('ann-leader','ANOTAÇÕES','Leader','LEADER','leader'),def('ann-condition','ANOTAÇÕES','Nota de condição','COND','condition'),def('ann-offset','ANOTAÇÕES','Offset','OFFSET','offset'),
  def('sheet-north','SÍMBOLOS DE FOLHA','Norte','N','north'),def('sheet-continuation','SÍMBOLOS DE FOLHA','Continuidade','CONT','continuation'),def('sheet-coordinate','SÍMBOLOS DE FOLHA','Coordenada industrial','COORD','coordinate'),def('sheet-elevation','SÍMBOLOS DE FOLHA','Elevação','EL','elevation'),def('sheet-revision','SÍMBOLOS DE FOLHA','Revisão','REV','revision')
 ]);
