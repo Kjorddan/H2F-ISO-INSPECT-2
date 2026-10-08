@@ -6,7 +6,7 @@ import{createEvidenceStore,createEvidence,addEvidence}from'../src/editor-core/ev
 import{createEngineeringGraph}from'../src/editor-core/engineering-graph.js';
 import{createCustomSymbol}from'../src/editor-core/library.js';
 import{ux08NewTable,ux08AddTable}from'../src/editor-core/ux08-sheet-layout.js';
-import{ux10ReleaseContext,ux10ReleasePayload,ux10ReleaseHash,ux10CreateFormalSnapshot,ux10VerifyFormalSnapshot,ux10AuditIntegrated,UX10_RELEASE_SCHEMA}from'../src/editor-core/ux10-final-audit.js';
+import{ux10EvidenceIsArchived,ux10ReleaseContext,ux10ReleasePayload,ux10ReleaseHash,ux10CreateFormalSnapshot,ux10VerifyFormalSnapshot,ux10AuditIntegrated,UX10_RELEASE_SCHEMA}from'../src/editor-core/ux10-final-audit.js';
 let passed=0;const test=async(name,fn)=>{await fn();console.log('PASS',name);passed++};
 const base=()=>({...createDocument(),revisionState:'APROVADO'});
 const context=()=>({inspectionStore:createInspectionStore(),evidenceStore:createEvidenceStore(),integrityStore:{circuits:[],events:[]},underlays:[],traceState:{sources:[]},customSymbols:[]});
@@ -48,4 +48,8 @@ await test('Windows local config remains constrained to loopback by default',()=
 await test('audit detects an orphaned photo overlay without accepting fabricated evidence',()=>{const s=createEvidenceStore();s.photoOverlays.push({id:'OVR-BAD',evidenceId:'MISSING'});const r=ux10AuditIntegrated({document:createDocument(),evidenceStore:s});assert.ok(r.findings.some(x=>x.code==='EVIDENCE_ORPHAN_PHOTO_OVERLAY'))});
 await test('audit detects invalid damage catalog association',()=>{const s={assessments:[{id:'D-1',catalogId:'MISSING',mechanismCode:'THIN',state:'CONSIDERAR'}],damageCatalogs:[]};const r=ux10AuditIntegrated({document:createDocument(),integrityStore:s});assert.ok(r.findings.some(x=>x.code==='INTEGRITY_ORPHAN_DAMAGE_CATALOG'))});
 await test('audit detects dangling graph endpoint nodes',()=>{const g=createEngineeringGraph();g.edges['SEG-X']={id:'SEG-X',runId:'PIPE-X',source:'NODE-MISSING',target:'NODE-MISSING'};const r=ux10AuditIntegrated({document:createDocument(),graph:g});assert.ok(r.findings.some(x=>x.code==='GRAPH_EDGE_SOURCE_ORPHAN'))});
+await test('temporary blob evidence is never considered portable archive',()=>{const e={kind:'PHOTO',id:'PHOTO-LEGACY',sourceRef:'blob:http://localhost/uuid',sha256:null};assert.equal(ux10EvidenceIsArchived(e),false)});
+await test('data-URI evidence with verified digest metadata qualifies for portable archiving',()=>{const e={kind:'PHOTO',sourceRef:'data:image/png;base64,AAAA',sha256:'a'.repeat(64)};assert.equal(ux10EvidenceIsArchived(e),true)});
+await test('old snapshot with a blob-only evidence blocks release even with other hashes',async()=>{const ctx=context();ctx.evidenceStore.evidence.push({id:'OLD',kind:'FILE',sourceRef:'blob:http://localhost/ref'});const d=await approved(base(),[],ctx);const gate=await ux10VerifyFormalSnapshot(d,[],ctx);assert.equal(gate.allowed,false);assert.match(gate.reason,/evidência/)});
+await test('final document audit detects unarchived photo as blocker',()=>{const s=createEvidenceStore();s.evidence.push({id:'EV-UNSAVED',kind:'PHOTO',sourceRef:'blob:bad'});const result=ux10AuditIntegrated({document:createDocument(),evidenceStore:s});assert.equal(result.status,'BLOCKED');assert.ok(result.findings.some(x=>x.code==='EVIDENCE_UNARCHIVED'))});
 console.log('UX-10 Integrated Final Audit: '+passed+'/'+passed+' PASS');
