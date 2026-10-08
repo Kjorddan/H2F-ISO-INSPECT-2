@@ -67,3 +67,24 @@ test('UX07 custom editor, UX08 sheet designer and UX09 release dialog coexist',a
  await page.getByRole('button',{name:'PDF / Impressão UX-09'}).click();
  await expect(page.locator('[data-testid="ux09-document-dialog"]')).toBeVisible();
 });
+
+
+test('photo evidence is embedded in .h2fiso with SHA-256 and survives re-import',async({page})=>{
+ test.setTimeout(120000);await start(page);
+ await page.locator('.pipeRunEntity').first().click();
+ const binary=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScL9VQAAAABJRU5ErkJggg==','base64');
+ await page.locator('.evidencePanel input[type="file"]').setInputFiles({name:'foto-inspecao.png',mimeType:'image/png',buffer:binary});
+ await expect(page.locator('.evidencePreview')).toHaveCount(1);
+ const evt=page.waitForEvent('download');
+ await page.getByTestId('toolbar-save').click();
+ const downloaded=await evt,pkg=JSON.parse(await readFile(await downloaded.path(),'utf8'));
+ const stored=pkg['document.json']?.evidenceStore?.evidence?.[0];
+ expect(stored?.sourceRef).toMatch(/^data:image\/png;base64,/);
+ expect(stored?.sha256).toMatch(/^[0-9a-f]{64}$/);
+ await mkdir('test-results',{recursive:true});
+ await writeFile('test-results/ux10-evidence-archive-descriptor.json',JSON.stringify({id:stored.id,kind:stored.kind,sha256:stored.sha256,size:binary.length,archivedInNativeDocument:stored.metadata.archivedInNativeDocument},null,2));
+ await page.reload();
+ await page.locator('input.hiddenFileInput[accept*=".h2fiso"]').setInputFiles({name:'foto.h2fiso',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(pkg))});
+ await expect(page.locator('.evidencePanel')).toContainText('Evidências');
+ await page.screenshot({path:'test-results/ux10-archived-photo-reopened.png',fullPage:true});
+});
