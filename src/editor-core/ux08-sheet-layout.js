@@ -1,4 +1,4 @@
-import{SHEET_FORMATS,sheetSize,updateTitleBlock}from'./document-structure.js';
+import{SHEET_FORMATS,sheetSize,updateTitleBlock,duplicateSheet,deleteSheet}from'./document-structure.js';
 export const UX08_SCHEMA='h2f-sheet-layout/v1';
 export const UX08_PAPER=Object.freeze({width:1120,height:720});
 export const UX08_TEMPLATE_STORAGE='h2f.iso.sheetTemplates.ux08.v1';
@@ -139,3 +139,28 @@ export function ux08ReadTemplates(raw){
  }catch{return[]}
 }
 export const ux08SerializeTemplates=templates=>JSON.stringify({schema:UX08_SCHEMA,templates:clone(templates)});
+
+/** A sheet duplicate copies presentation and sheet-scoped editorial marks, not physical topology. */
+export function ux08DuplicateSheetPresentation(document,entities,sourceId){
+ if(!document.sheets.some(sh=>sh.id===sourceId))throw Error('Folha não localizada');
+ const copied=duplicateSheet(document,sourceId),newId=copied.activeSheetId;
+ if(newId===sourceId)throw Error('A folha não foi duplicada');
+ const doc=clone(copied),sh=doc.sheets.find(x=>x.id===newId);
+ sh.titleBlock={...sh.titleBlock,sheet:sh.name};
+ if(sh.pageLayout?.tables)sh.pageLayout.tables=sh.pageLayout.tables.map((t,i)=>({...t,id:newId+'-TABLE-'+String(i+1).padStart(2,'0')}));
+ const existing=new Set(entities.map(e=>e.id));
+ const copyMarks=entities.filter(e=>e.category==='SÍMBOLOS DE FOLHA'&&(e.ux06?.sheetId||e.sheetId)===sourceId).map((e,i)=>{
+  let id=newId+'-MARK-'+String(i+1).padStart(3,'0');let n=i+1;
+  while(existing.has(id))id=newId+'-MARK-'+String(++n).padStart(3,'0');
+  existing.add(id);
+  return{...clone(e),id,sheetId:newId,ux06:{...e.ux06,sheetId:newId}};
+ });
+ return{document:doc,entities:[...entities,...copyMarks],createdSheetId:newId,duplicatedEditorialMarks:copyMarks.length};
+}
+/** Delete only the sheet-scoped editorial marks of a removed sheet; no process graph mutation. */
+export function ux08DeleteSheetPresentation(document,entities,sheetId){
+ if(document.sheets.length<=1||!document.sheets.some(s=>s.id===sheetId))return{document,entities,deleted:false};
+ const next=deleteSheet(document,sheetId);
+ const filtered=entities.filter(e=>!(e.category==='SÍMBOLOS DE FOLHA'&&(e.ux06?.sheetId||e.sheetId)===sheetId));
+ return{document:next,entities:filtered,deleted:true,deletedEditorialMarks:entities.length-filtered.length};
+}
