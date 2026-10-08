@@ -61,7 +61,7 @@ export function Ux08SheetOverlay({sheet,documentModel,entities=[],inspectionStor
  </g>;
 }
 export function Ux08SheetDesigner({sheet,documentModel,entities,inspectionStore,onClose,onSetPage,onLayout,onTitle,onPreset,onAddTable,onEditTable,onDeleteTable,onSaveTemplate,templates=[]}){
- const [error,setError]=useState(''),[templateName,setTemplateName]=useState('');
+ const [error,setError]=useState(''),[templateName,setTemplateName]=useState(''),[newKind,setNewKind]=useState('MATERIAL');
  const layout=ux08Layout(sheet),v=ux08ValidateSheet(sheet);
  const attempt=fn=>{try{fn();setError('')}catch(e){setError(e.message)}};
  const update=patch=>attempt(()=>onLayout(patch));
@@ -101,8 +101,8 @@ export function Ux08SheetDesigner({sheet,documentModel,entities,inspectionStore,
  <svg data-testid="ux08-preview-svg" viewBox="0 0 1120 720" preserveAspectRatio="xMidYMid meet"><rect width="1120" height="720" fill="#fff"/><Ux08SheetOverlay sheet={sheet} documentModel={documentModel} entities={entities} inspectionStore={inspectionStore} preview/></svg>
  <p>A escala da visualização é gráfica. A formatação não altera os comprimentos físicos nem o isométrico. Impressão e PDF final serão tratados na UX-09.</p>
  </div>
- <div className="ux08Tables"><h3>Tabelas da folha</h3><label>Adicionar tabela<select aria-label="Tipo de tabela para adicionar" id="ux08TableType" defaultValue="MATERIAL">{UX08_TABLE_KINDS.map(k=><option key={k} value={k}>{N[k]}</option>)}</select></label>
- <button onClick={()=>attempt(()=>onAddTable(document.getElementById('ux08TableType').value))}>＋ Adicionar tabela</button>
+ <div className="ux08Tables"><h3>Tabelas da folha</h3><label>Adicionar tabela<select aria-label="Tipo de tabela para adicionar" value={newKind} onChange={e=>setNewKind(e.target.value)}>{UX08_TABLE_KINDS.map(k=><option key={k} value={k}>{N[k]}</option>)}</select></label>
+ <button onClick={()=>attempt(()=>onAddTable(newKind))}>＋ Adicionar tabela</button>
  <div className="ux08TableList">{layout.tables.map(t=><div className="ux08TableEditor" key={t.id} data-testid={'ux08-table-'+t.id}><b>{N[t.kind]}</b>
  <label>Título<input aria-label={'Título da tabela '+t.id} value={t.title} maxLength="80" onChange={e=>attempt(()=>onEditTable(t.id,{title:e.target.value}))}/></label>
  <label>Posição<select aria-label={'Posição da tabela '+t.id} value={t.anchor} onChange={e=>attempt(()=>onEditTable(t.id,{anchor:e.target.value}))}>{UX08_ANCHORS.map(a=><option key={a} value={a}>{({TOP_LEFT:'Superior esquerda',TOP_RIGHT:'Superior direita',BOTTOM_LEFT:'Inferior esquerda',BOTTOM_RIGHT:'Inferior direita'})[a]}</option>)}</select></label>
