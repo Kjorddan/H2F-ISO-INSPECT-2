@@ -23,7 +23,7 @@ export function splitPipeRunForInline(run,segmentIndex,point,{leftRunId=`${run.i
  if(!isPipeRun(run))throw new TypeError('PipeRun required');if(segmentIndex<0||segmentIndex>=run.points.length-1)throw new RangeError('Invalid segment index');
  const hit=pointSegmentProjection(point,run.points[segmentIndex],run.points[segmentIndex+1]);if(hit.t<=EPS||hit.t>=1-EPS)throw new Error('Inline insertion must be inside the segment');
  const p={x:hit.point.x,y:hit.point.y},leftPts=[...run.points.slice(0,segmentIndex+1),p],rightPts=[p,...run.points.slice(segmentIndex+1)];
- let left=createPipeRun(leftRunId,leftPts,{...run.engineering,name:run.name});let right=createPipeRun(rightRunId,rightPts,{...run.engineering,name:run.name});
+ let left=createPipeRun(leftRunId,leftPts,{...run.engineering,name:run.name,visualStyle:run.visualStyle});let right=createPipeRun(rightRunId,rightPts,{...run.engineering,name:run.name,visualStyle:run.visualStyle});
  left=withSegmentData(left,run,left.segments.map((_,i)=>i<segmentIndex?i:null),segmentIndex);
  right=withSegmentData(right,run,right.segments.map((_,i)=>i===0?null:segmentIndex+i),segmentIndex);
  return{left,right,point:p,projection:hit,sourceSegmentId:run.segments[segmentIndex].id,angle:segmentAngle(run,segmentIndex)};
@@ -55,7 +55,7 @@ export function insertTeeBranchTransaction(state,{runId,segmentIndex,point,symbo
   const split=splitPipeRunForInline(run,segmentIndex,point,{leftRunId,rightRunId});const cid=componentId||'TEE-001';const component=componentEntity(symbol,split.point,cid,run,split.angle);
   if(component.ports.length<3)throw new Error('Tee requires three ports');
   const end=branchEnd||{x:split.point.x,y:split.point.y-100};if(Math.hypot(end.x-split.point.x,end.y-split.point.y)<EPS)throw new Error('Branch requires non-zero length');
-  const bid=branchRunId||`${run.id}-BR`;const branch=createPipeRun(bid,[split.point,end],{...run.engineering,...branchEngineering,name:run.name});
+  const bid=branchRunId||`${run.id}-BR`;const branch=createPipeRun(bid,[split.point,end],{...run.engineering,...branchEngineering,name:run.name,visualStyle:run.visualStyle});
   entities=entities.filter(e=>e.id!==run.id);entities.push(split.left,component,split.right,branch);
   graph=unregisterPipeRun(graph,run.id);for(const r of[split.left,split.right,branch])graph=registerPipeRun(graph,r);graph=registerComponent(graph,component);
   graph=connectPorts(graph,`${split.left.id}-PORT-END`,`${cid}-PORT-P1`,{kind:'tee-main'});graph=connectPorts(graph,`${cid}-PORT-P2`,`${split.right.id}-PORT-START`,{kind:'tee-main'});graph=connectPorts(graph,`${cid}-PORT-P3`,`${branch.id}-PORT-START`,{kind:'tee-branch'});
