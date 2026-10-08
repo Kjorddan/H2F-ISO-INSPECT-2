@@ -30,12 +30,19 @@ test('multisheet print dialog lists both sheets with individual sizes and can se
  await page.screenshot({path:'test-results/ux09-multipage-size-plan.png',fullPage:true});
 });
 test('large END table receives continuation pages with all planned rows',async({page})=>{
+ test.setTimeout(120000);
  let d=ux08AddTable(createDocument(),'SHEET-1',ux08NewTable('END','T-END',{maxRows:5}));
  let s=createInspectionStore();for(let i=0;i<14;i++)s=addNDT(s,createNDT({id:'N-'+i,method:'UT',target:{kind:'pipe-segment',id:'S-001'}}));
  await load(page,d,s);
  await expect(page.locator('[data-testid="ux09-plan-page"]')).toHaveCount(3);
  await expect(page.locator('[data-testid="ux09-page-list"]')).toContainText('Linhas 11–14');
  await page.screenshot({path:'test-results/ux09-table-continuation-plan.png',fullPage:true});
+ const continuationDownload=page.waitForEvent('download',{timeout:90000});
+ await page.getByRole('button',{name:'Gerar PDF único'}).click();
+ const exported=await continuationDownload,continuedBytes=await readFile(await exported.path());
+ await mkdir('test-results',{recursive:true});
+ await writeFile('test-results/ux09-actual-end-table-continuation.pdf',continuedBytes);
+ expect((continuedBytes.toString('latin1').match(/\/Type\s*\/Page\s/g)||[]).length).toBe(3);
  await page.getByLabel('Gerar páginas de continuação para tabelas grandes').uncheck();
  await expect(page.locator('[data-testid="ux09-plan-page"]')).toHaveCount(1);
  await expect(page.locator('.ux09Warnings')).toContainText('9 linha');
