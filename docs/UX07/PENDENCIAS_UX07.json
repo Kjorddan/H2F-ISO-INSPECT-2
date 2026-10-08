@@ -1,0 +1,67 @@
+{
+  "product": "H2F ISO INSPECT 2.0",
+  "phase": "UX-07",
+  "phaseIndex": 7,
+  "phaseTotal": 10,
+  "status": "CONCLUIDA_AUDITADA",
+  "remainingAfterThis": 3,
+  "nextPhase": "UX-08",
+  "advanceRule": "AGUARDAR_EXCLUSIVAMENTE_COMANDO_PODE_SEGUIR",
+  "remaining": [
+    {
+      "phase": "UX-08",
+      "scope": "Formatação de folha, carimbo, tabelas e templates"
+    },
+    {
+      "phase": "UX-09",
+      "scope": "PDF, impressão e workflow documental"
+    },
+    {
+      "phase": "UX-10",
+      "scope": "Auditoria E2E integrada, Golden Masters, revisão técnica e homologação final"
+    }
+  ],
+  "technicalDebts": [
+    {
+      "id": "CLIENT-SYMBOL-PROFILES",
+      "severity": "MEDIUM",
+      "target": "UX-10",
+      "description": "Homologar perfis visuais e normas por cliente."
+    },
+    {
+      "id": "ATTACHMENT-REMAP-COMPLEX-EDIT",
+      "severity": "MEDIUM",
+      "target": "UX-10",
+      "description": "Revalidar remapeamento de mounts em edições extremas."
+    },
+    {
+      "id": "WINDOWS-FIELD-SMOKE-TEST",
+      "severity": "MEDIUM",
+      "target": "UX-10",
+      "description": "Smoke test em Windows de campo, não realizado pelo CI."
+    },
+    {
+      "id": "MULTI_TENANT_CUSTOM_LIBRARY",
+      "severity": "MEDIUM",
+      "target": "FUTURE_SERVER",
+      "description": "Escopos UX-07 são metadados, sem RBAC, publicação multiusuário ou RLS."
+    },
+    {
+      "id": "CUSTOM_PHYSICAL_PORTS",
+      "severity": "MEDIUM",
+      "target": "UX-10_OR_FUTURE",
+      "description": "Pontos de referência não possuem conectividade de processo; exigir homologação de símbolos para conexão física."
+    },
+    {
+      "id": "LEGACY_DRAFT_REVIEW",
+      "severity": "LOW",
+      "target": "UX-10",
+      "description": "Bibliotecas v2 sem geometria preservadas, exigem completar desenho."
+    }
+  ],
+  "outOfScope": [
+    "Sem UX-08/09/10 nesta entrega",
+    "Sem aceitação automática de conectividade ou dados de inspeção",
+    "Sem servidor de biblioteca compartilhada e autenticação corporativa"
+  ]
+}

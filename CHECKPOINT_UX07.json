@@ -1,0 +1,63 @@
+{
+  "product": "H2F ISO INSPECT 2.0",
+  "cycle": "UX/UI + Biblioteca Industrial + Isométrico + Formatação Profissional",
+  "phase": "UX-07",
+  "phaseIndex": 7,
+  "phaseTotal": 10,
+  "status": "CONCLUIDA_AUDITADA",
+  "repository": "Kjorddan/H2F-ISO-INSPECT-2",
+  "branch": "ux-evolution",
+  "baselineCheckpoint": "CHECKPOINT_UX06.json",
+  "baselineCommit": "a79f2297a8509f592951be664d38add8cda1937f",
+  "testedRuntimeCommit": "4c5f7a9c532bd268d94d11cd0e4539117694c906",
+  "workflowUX07": 37722020368,
+  "ux07Core": "32/32 PASS",
+  "ux07Browser": "9/9 PASS",
+  "build": "PASS",
+  "regression": "PASS",
+  "builtinSymbols": 227,
+  "customPrimitives": 8,
+  "graphicReferencePortsOnly": true,
+  "localServer": "CI_ASSEMBLY_PASS_WINDOWS_FIELD_SMOKE_NOT_RUN",
+  "remainingAfterThis": 3,
+  "nextPhase": "UX-08",
+  "advanceRule": "AGUARDAR_PODE_SEGUIR",
+  "technicalDebts": [
+    {
+      "id": "CLIENT-SYMBOL-PROFILES",
+      "severity": "MEDIUM",
+      "target": "UX-10",
+      "description": "Homologar perfis visuais e normas por cliente."
+    },
+    {
+      "id": "ATTACHMENT-REMAP-COMPLEX-EDIT",
+      "severity": "MEDIUM",
+      "target": "UX-10",
+      "description": "Revalidar remapeamento de mounts em edições extremas."
+    },
+    {
+      "id": "WINDOWS-FIELD-SMOKE-TEST",
+      "severity": "MEDIUM",
+      "target": "UX-10",
+      "description": "Smoke test em Windows de campo, não realizado pelo CI."
+    },
+    {
+      "id": "MULTI_TENANT_CUSTOM_LIBRARY",
+      "severity": "MEDIUM",
+      "target": "FUTURE_SERVER",
+      "description": "Escopos UX-07 são metadados, sem RBAC, publicação multiusuário ou RLS."
+    },
+    {
+      "id": "CUSTOM_PHYSICAL_PORTS",
+      "severity": "MEDIUM",
+      "target": "UX-10_OR_FUTURE",
+      "description": "Pontos de referência não possuem conectividade de processo; exigir homologação de símbolos para conexão física."
+    },
+    {
+      "id": "LEGACY_DRAFT_REVIEW",
+      "severity": "LOW",
+      "target": "UX-10",
+      "description": "Bibliotecas v2 sem geometria preservadas, exigem completar desenho."
+    }
+  ]
+}
