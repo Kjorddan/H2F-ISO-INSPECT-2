@@ -20,3 +20,6 @@ Distribuição Windows offline sem Python, a partir de pacote montado no CI. O t
 
 ### Fechamento
 A fase possui checkpoint final e pacotes reproduzíveis; sem iniciar novos ciclos automaticamente. O próximo trabalho, se contratado, deve se concentrar nas pendências de campo.
+
+## Preservação de evidências no documento nativo
+A UX-10 identificou e corrigiu dependência de URLs `blob:` para fotos e documentos, que deixam de existir após fechar o navegador. Novas evidências são incorporadas como Data URI a `.h2fiso`, com SHA-256 original. Evidências legadas do tipo `blob:` não podem ser materializadas sem acesso ao arquivo original; o diagnóstico e a emissão controlada recusam arquivos temporários, com indicação de reinserção. Limite: 8 MiB por anexo autorizado.

@@ -21,3 +21,8 @@ Matriz de aceitação:
 Windows 10/11 + Chrome/Edge com antivírus/Defender; impressão A0–A4 em drivers reais; underlays PDF/SVG de contratos reais; conferência de equivalência de simbologia por responsável técnico e normas contratuais; desempenho em desenhos de alta densidade e memória limitada.
 
 Os resultados numéricos, workflow final e hash de commit serão preenchidos somente após conclusão comprovada do pipeline de release.
+
+## QA adicional — persistência de evidências
+- 40 testes UX10 de núcleo planejados, incluindo flag de anexo `blob:` não arquivado e fonte `data:` com SHA-256.
+- O sétimo cenário UX10 Chromium anexa foto PNG, exporta `.h2fiso`, confere referência `data:image/png;base64,` e SHA-256, reabre o documento e confirma persistência.
+- O pacote nativo H2F é JSON com bytes embutidos em base64, não oferece criptografia de anexo no arquivo; proteger o arquivo físico é responsabilidade do ambiente do usuário.

@@ -50,6 +50,18 @@
       "severity": "MEDIUM",
       "status": "OPEN",
       "description": "Escopos USER/PROJECT/TENANT/CORPORATE são metadados de bibliotecas locais, não acesso multiusuário via servidor."
+    },
+    {
+      "id": "LEGACY-BLOB-ATTACHMENTS",
+      "severity": "HIGH",
+      "status": "OPEN",
+      "description": "Arquivos .h2fiso antigos com sourceRef blob: devem ser reanexados a partir do arquivo original; a URL temporária não permite recuperação."
+    },
+    {
+      "id": "NATIVE-FILE-AT-REST-ENCRYPTION",
+      "severity": "MEDIUM",
+      "status": "OPEN",
+      "description": "Bytes dos novos anexos são arquivados em base64 no .h2fiso e não criptografados em repouso; ambiente deve tratar como arquivo sensível."
     }
   ],
   "closed": [
@@ -68,6 +80,10 @@
     {
       "code": "SERVER-004",
       "description": "Prefixo raiz corrigido"
+    },
+    {
+      "code": "EVIDENCE-006",
+      "description": "Novos anexos incorporados no documento com SHA-256; bloqueio de fontes temporárias"
     }
   ],
   "releaseClaim": "CONCLUIDO_E_AUDITADO_NO_CI_NAO_HOMOLOGADO_EM_CAMPO"

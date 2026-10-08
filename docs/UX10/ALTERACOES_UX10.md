@@ -19,3 +19,6 @@
 
 ## Itens não implementados / não reivindicados
 Assinatura ICP-Brasil e autenticação de emitente; backend de biblioteca por empresa; certificação ISO e aprovação formal de simbologias do cliente; execução do instalador na estação Windows do cliente; equivalência demonstrada com todos os PDFs de referência por inspeção humana.
+
+## EVIDENCE-006 — bytes de anexos nativos
+Detectada perda de persistência de evidências importadas apenas por URLs `blob:`, inválidas após reinício do navegador. `src/main.jsx` agora incorpora arquivos permitidos até **8 MiB** como Data URI no arquivo `.h2fiso`, preservando `sha256` do conteúdo e metadados de arquivo. São aceitos PNG/JPEG/WEBP/GIF/PDF/TXT/CSV; SVG executável e tipos inesperados são recusados. `ux10AuditIntegrated` detecta `EVIDENCE_UNARCHIVED` e o gate bloqueia emissão controlada com anexo temporário. **Anexos legados `blob:` não são recuperáveis automaticamente**: o arquivo original deve ser reinserido manualmente. A foto no JSON ocupa mais espaço que o binário; usuário deve evitar registros enormes.
