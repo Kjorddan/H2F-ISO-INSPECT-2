@@ -65,7 +65,7 @@ test('draft one-page PDF downloads as genuine PDF file, not editor screenshot',a
  expect(bytes.subarray(0,5).toString('ascii')).toBe('%PDF-');
  expect(bytes.length).toBeGreaterThan(1800);
  await mkdir('test-results',{recursive:true});await writeFile('test-results/ux09-actual-one-page.pdf',bytes);
- expect((bytes.toString('latin1').match(/\\/Type\\s*\\/Page\\s/g)||[]).length).toBe(1);
+ expect((bytes.toString('latin1').match(/\/Type\s*\/Page\s/g)||[]).length).toBe(1);
  await expect(page.locator('.ux09Error[role="status"]')).not.toContainText('Falha');
 });
 test('multisheet PDF downloads a single file and reuses sheet plan',async({page})=>{
@@ -77,7 +77,7 @@ test('multisheet PDF downloads a single file and reuses sheet plan',async({page}
  const file=await evt;const bytes=await readFile(await file.path());
  expect(bytes.subarray(0,5).toString('ascii')).toBe('%PDF-');
  await mkdir('test-results',{recursive:true});await writeFile('test-results/ux09-actual-mixed-formats.pdf',bytes);
- expect((bytes.toString('latin1').match(/\\/Type\\s*\\/Page\\s/g)||[]).length).toBe(2);
+ expect((bytes.toString('latin1').match(/\/Type\s*\/Page\s/g)||[]).length).toBe(2);
  await page.screenshot({path:'test-results/ux09-multipage-pdf-download.png',fullPage:true});
 });
 test('print action opens a browser PDF viewer instead of printing CAD controls',async({page,context})=>{
