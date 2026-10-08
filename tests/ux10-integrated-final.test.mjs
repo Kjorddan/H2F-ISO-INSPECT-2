@@ -1,4 +1,5 @@
 import assert from'node:assert/strict';
+import{createNativePackage,validateNativePackageIntegrity}from'../src/editor-core/io-reporting.js';
 import{readFileSync}from'node:fs';
 import{createDocument,addSheet,appendRevision,createRevisionSnapshot,updateTitleBlock}from'../src/editor-core/document-structure.js';
 import{createInspectionStore,createNDT,addNDT,createMonitoringPoint,addMonitoringPoint,addMeasurement}from'../src/editor-core/inspection.js';
@@ -52,4 +53,7 @@ await test('temporary blob evidence is never considered portable archive',()=>{c
 await test('data-URI evidence with verified digest metadata qualifies for portable archiving',()=>{const e={kind:'PHOTO',sourceRef:'data:image/png;base64,AAAA',sha256:'a'.repeat(64)};assert.equal(ux10EvidenceIsArchived(e),true)});
 await test('old snapshot with a blob-only evidence blocks release even with other hashes',async()=>{const ctx=context();ctx.evidenceStore.evidence.push({id:'OLD',kind:'FILE',sourceRef:'blob:http://localhost/ref'});const d=await approved(base(),[],ctx);const gate=await ux10VerifyFormalSnapshot(d,[],ctx);assert.equal(gate.allowed,false);assert.match(gate.reason,/evidência/)});
 await test('final document audit detects unarchived photo as blocker',()=>{const s=createEvidenceStore();s.evidence.push({id:'EV-UNSAVED',kind:'PHOTO',sourceRef:'blob:bad'});const result=ux10AuditIntegrated({document:createDocument(),evidenceStore:s});assert.equal(result.status,'BLOCKED');assert.ok(result.findings.some(x=>x.code==='EVIDENCE_UNARCHIVED'))});
+await test('native document SHA256 manifest accepts unmodified H2F package',async()=>{const pkg=await createNativePackage({documentModel:base(),entities:[]});assert.equal(await validateNativePackageIntegrity(pkg),true)});
+await test('native document rejects tampering of saved END after export',async()=>{const pkg=await createNativePackage({documentModel:base(),inspectionStore:record(createInspectionStore())});pkg['document.json'].inspectionStore.ndt[0].status='EXECUTED';await assert.rejects(()=>validateNativePackageIntegrity(pkg),/comprometida/)});
+await test('native document missing integrity hash is rejected',async()=>{const pkg=await createNativePackage({documentModel:base()});delete pkg.manifest.documentSha256;await assert.rejects(()=>validateNativePackageIntegrity(pkg),/sem hash/)});
 console.log('UX-10 Integrated Final Audit: '+passed+'/'+passed+' PASS');
